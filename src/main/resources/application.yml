@@ -1,0 +1,71 @@
+spring:
+  profiles:
+    default: development
+    active: development
+  datasource:
+    url: jdbc:oracle:thin:@10.112.159.86:40000/xe
+    username: accountrequest
+    password: default
+    driver-class-name: oracle.jdbc.OracleDriver
+    initialSize: 3 
+    maxActive: 5
+    maxIdle: 1
+    minIdle: 1
+    removeAbandoned: true
+    removeAbandonedTimeout: 120
+    timeBetweenEvictionRunsMillis: 1000
+    minEvictableIdleTimeMillis: 1000   
+    tomcat:
+      max-active: 1 
+      min-idle: 1
+      initialSize: 1 
+  h2.console.enabled: true
+    
+  
+---
+
+spring:
+  profiles: development
+  
+# context Path
+server:
+    port: 8080
+
+---
+
+spring:
+  profiles: test
+  
+# context Path
+server:
+    port: 8080
+
+
+---
+
+spring:
+  profiles: production
+  
+# context Path
+server:
+    port: 8080
+
+       
+---
+# common properties for yaml
+
+# headers
+header:
+      xlbginternaluserid: x-lbg-internal-user-id
+      xlbginternaluserrole: x-lbg-internal-user-role
+      xlbgtxncorrelationid: x-lbg-txn-correlation-id
+
+# context Path
+server:
+      contextPath: /account-request-data
+
+# API Documentation
+documentation:
+       title: Spring REST with Swagger
+       description: Spring REST with Swagger
+       

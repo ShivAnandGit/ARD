@@ -1,0 +1,47 @@
+{ 
+  "journey": "ob-cnf",
+  "mavengoals": {
+  	"unit": "clean test",
+  	"sonar": "clean test cobertura:cobertura sonar:sonar",
+  	"package": "-U clean package -DskipTests=true"
+  },
+  "nexus": {
+    "url": "http://nexus.sandbox.extranet.group/nexus/content/repositories/releases"
+  },
+  "sonar": {
+    "coverage_exclusions": "**/pipelines/**,Jenkinsfile,/j2/**",
+    "server_id": "SONAR-main",
+    "quality_gate": "OB-CNF-API-QG",
+    "exclusions": "**/pipelines/**,Jenkinsfile,/j2/**"
+  },
+  "splunk": {
+    "reportdir": "/apps/splunkreports/ob-cnf-web-bdd/tmp"
+  },
+  "maven": {
+    "pom": "",
+    "settings": "pipelines/conf/settings.xml"
+  },
+	"bdd": {
+    		"invocation": "gulp wdio-cnf --ff ARD*",
+    		"git_repo": "ssh://gerrit.sandbox.extranet.group:29418/ob-cnf-ft2-bdd",
+    		"git_credentials": "ob-codeuser",
+    		"default_branch": "master",
+    		"passthreshold": "90"
+  	},
+
+  "bluemix": {
+    "domain": "lbg.eu-gb.bluemix.net",
+    "api": "api.lbg.eu-gb.bluemix.net",
+	"credentials": "bluemix-global-deployer"
+  },
+  "environments": {
+  	"master": {
+  		"memory": "512M",
+  		"bluemix": {
+	       "org": "POC27_PSD2_AAF",
+	       "env": "DEV"
+		 }
+	 }
+  }
+}
+	

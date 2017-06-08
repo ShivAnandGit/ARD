@@ -1,0 +1,61 @@
+spring:
+  profiles:
+    default: development
+    active: development
+  datasource:
+    url: jdbc:h2:mem:testdb;DB_CLOSE_DELAY=-1
+    user: sa
+    password: ""
+  jpa:
+    database: H2
+    hibernate.ddl-auto: update
+  h2.console.enabled: true
+    
+  
+---
+
+spring:
+  profiles: development
+  
+# context Path
+server:
+    port: 8080
+
+---
+
+spring:
+  profiles: test
+  
+# context Path
+server:
+    port: 8080
+
+
+---
+
+spring:
+  profiles: production
+  
+# context Path
+server:
+    port: 8080
+
+       
+---
+# common properties for yaml
+
+# headers
+header:
+      xlbginternaluserid: x-lbg-internal-user-id
+      xlbginternaluserrole: x-lbg-internal-user-role
+      xlbgtxncorrelationid: x-lbg-txn-correlation-id
+
+# context Path
+server:
+      contextPath: /account-request-data
+
+# API Documentation
+documentation:
+       title: Spring REST with Swagger
+       description: Spring REST with Swagger
+       
