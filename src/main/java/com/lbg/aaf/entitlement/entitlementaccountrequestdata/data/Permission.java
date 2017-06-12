@@ -12,7 +12,8 @@ public final class Permission {
 
     private String code;
     private String description;
-    
+    private String sectionHeader;
+
     @JsonProperty("Code")
     public String getCode() {
         return code;
@@ -28,5 +29,12 @@ public final class Permission {
     public void setDescription(String description) {
         this.description = description;
     }
-    
+
+    @JsonProperty("SectionHeader")
+    public String getSectionHeader() {
+        return sectionHeader;
+    }
+    public void setSectionHeader(String sectionHeader) {
+        this.sectionHeader = sectionHeader;
+    }
 }
