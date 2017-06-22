@@ -2,7 +2,7 @@ package com.lbg.aaf.entitlement.entitlementaccountrequestdata.data;
 
 public enum AccountRequestStatusEnum {
 
-    REJECTED("Rejected"), AUTHENTICATED("Authenticated"),AWAITINGAUTHORISATION("AwaitingAuthorisation");
+    REJECTED("Rejected"), AUTHORISED("Authorised"), AWAITINGAUTHORISATION("AwaitingAuthorisation");
     
     private String value;
     public String getValue() {

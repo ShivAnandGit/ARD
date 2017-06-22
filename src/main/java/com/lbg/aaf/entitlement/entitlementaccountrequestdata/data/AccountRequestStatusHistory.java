@@ -56,6 +56,10 @@ public final class AccountRequestStatusHistory {
         this.statusUpdatedBy = statusUpdatedBy;
     }
 
+    public Timestamp getStatusUpdatedDateTime() {
+        return new Timestamp(this.statusUpdatedDateTime.getTime());
+    }
+
     public void setStatusUpdatedDateTime() {
         this.statusUpdatedDateTime = Util.getCurrentTimestamp();
     }

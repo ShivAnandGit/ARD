@@ -6,25 +6,17 @@ import java.util.logging.Logger;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import com.lbg.aaf.entitlement.entitlementaccountrequestdata.data.UpdateAccountInputData;
+import com.lbg.aaf.entitlement.entitlementaccountrequestdata.data.UpdateRequestOutputData;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestHeader;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import com.lbg.aaf.entitlement.entitlementaccountrequestdata.data.AccountRequestOutputData;
 import com.lbg.aaf.entitlement.entitlementaccountrequestdata.data.CreateAccountInputData;
 import com.lbg.aaf.entitlement.entitlementaccountrequestdata.service.AccountRequestDataService;
-
-import io.swagger.annotations.ApiOperation;
-import io.swagger.annotations.ApiResponse;
-import io.swagger.annotations.ApiResponses;
 
 /**
  * Controller class to receive Rest Calls. Uses @Controller
@@ -42,59 +34,41 @@ public final class AccountRequestDataController {
      * Create an account request
      * @return Callable<ResponseEntity<AccountRequestOutputData>> List of accounts-requests
      */
-    @ApiOperation(value = "CreateAccountRequest", nickname = "CreateAccountRequest")
-    @ApiResponses(value = {@ApiResponse(code = 201, message = "Success", response = AccountRequestDataController.class), @ApiResponse(code = 401, message = "Unauthorized"), @ApiResponse(code = 403, message = "Forbidden"), @ApiResponse(code = 404, message = "Not Found"), @ApiResponse(code = 500, message = "Failure")})
     @RequestMapping(value = "v1/accounts-requests", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
-    public Callable<ResponseEntity<AccountRequestOutputData>> createAccountRequests(
+    @ResponseStatus(HttpStatus.CREATED)
+    public Callable<AccountRequestOutputData> createAccountRequests(
             @RequestHeader(value = "x-lbg-internal-user-role") final String internalUserRole,
             @RequestHeader(value = "x-lbg-txn-correlation-id") final String txnCorrelationId, @RequestHeader(value = "x-lbg-client-id") final String clientId,
             @RequestBody final CreateAccountInputData createAccountInputData, final HttpServletRequest request,
             HttpServletResponse response) {
-        return new Callable<ResponseEntity<AccountRequestOutputData>>() {
-            @Override
-            public ResponseEntity<AccountRequestOutputData> call() throws Exception {
-                return new ResponseEntity<AccountRequestOutputData>(accountRequestDataService.createAccountRequestData(createAccountInputData, clientId), HttpStatus.CREATED);
-            }
-        };
+        return () ->accountRequestDataService.createAccountRequestData(createAccountInputData, clientId);
     }
 
     /**
      * Get an account request for provided query parameter
      * @return Callable<ResponseEntity<String>> List of accounts-requests
      */
-    @ApiOperation(value = "GetAccountRequestByQueryParams", nickname = "GetAccountRequestByQueryParams")
-    @ApiResponses(value = {@ApiResponse(code = 200, message = "Success", response = AccountRequestDataController.class), @ApiResponse(code = 400, message = "Bad Request", response = AccountRequestDataController.class), @ApiResponse(code = 401, message = "Unauthorized"), @ApiResponse(code = 403, message = "Forbidden"), @ApiResponse(code = 404, message = "Not Found"), @ApiResponse(code = 500, message = "Failure")})
     @RequestMapping(value = "v1/accounts-requests", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
-    public Callable<ResponseEntity<AccountRequestOutputData>> getAccountRequests(
+    @ResponseStatus(HttpStatus.OK)
+    public Callable<AccountRequestOutputData> getAccountRequests(
             @RequestHeader(value = "x-lbg-internal-user-role") final String internalUserRole,
             @RequestHeader(value = "x-lbg-txn-correlation-id") final String txnCorrelationId, final HttpServletRequest request, HttpServletResponse response,
             @RequestParam(required = true) final String accountRequestId,
             @RequestParam(required = true) final String clientId) {
-        return new Callable<ResponseEntity<AccountRequestOutputData>>() {
-            @Override
-            public ResponseEntity<AccountRequestOutputData> call() throws Exception {
-                return new ResponseEntity<AccountRequestOutputData>(accountRequestDataService.findByAccountRequestExternalIdentifierAndProviderClientId(accountRequestId, clientId), HttpStatus.OK);
-            }
-        };
+        return () -> accountRequestDataService.findByAccountRequestExternalIdentifierAndProviderClientId(accountRequestId, clientId);
     }
 
     /**
      * Get an account request for unique account request identifier
      * @return Callable<ResponseEntity<String>> accounts-request
      */
-    @ApiOperation(value = "GetAccountRequestByRequestId", nickname = "GetAccountRequestByRequestId")
-    @ApiResponses(value = {@ApiResponse(code = 200, message = "Success", response = AccountRequestDataController.class), @ApiResponse(code = 400, message = "Bad Request", response = AccountRequestDataController.class), @ApiResponse(code = 401, message = "Unauthorized"), @ApiResponse(code = 403, message = "Forbidden"), @ApiResponse(code = 404, message = "Not Found"), @ApiResponse(code = 500, message = "Failure")})
     @RequestMapping(value = "v1/accounts-requests/{accountRequestId}", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
-    public Callable<ResponseEntity<AccountRequestOutputData>> getAccountRequestForAccountId(
+    @ResponseStatus(HttpStatus.OK)
+    public Callable<AccountRequestOutputData> getAccountRequestForAccountId(
             @RequestHeader(value = "x-lbg-internal-user-role") final String internalUserRole,
             @RequestHeader(value = "x-lbg-txn-correlation-id") final String txnCorrelationId, final HttpServletRequest request, HttpServletResponse response,
             @PathVariable final String accountRequestId) {
-        return new Callable<ResponseEntity<AccountRequestOutputData>>() {
-            @Override
-            public ResponseEntity<AccountRequestOutputData> call() throws Exception {
-                return new ResponseEntity<AccountRequestOutputData>(accountRequestDataService.findByAccountRequestExternalIdentifier(accountRequestId), HttpStatus.OK);
-            }
-        };
+        return () -> accountRequestDataService.findByAccountRequestExternalIdentifier(accountRequestId);
     }
 
     /**
@@ -103,8 +77,6 @@ public final class AccountRequestDataController {
      * ASPSP
      * @return Callable<ResponseEntity<String>> accounts-request
      */
-    @ApiOperation(value = "DeleteAccountRequest", nickname = "DeleteAccountRequest")
-    @ApiResponses(value = {@ApiResponse(code = 204, message = "Success", response = AccountRequestDataController.class), @ApiResponse(code = 400, message = "Bad Request", response = AccountRequestDataController.class), @ApiResponse(code = 401, message = "Unauthorized"), @ApiResponse(code = 403, message = "Forbidden"), @ApiResponse(code = 404, message = "Not Found"), @ApiResponse(code = 500, message = "Failure")})
     @RequestMapping(value = "v1/accounts-requests/{accountRequestId}", method = RequestMethod.DELETE, produces = MediaType.APPLICATION_JSON_VALUE)
     public Callable<ResponseEntity<Void>> deleteAccountRequestForAccountId(
             @RequestHeader(value = "x-lbg-internal-user-role") final String internalUserRole,
@@ -116,5 +88,20 @@ public final class AccountRequestDataController {
                 return new ResponseEntity<Void>(HttpStatus.NO_CONTENT);
             }
         };
+    }
+
+    /**
+     * AISP can Update a previously created account request (Authenticated, Rejected).
+     * @return Callable<ResponseEntity<UpdateRequestOutputData>> updatedRequestOuput
+     */
+    @RequestMapping(value = "v1/accounts-requests/{accountRequestId}/status", method = RequestMethod.PUT, produces = MediaType.APPLICATION_JSON_VALUE)
+    @ResponseStatus(HttpStatus.OK)
+    public Callable<UpdateRequestOutputData> updateAccountRequestForRequestId(
+            @RequestHeader(value = "x-lbg-internal-user-role") final String internalUserRole,
+            @RequestHeader(value = "x-lbg-txn-correlation-id") final String txnCorrelationId,
+            @RequestHeader(value = "x-lbg-client-id") final String clientId, final HttpServletRequest request, HttpServletResponse response,
+            @PathVariable final String accountRequestId,
+            @RequestBody UpdateAccountInputData inputData) throws Exception{
+        return () -> accountRequestDataService.updateAccountRequestData(inputData, accountRequestId, clientId, internalUserRole);
     }
 }
