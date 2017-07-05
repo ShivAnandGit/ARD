@@ -9,7 +9,7 @@
     "url": "http://nexus.sandbox.extranet.group/nexus/content/repositories/releases"
   },
   "sonar": {
-    "coverage_exclusions": "**/pipelines/**,Jenkinsfile,/j2/**,src/main/java/com/lbg/aaf/entitlement/entitlementaccountrequestdata/data/**,**/AccountRequestDataServiceApplication.java,**/AccountRequestDataConstant.java",
+    "coverage_exclusions": "**/pipelines/**,Jenkinsfile,/j2/**,src/main/java/com/lbg/aaf/entitlement/entitlementaccountrequestdata/data/**,**/AccountRequestDataServiceApplication.java,**/AccountRequestDataConstant.java,**/exception/**",
     "server_id": "SONAR-main",
     "quality_gate": "OB-CNF-API-QG",
     "exclusions": "**/pipelines/**,Jenkinsfile,/j2/**"
@@ -22,7 +22,7 @@
     "settings": "pipelines/conf/settings.xml"
   },
 	"bdd": {
-    		"invocation": "gulp wdio-cnf --ff ARD*",
+    		"invocation": "sleep 10; gulp wdio-cnf --ff ARD*",
     		"git_repo": "ssh://gerrit.sandbox.extranet.group:29418/ob-cnf-ft2-bdd",
     		"git_credentials": "ob-codeuser",
     		"default_branch": "master",

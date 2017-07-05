@@ -1,9 +1,14 @@
 package com.lbg.aaf.entitlement.entitlementaccountrequestdata.service;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.lbg.aaf.entitlement.entitlementaccountrequestdata.data.*;
-import com.lbg.aaf.entitlement.entitlementaccountrequestdata.repository.AccountRequestAssociatedAccountRepository;
+import com.lbg.aaf.entitlement.entitlementaccountrequestdata.exception.InvalidRequestException;
+import com.lbg.aaf.entitlement.entitlementaccountrequestdata.exception.RecordNotFoundException;
 import com.lbg.aaf.entitlement.entitlementaccountrequestdata.repository.AccountRequestInfoRepository;
 import com.lbg.aaf.entitlement.entitlementaccountrequestdata.repository.AccountRequestStatusChangeHistoryRepository;
+import com.lbg.aaf.entitlement.entitlementaccountrequestdata.repository.ProviderPermissionsRepository;
+import com.lbg.aaf.entitlement.entitlementaccountrequestdata.util.AccountRequestDataConstant;
+import com.lbg.aaf.entitlement.entitlementaccountrequestdata.util.StateChangeMachine;
 import com.lbg.aaf.entitlement.entitlementaccountrequestdata.util.Util;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -14,6 +19,8 @@ import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.List;
 
+import static com.lbg.aaf.entitlement.entitlementaccountrequestdata.exception.ExceptionConstants.*;
+
 /**
  * Class AccountRequestDataServiceImpl.All Service Class will implement this interface.
  * @author Amit Jain
@@ -23,39 +30,52 @@ import java.util.List;
 public class AccountRequestDataServiceImpl<T> implements AccountRequestDataService<T> {
 
     @Autowired
-    AccountRequestInfoRepository accountRequestInfoRepository;
+    private AccountRequestInfoRepository accountRequestInfoRepository;
 
     @Autowired
-    AccountRequestStatusChangeHistoryRepository accountRequestInfoHistoryRepository;
+    private AccountRequestStatusChangeHistoryRepository accountRequestInfoHistoryRepository;
 
     @Autowired
-    AccountRequestAssociatedAccountRepository associatedAccountsResourceRepository;
+    private ProviderPermissionsRepository providerPermissionsRepository;
 
+    @Autowired
+    private EntitlementService entitlementService;
+
+    @Autowired
+    private StateChangeMachine stateChangeMachine;
     /**
      * createAccountRequestData takes CreateAccountInputData as input and will create entitlement
      * for each request .
-     * @param CreateAccountInputData createAccountInputData
+     * @param CreateAccountInputData createAccountInputRequest
      * @return AccountRequestOutputData accountRequestOutputData
      * @throws IOException
      * @throws URISyntaxException
      */
     @Transactional
-    public AccountRequestOutputData createAccountRequestData(CreateAccountInputData createAccountInputData, String clientId)
+    public AccountRequestOutputResponse createAccountRequestData(CreateAccountInputRequest createAccountInputRequest, String clientId, String fapiFinancialId)
             throws IOException, URISyntaxException {
-        AccountRequest accountRequestInfo = new AccountRequest(createAccountInputData, clientId);
+        String json = getJsonRequest(createAccountInputRequest);
+        AccountRequest accountRequestInfo = new AccountRequest(createAccountInputRequest.getCreateAccountInputData(), clientId, fapiFinancialId, json);
         AccountRequest savedAccountRequestInfo = accountRequestInfoRepository.save(accountRequestInfo);
-        List<String> accountIds = new ArrayList<String>();
-        for (AccountResource selectedAccount : createAccountInputData.getSelectedAccounts()) {
-            saveAssociatedAccountsResource(savedAccountRequestInfo.getAccountRequestIdentifier(), selectedAccount.getAccount().getIdentification());
-            accountIds.add(selectedAccount.getAccount().getIdentification());
-        }
+        saveAccountRequestStatusHistory(savedAccountRequestInfo, InternalUserRoleEnum.CUSTOMER);
 
-        saveAccountRequestStatusHistory(savedAccountRequestInfo, savedAccountRequestInfo.getProviderClientId(), InternalUserRoleEnum.CUSTOMER);
+        AccountRequestOutputResponse accountRequestOutputResponse = new AccountRequestOutputResponse(savedAccountRequestInfo.getAccountRequestExternalIdentifier(), savedAccountRequestInfo.getAccountRequestStatus(), savedAccountRequestInfo.getCreatedDateTime(), savedAccountRequestInfo.getAccountRequestJsonString());
+        List<ProviderPermission> refPermissions = getRefPermissionsWithMetadata(accountRequestOutputResponse.getAccountRequestOutputData().getPermissions());
+        accountRequestOutputResponse.getAccountRequestOutputData().setPermissions(refPermissions);
+        return accountRequestOutputResponse;
+    }
 
+    private String getJsonRequest(CreateAccountInputRequest request) throws IOException {
+        ObjectMapper mapper = new ObjectMapper();
+        return mapper.writeValueAsString(request);
+    }
 
-        AccountRequestOutputData accountRequestOutputData = new AccountRequestOutputData(savedAccountRequestInfo.getAccountRequestJsonString(), accountIds);
-        return accountRequestOutputData;
-
+    private List<ProviderPermission> getRefPermissionsWithMetadata(List<ProviderPermission> permissions) {
+        List<ProviderPermission> refPermissions = new ArrayList<>();
+        permissions.forEach(permission -> {
+            refPermissions.addAll(providerPermissionsRepository.findByCode(permission.getCode()));
+        });
+        return refPermissions;
     }
 
     /**
@@ -65,15 +85,16 @@ public class AccountRequestDataServiceImpl<T> implements AccountRequestDataServi
      * @return AccountRequestOutputData accountRequestOutputData
      * @throws IOException
      */
-    public AccountRequestOutputData findByAccountRequestExternalIdentifierAndProviderClientId(String accountRequestId, String clientId) throws IOException {
-        String accountRequestInfoJSONString = accountRequestInfoRepository.findByAccountRequestExternalIdentifierAndProviderClientId(accountRequestId, clientId).getAccountRequestJsonString();
-        List<AccountRequestAssociatedAccountResource> associatedAccountsResourceList = associatedAccountsResourceRepository.findByAccountRequestInfoId(accountRequestInfoRepository.findByAccountRequestExternalIdentifierAndProviderClientId(accountRequestId, clientId).getAccountRequestIdentifier());
-        List<String> accountIds = new ArrayList<String>(associatedAccountsResourceList.size());
-        for (AccountRequestAssociatedAccountResource associatedAccountsResource : associatedAccountsResourceList) {
-            accountIds.add(associatedAccountsResource.getAccountIdentifier());
+    public AccountRequestOutputResponse findByAccountRequestExternalIdentifierAndProviderClientId(String accountRequestId, String clientId) throws IOException {
+        String status = AccountRequestStatusEnum.AWAITINGAUTHORISATION.getValue();
+        AccountRequest savedAccountRequestInfo = accountRequestInfoRepository.findByAccountRequestExternalIdentifierAndProviderClientIdAndAccountRequestStatus(accountRequestId, clientId, status);
+        if(savedAccountRequestInfo == null) {
+            throw new RecordNotFoundException(NOT_FOUND, ARD_API_ERR_005);
         }
-        AccountRequestOutputData accountRequestOutputData = new AccountRequestOutputData(accountRequestInfoJSONString, accountIds);
-        return accountRequestOutputData;
+        AccountRequestOutputResponse accountRequestOutputResponse = new AccountRequestOutputResponse(savedAccountRequestInfo.getAccountRequestExternalIdentifier(), savedAccountRequestInfo.getAccountRequestStatus(), savedAccountRequestInfo.getCreatedDateTime(), savedAccountRequestInfo.getAccountRequestJsonString());
+        List<ProviderPermission> refPermissions = getRefPermissionsWithMetadata(accountRequestOutputResponse.getAccountRequestOutputData().getPermissions());
+        accountRequestOutputResponse.getAccountRequestOutputData().setPermissions(refPermissions);
+        return accountRequestOutputResponse;
     }
 
     /**
@@ -82,16 +103,12 @@ public class AccountRequestDataServiceImpl<T> implements AccountRequestDataServi
      * @return AccountRequestOutputData accountRequestOutputData
      * @throws IOException
      */
-    public AccountRequestOutputData findByAccountRequestExternalIdentifier(String accountRequestId) throws IOException {
-        String accountRequestInfoJSONString = accountRequestInfoRepository.findByAccountRequestExternalIdentifier(accountRequestId).getAccountRequestJsonString();
-        List<AccountRequestAssociatedAccountResource> associatedAccountsResourceList = associatedAccountsResourceRepository.findByAccountRequestInfoId(accountRequestInfoRepository.findByAccountRequestExternalIdentifier(accountRequestId).getAccountRequestIdentifier());
-        List<String> accountIds = new ArrayList<String>(associatedAccountsResourceList.size());
-        for (AccountRequestAssociatedAccountResource associatedAccountsResource : associatedAccountsResourceList) {
-            accountIds.add(associatedAccountsResource.getAccountIdentifier());
-        }
-        AccountRequestOutputData accountRequestOutputData = new AccountRequestOutputData(accountRequestInfoJSONString, accountIds);
-        return accountRequestOutputData;
-
+    public AccountRequestOutputResponse findByAccountRequestExternalIdentifier(String accountRequestId) throws IOException {
+        AccountRequest savedAccountRequestInfo = getAccountRequest(accountRequestId);
+        AccountRequestOutputResponse accountRequestOutputResponse = new AccountRequestOutputResponse(savedAccountRequestInfo.getAccountRequestExternalIdentifier(), savedAccountRequestInfo.getAccountRequestStatus(), savedAccountRequestInfo.getCreatedDateTime(), savedAccountRequestInfo.getAccountRequestJsonString());
+        List<ProviderPermission> refPermissions = getRefPermissionsWithMetadata(accountRequestOutputResponse.getAccountRequestOutputData().getPermissions());
+        accountRequestOutputResponse.getAccountRequestOutputData().setPermissions(refPermissions);
+        return accountRequestOutputResponse;
     }
 
 
@@ -106,58 +123,72 @@ public class AccountRequestDataServiceImpl<T> implements AccountRequestDataServi
      */
     @Override
     @Transactional
-    public UpdateRequestOutputData updateAccountRequestData(UpdateAccountInputData accountInputData, String accountRequestId, String clientId, String clientRole) throws IOException, URISyntaxException {
-        AccountRequestStatusEnum accountRequestStatusEnum = getAccountRequestStatusEnum(accountInputData);
-        AccountRequest accountRequestInfo = accountRequestInfoRepository.findByAccountRequestExternalIdentifier(accountRequestId);
-
-        //save the data in ACCT_REQ_ASSOCIATED_ACCT
-        for (String selectedAccount : accountInputData.getAccountIds()) {
-            saveAssociatedAccountsResource(accountRequestInfo.getAccountRequestIdentifier(), selectedAccount);
+    public UpdateAccountRequestOutputData updateAccountRequestData(UpdateAccountRequestInputData accountInputData, String accountRequestId, String clientRole) throws IOException, URISyntaxException {
+        AccountRequest accountRequestInfo = getAccountRequest(accountRequestId);
+        String possibleStatus = accountInputData.getStatus();
+        if(!(AccountRequestDataConstant.AUTHORISED.equalsIgnoreCase(possibleStatus) || AccountRequestDataConstant.REJECTED.equalsIgnoreCase(possibleStatus))) {
+            throw new InvalidRequestException(BAD_REQUEST_INVALID_REQUEST, ARD_API_ERR_007);
         }
-
+        AccountRequestStatusEnum accountRequestStatusEnum = stateChangeMachine.getUpdatableStatus(accountRequestInfo.getAccountRequestStatus(), possibleStatus);
         //update the status in ACCT_REQUEST
         accountRequestInfo.setAccountRequestStatus(accountRequestStatusEnum);
+        if(accountRequestStatusEnum.equals(AccountRequestStatusEnum.AUTHORISED)) {
+            Long entitlementId = accountInputData.getEntitlementId();
+            if(entitlementId == null || entitlementId == 0) {
+                throw new InvalidRequestException("Request can't be authorised without an Entitlement Id", "ARD_API_ERR_999");
+            }
+            accountRequestInfo.setEntitlementId(entitlementId);
+        }
         AccountRequest savedAccountRequestInfo = accountRequestInfoRepository.save(accountRequestInfo);
 
         //update the history
         InternalUserRoleEnum role = InternalUserRoleEnum.valueOf(clientRole.toUpperCase());
-        AccountRequestStatusHistory savedAccountRequestStatusHistory = saveAccountRequestStatusHistory(savedAccountRequestInfo, clientId, role);
+        AccountRequestStatusHistory savedAccountRequestStatusHistory = saveAccountRequestStatusHistory(savedAccountRequestInfo, role);
 
-        UpdateRequestOutputData updateRequestOutputData = new UpdateRequestOutputData();
-        updateRequestOutputData.setAccountRequestId(savedAccountRequestInfo.getAccountRequestExternalIdentifier());
-        updateRequestOutputData.setUpdatedAtTimestamp(Util.formatDateAsISO8601(savedAccountRequestStatusHistory.getStatusUpdatedDateTime().getTime()));
-        updateRequestOutputData.setUpdatedStatus(accountRequestStatusEnum.getValue());
-        return updateRequestOutputData;
+        UpdateAccountRequestOutputData updateAccountRequestOutputData = new UpdateAccountRequestOutputData();
+        updateAccountRequestOutputData.setAccountRequestId(savedAccountRequestInfo.getAccountRequestExternalIdentifier());
+        updateAccountRequestOutputData.setUpdatedAtTimestamp(Util.formatDateAsISO8601(savedAccountRequestStatusHistory.getStatusUpdatedDateTime().getTime()));
+        updateAccountRequestOutputData.setUpdatedStatus(accountRequestStatusEnum.getValue());
+        return updateAccountRequestOutputData;
     }
 
-    private AccountRequestStatusEnum getAccountRequestStatusEnum(UpdateAccountInputData accountInputData) {
-        AccountRequestStatusEnum accountRequestStatusEnum;
-        try {
-            accountRequestStatusEnum = AccountRequestStatusEnum.valueOf(accountInputData.getStatus().toUpperCase());
-        } catch(IllegalArgumentException ex) {
-            //TODO: Temporary code to throw an exception as of now, would be replaced by Error handling
-            throw new RuntimeException("The request isn't to authorise, not proceeding further.", ex);
+    private AccountRequest getAccountRequest(String accountRequestId) {
+        AccountRequest accountRequestInfo = accountRequestInfoRepository.findByAccountRequestExternalIdentifier(accountRequestId);
+        if(accountRequestInfo == null) {
+            throw new RecordNotFoundException(NOT_FOUND, ARD_API_ERR_005);
         }
-        if(!(accountRequestStatusEnum.equals(AccountRequestStatusEnum.AUTHORISED) || accountRequestStatusEnum.equals(AccountRequestStatusEnum.REJECTED)) ) {
-            //TODO: Temporary code to throw an exception as of now, would be replaced by Error handling
-            throw new RuntimeException("The request isn't to Authorise or Reject, not proceeding further.");
-        }
-        return accountRequestStatusEnum;
+        return accountRequestInfo;
     }
 
-    private AccountRequestStatusHistory saveAccountRequestStatusHistory(AccountRequest savedAccountRequestInfo, String clientId, InternalUserRoleEnum role) {
+    @Override
+    @Transactional
+    public void revokeAccountRequestData(String accountRequestId, String clientRole, String txnCorrelationId) throws IOException, URISyntaxException {
+        AccountRequest accountRequestInfo = getAccountRequest(accountRequestId);
+
+        String accountRequestStatus = accountRequestInfo.getAccountRequestStatus();
+        AccountRequestStatusEnum updateableStatus = stateChangeMachine.getUpdatableStatus(accountRequestStatus, AccountRequestStatusEnum.REVOKED);
+        //call the entitlement API to revoke the entitlement, if the status was authorised
+        if(accountRequestStatus.equals(AccountRequestDataConstant.AUTHORISED)) {
+            Long entitlementId = accountRequestInfo.getEntitlementId();
+            entitlementService.revokeEntitlement(entitlementId, InternalUserRoleEnum.SYSTEM.toString(), clientRole, txnCorrelationId);
+        }
+        //update the status in ACCT_REQUEST
+        accountRequestInfo.setAccountRequestStatus(updateableStatus);
+        AccountRequest savedAccountRequestInfo = accountRequestInfoRepository.save(accountRequestInfo);
+
+        //update the history
+        InternalUserRoleEnum role = InternalUserRoleEnum.valueOf(clientRole.toUpperCase());
+        saveAccountRequestStatusHistory(savedAccountRequestInfo, role);
+    }
+
+
+
+    private AccountRequestStatusHistory saveAccountRequestStatusHistory(AccountRequest savedAccountRequestInfo, InternalUserRoleEnum role) {
         AccountRequestStatusHistory accountRequestStatusChangeHistory = new AccountRequestStatusHistory();
         accountRequestStatusChangeHistory.setAccountRequestInfoId(savedAccountRequestInfo.getAccountRequestIdentifier());
         accountRequestStatusChangeHistory.setResourceStatus(savedAccountRequestInfo.getAccountRequestStatus());
-        accountRequestStatusChangeHistory.setStatusUpdatedBy(clientId);
         accountRequestStatusChangeHistory.setStatusUpdatedByRole(role);
         return accountRequestInfoHistoryRepository.save(accountRequestStatusChangeHistory);
     }
 
-    private AccountRequestAssociatedAccountResource saveAssociatedAccountsResource(Long accountRequestInfoId, String accountIdentifier) {
-        AccountRequestAssociatedAccountResource associatedAccountsResource = new AccountRequestAssociatedAccountResource();
-        associatedAccountsResource.setAccountRequestInfoId(accountRequestInfoId);
-        associatedAccountsResource.setAccountIdentifier(accountIdentifier);
-        return associatedAccountsResourceRepository.save(associatedAccountsResource);
-    }
 }

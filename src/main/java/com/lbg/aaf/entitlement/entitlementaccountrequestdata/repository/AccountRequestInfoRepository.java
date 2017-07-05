@@ -6,7 +6,7 @@ import com.lbg.aaf.entitlement.entitlementaccountrequestdata.data.AccountRequest
 
 public interface AccountRequestInfoRepository extends JpaRepository<AccountRequest, Long> {
 
-    AccountRequest findByAccountRequestExternalIdentifierAndProviderClientId(String accountRequestExternalIdentifier, String providerClientId ); 
+    AccountRequest findByAccountRequestExternalIdentifierAndProviderClientIdAndAccountRequestStatus(String accountRequestExternalIdentifier, String providerClientId, String accountRequestStatus );
     
     AccountRequest findByAccountRequestExternalIdentifier(String accountRequestExternalIdentifier ); 
     

@@ -1,66 +1,39 @@
 package com.lbg.aaf.entitlement.entitlementaccountrequestdata.data;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.*;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
-import com.fasterxml.jackson.annotation.JsonProperty;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 @JsonInclude(Include.NON_NULL)
 public final class CreateAccountInputData {
 
-    private List<Permission> permissions;
-    private String permissionsExpirationDateTime;
-    private String transactionFromDateTime;
-    private String transactionToDateTime;
-    private List<AccountResource> selectedAccounts;
-    
+    private List<String> permissions;
+
+    private Map<String, Object> metadata = new HashMap<>();
 
     public CreateAccountInputData() {
         //Default constructor
     }
     
     @JsonProperty("Permissions")
-    public List<Permission> getPermissions() {
+    public List<String> getPermissions() {
         return permissions;
     }
-    public void setPermissions(List<Permission> permissions) {
+    public void setPermissions(List<String> permissions) {
         this.permissions = permissions;
     }
-    
-    @JsonProperty("PermissionsExpirationDateTime")
-    public String getPermissionsExpirationDateTime() {
-        return permissionsExpirationDateTime;
-    }
-    public void setPermissionsExpirationDateTime(String permissionsExpirationDateTime) {
-        this.permissionsExpirationDateTime = permissionsExpirationDateTime;
-    }
-    
-    @JsonProperty("TransactionFromDateTime")
-    public String getTransactionFromDateTime() {
-        return transactionFromDateTime;
-    }
-    public void setTransactionFromDateTime(String transactionFromDateTime) {
-        this.transactionFromDateTime = transactionFromDateTime;
-    }
-    
-    @JsonProperty("TransactionToDateTime")
-    public String getTransactionToDateTime() {
-        return transactionToDateTime;
-    }
-    public void setTransactionToDateTime(String transactionToDateTime) {
-        this.transactionToDateTime = transactionToDateTime;
-    }
-    
-    @JsonProperty("SelectedAccounts")
-    public List<AccountResource> getSelectedAccounts() {
-        return selectedAccounts;
+
+    @JsonAnyGetter
+    public Map<String, Object> any() {
+        return metadata;
     }
 
-    public void setSelectedAccounts(List<AccountResource> selectedAccounts) {
-        this.selectedAccounts = selectedAccounts;
+    @JsonAnySetter
+    public void set(String name, Object value) {
+        this.metadata.put(name, value);
     }
-  
 }

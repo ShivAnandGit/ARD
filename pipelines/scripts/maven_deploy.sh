@@ -4,6 +4,8 @@ source "${WORKSPACE}/pipelines/scripts/functions"   &>/dev/null
 
 set -ex
 
+MAVEN_SETTINGS=pipelines/conf/settings.xml 
+
 mvn deploy:deploy-file \
 	-DpomFile=pom.xml \
 	-s pipelines/conf/settings.xml \

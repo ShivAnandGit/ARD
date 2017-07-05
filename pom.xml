@@ -129,6 +129,18 @@
 			<artifactId>ojdbc7</artifactId>
 			<version>12.1.0.1</version>
 		</dependency>
+		<dependency>
+			<groupId>org.powermock</groupId>
+			<artifactId>powermock-api-mockito</artifactId>
+			<version>1.7.0</version>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.powermock</groupId>
+			<artifactId>powermock-module-junit4</artifactId>
+			<version>1.7.0</version>
+			<scope>test</scope>
+		</dependency>
 	</dependencies>
 
 	<properties>
@@ -152,4 +164,22 @@
 			</plugin>
 		</plugins>
 	</build>
+	<repositories>
+		<repository>
+			<id>nexussnaps</id>
+			<url>http://10.113.140.187:8081/nexus/content/groups/maven</url>
+			<snapshots>
+				<enabled>true</enabled>
+			</snapshots>
+		</repository>
+	</repositories>
+	<pluginRepositories>
+		<pluginRepository>
+			<id>nexussnaps</id>
+			<url>http://10.113.140.187:8081/nexus/content/groups/maven</url>
+			<snapshots>
+				<enabled>true</enabled>
+			</snapshots>
+		</pluginRepository>
+	</pluginRepositories>
 </project>

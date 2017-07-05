@@ -3,15 +3,8 @@ package com.lbg.aaf.entitlement.entitlementaccountrequestdata.service;
 import java.io.IOException;
 import java.net.URISyntaxException;
 
-import com.lbg.aaf.entitlement.entitlementaccountrequestdata.data.AccountRequestOutputData;
-import com.lbg.aaf.entitlement.entitlementaccountrequestdata.data.CreateAccountInputData;
-import com.lbg.aaf.entitlement.entitlementaccountrequestdata.data.UpdateAccountInputData;
-import com.lbg.aaf.entitlement.entitlementaccountrequestdata.data.UpdateRequestOutputData;
+import com.lbg.aaf.entitlement.entitlementaccountrequestdata.data.*;
 
-/**
- * Interface AccountRequestDataService.All Service Class will implement this interface.
- * @author Amit Jain
- */
 public interface AccountRequestDataService<T> {
 
     /**
@@ -22,7 +15,7 @@ public interface AccountRequestDataService<T> {
      * @throws IOException
      * @throws URISyntaxException
      */
-    public AccountRequestOutputData createAccountRequestData(CreateAccountInputData createAccountInputData, String clientId)
+    public AccountRequestOutputResponse createAccountRequestData(CreateAccountInputRequest createAccountInputRequest, String clientId, String fapiFinancialId)
             throws IOException, URISyntaxException;
 
     /**
@@ -32,7 +25,7 @@ public interface AccountRequestDataService<T> {
      * @return AccountRequestOutputData accountRequestOutputData
      * @throws IOException
      */
-    public AccountRequestOutputData findByAccountRequestExternalIdentifierAndProviderClientId(String accountRequestId, String clientId)
+    public AccountRequestOutputResponse findByAccountRequestExternalIdentifierAndProviderClientId(String accountRequestId, String clientId)
             throws IOException, URISyntaxException;
 
     /**
@@ -41,7 +34,7 @@ public interface AccountRequestDataService<T> {
      * @return AccountRequestOutputData accountRequestOutputData
      * @throws IOException
      */
-    public AccountRequestOutputData findByAccountRequestExternalIdentifier(String accountRequestId)
+    public AccountRequestOutputResponse findByAccountRequestExternalIdentifier(String accountRequestId)
             throws IOException, URISyntaxException;
 
     /**
@@ -52,6 +45,18 @@ public interface AccountRequestDataService<T> {
      * @return AccountRequestOutputData accountRequestOutputData
      * @throws IOException, URISyntaxException
      */
-    public UpdateRequestOutputData updateAccountRequestData(UpdateAccountInputData createAccountInputData, String accountRequestId, String clientId, String clientRole)
+    public UpdateAccountRequestOutputData updateAccountRequestData(UpdateAccountRequestInputData createAccountInputData, String accountRequestId, String clientRole)
             throws IOException, URISyntaxException;
+
+    /**
+     * revokeAccountRequestData  will take accountRequestId as input and will update the status of associated account request data as "Revoked". the Entitlement API would also
+     * be called to revoke the entitlement.
+     * @param String accountRequestId
+     * @param String clientId
+     * @return AccountRequestOutputData accountRequestOutputData
+     * @throws IOException, URISyntaxException
+     */
+    public void revokeAccountRequestData(String accountRequestId, String clientRole, String txnCorrelationId)
+            throws IOException, URISyntaxException;
+
 }

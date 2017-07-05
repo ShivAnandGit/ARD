@@ -27,9 +27,6 @@ public final class AccountRequestStatusHistory {
     @Column(name = "ACCT_REQUEST_ID", updatable = false, nullable = false)
     private Long accountRequestInfoId;
 
-    @Column(name = "STATUS_UPDATED_BY", updatable = false, nullable = false)
-    private String statusUpdatedBy;
-
     @Column(name = "STATUS_UPDATED_DATE_TIME", updatable = false, nullable = false)
     private Timestamp statusUpdatedDateTime;
 
@@ -50,10 +47,6 @@ public final class AccountRequestStatusHistory {
 
     public void setAccountRequestInfoId(Long accountRequestInfoId) {
         this.accountRequestInfoId = accountRequestInfoId;
-    }
-
-    public void setStatusUpdatedBy(String statusUpdatedBy) {
-        this.statusUpdatedBy = statusUpdatedBy;
     }
 
     public Timestamp getStatusUpdatedDateTime() {

@@ -9,21 +9,11 @@ import java.util.List;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 @JsonInclude(JsonInclude.Include.NON_NULL)
-public final class UpdateAccountInputData implements Serializable {
-
-
-    private List<String> accountIds;
+public final class UpdateAccountRequestInputData implements Serializable {
 
     private String status;
 
-    @JsonProperty("AccountIds")
-    public List<String> getAccountIds() {
-        return accountIds;
-    }
-
-    public void setAccountIds(List<String> accountIds) {
-        this.accountIds = accountIds;
-    }
+    private Long entitlementId;
 
     @JsonProperty("Status")
     public String getStatus() {
@@ -32,5 +22,14 @@ public final class UpdateAccountInputData implements Serializable {
 
     public void setStatus(String status) {
         this.status = status;
+    }
+
+    @JsonProperty("EntitlementId")
+    public Long getEntitlementId() {
+        return entitlementId;
+    }
+
+    public void setEntitlementId(Long entitlementId) {
+        this.entitlementId = entitlementId;
     }
 }

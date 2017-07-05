@@ -30,7 +30,7 @@ import com.lbg.aaf.entitlement.entitlementaccountrequestdata.util.Util;
 public final class AccountRequest {
 
     @Id
-    @SequenceGenerator(name = "acct_request_id", sequenceName = "ACCT_REQUEST_SEQ", allocationSize=1)
+    @SequenceGenerator(name = "acct_request_id", sequenceName = "ACCT_REQUEST_SEQ", allocationSize = 1)
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "acct_request_id")
     @Column(name = "ACCT_REQUEST_ID", updatable = false, nullable = false)
     private Long accountRequestIdentifier;
@@ -51,44 +51,44 @@ public final class AccountRequest {
     @Lob
     private String accountRequestJsonString;
 
+    @Column(name = "FAPI_FINANCIAL_ID", nullable = false, updatable = true)
+    private String fapiFinancialId;
+
+    @Column(name = "ENTITLEMENT_ID")
+
+    private Long entitlementId;
+
     @Transient
-    private List<Permission> permissions;
-    
-    
+    private List<String> permissions;
+
+
     @Transient
     private String permissionsExpirationDateTime;
-    
+
     @Transient
     private String transactionFromDateTime;
-    
+
     @Transient
     private String transactionToDateTime;
-    
-    @Transient
-    private List<AccountResource> selectedAccounts;
-    
-    
+
     public AccountRequest() {
-        //Default constructor
+        //DEFAULT CONSTRUCTOR
     }
 
-    public AccountRequest(CreateAccountInputData createEntitlementInputData,String clientId) throws JsonProcessingException, UnsupportedEncodingException {
+    public AccountRequest(CreateAccountInputData createAccountInputData, String clientId, String fapiFinancialId, String json) throws UnsupportedEncodingException {
         this.setAccountRequestExternalIdentifier(Util.createUniqueAccountRequestId());
         this.setDefaultAccountRequestStatus();
-        this.setPermissions(createEntitlementInputData.getPermissions());
-        this.setPermissionsExpirationDateTime(createEntitlementInputData.getPermissionsExpirationDateTime());
-        this.setTransactionFromDateTime(createEntitlementInputData.getTransactionFromDateTime());
-        this.setTransactionToDateTime(createEntitlementInputData.getTransactionToDateTime());
-        this.setSelectedAccounts(createEntitlementInputData.getSelectedAccounts());
+        this.setPermissions(createAccountInputData.getPermissions());
         this.setCreatedDateTime();
         this.setProviderClientId(clientId);
-        this.setAccountRequestJsonString();
-        
+        this.setAccountRequestJsonString(json);
+        this.setFapiFinancialId(fapiFinancialId);
     }
+
 
     private void setDefaultAccountRequestStatus() {
         this.accountRequestStatus = AccountRequestStatusEnum.AWAITINGAUTHORISATION.getValue();
-        
+
     }
 
     @JsonProperty("AccountRequestIdentifier")
@@ -136,15 +136,15 @@ public final class AccountRequest {
     }
 
     @JsonProperty("Permissions")
-    public List<Permission> getPermissions() {
+    public List<String> getPermissions() {
         return permissions;
     }
 
-    public void setPermissions(List<Permission> permissions) {
+    public void setPermissions(List<String> permissions) {
         this.permissions = permissions;
     }
 
-    @JsonProperty("PermissionsExpirationDateTime")
+    @JsonProperty("ExpirationDateTime")
     public String getPermissionsExpirationDateTime() {
         return permissionsExpirationDateTime;
     }
@@ -171,30 +171,30 @@ public final class AccountRequest {
         this.transactionToDateTime = transactionToDateTime;
     }
 
-    @JsonProperty("SelectedAccounts")
-    public List<AccountResource> getSelectedAccounts() {
-        return selectedAccounts;
-    }
 
-    public void setSelectedAccounts(List<AccountResource> selectedAccounts) {
-        this.selectedAccounts = selectedAccounts;
-    }
-
-    
     @JsonIgnore
     public String getAccountRequestJsonString() {
         return accountRequestJsonString;
     }
 
-    public void setAccountRequestJsonString() throws JsonProcessingException {
-        this.accountRequestJsonString = toJsonString();
+    public void setAccountRequestJsonString(String json) {
+        this.accountRequestJsonString = json;
     }
 
-    private String toJsonString() throws JsonProcessingException {
-        ObjectMapper mapper = new ObjectMapper();
-        String jsonString = mapper.writeValueAsString(this);
+    public String getFapiFinancialId() {
+        return fapiFinancialId;
+    }
 
-        return jsonString;
+    public void setFapiFinancialId(String fapiFinancialId) {
+        this.fapiFinancialId = fapiFinancialId;
+    }
+
+    public Long getEntitlementId() {
+        return entitlementId;
+    }
+
+    public void setEntitlementId(Long entitlementId) {
+        this.entitlementId = entitlementId;
     }
 
 }

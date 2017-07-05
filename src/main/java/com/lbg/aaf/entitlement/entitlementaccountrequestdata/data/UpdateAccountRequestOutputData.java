@@ -9,7 +9,7 @@ import java.io.Serializable;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 @JsonInclude(JsonInclude.Include.NON_NULL)
-public final class UpdateRequestOutputData implements Serializable {
+public final class UpdateAccountRequestOutputData implements Serializable {
     private String accountRequestId;
     private String updatedStatus;
     private String updatedAtTimestamp;
