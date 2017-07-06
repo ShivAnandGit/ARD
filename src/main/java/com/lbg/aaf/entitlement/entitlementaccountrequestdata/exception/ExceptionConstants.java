@@ -1,12 +1,14 @@
 package com.lbg.aaf.entitlement.entitlementaccountrequestdata.exception;
 
-public class ExceptionConstants {
+public final class ExceptionConstants {
 
     private ExceptionConstants() {
         //private constructor
     }
 
     public static final String ARD_API_ERR_002 = "ARD_API_ERR_002";
+
+    public static final String ARD_API_ERR_004 = "ARD_API_ERR_004";
 
     public static final String ARD_API_ERR_005 = "ARD_API_ERR_005";
 

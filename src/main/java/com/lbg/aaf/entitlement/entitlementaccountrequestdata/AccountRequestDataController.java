@@ -7,6 +7,7 @@ import java.util.logging.Logger;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.validation.Valid;
 
 import com.lbg.aaf.entitlement.entitlementaccountrequestdata.data.*;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -40,7 +41,7 @@ public final class AccountRequestDataController {
             @RequestHeader(value = X_LBG_CLIENT_ID) final String clientId,
             @RequestHeader(value = X_FAPI_FINANCIAL_ID) final String financialId,
             @RequestHeader(value = X_FAPI_INTERACTION_ID, required = false) final String interactionId,
-            @RequestBody final CreateAccountInputRequest createAccountInputRequest, final HttpServletRequest request,
+            @Valid @RequestBody final CreateAccountInputRequest createAccountInputRequest, final HttpServletRequest request,
             HttpServletResponse response) {
         if(!StringUtils.isEmpty(interactionId)) {
             response.setHeader(X_FAPI_INTERACTION_ID, interactionId);

@@ -6,11 +6,12 @@ import java.util.Map;
 
 import com.fasterxml.jackson.annotation.*;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
+import com.lbg.aaf.entitlement.entitlementaccountrequestdata.validation.PermissionsConstraint;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 @JsonInclude(Include.NON_NULL)
 public final class CreateAccountInputData {
-
+    @PermissionsConstraint
     private List<String> permissions;
 
     private Map<String, Object> metadata = new HashMap<>();
@@ -18,11 +19,12 @@ public final class CreateAccountInputData {
     public CreateAccountInputData() {
         //Default constructor
     }
-    
+
     @JsonProperty("Permissions")
     public List<String> getPermissions() {
         return permissions;
     }
+
     public void setPermissions(List<String> permissions) {
         this.permissions = permissions;
     }
