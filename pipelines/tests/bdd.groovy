@@ -15,16 +15,37 @@ def runTest(String targetBranch, context) {
 	}
 }
 def runTestHandler(String targetBranch, context) {
-	def app = appName(context,targetBranch)
-	String  invokeBDD = context.config.bdd.invocation ?: 'fail'
-	String  scenarioPassThreshold = context.config.bdd.passthresholds ?: '100'
-	try {
-		withEnv([
-			"APP=${app}",
-			"invokeBDD=${invokeBDD}",
-			"RESULTSDIR=tests/acceptance/wdio/utilities/output"
-		]) {
-			sh 'rm -rf ${RESULTSDIR} && mkdir -p ${RESULTSDIR}'
+def app = appName(context,targetBranch)
+def zapQualityGate = context.config.zap.sonarQuality_gate ?: 'invalid-gate'
+def zapResultDir = context.config.zap.resultdir ?: "invalid-path"
+def sonarServerID = context.config.sonar.server_id ?: 'invalid-sonarServer'
+String  invokeBDD = context.config.bdd.invocation ?: 'fail'
+String  scenarioPassThreshold = context.config.bdd.passthreshold ?: '100'
+//String  scenarioPassThreshold = context.config.passthresholds.bdd.percent_scenarios ?: '100'
+
+def sonarJavaOptions = [
+       '-Dsonar.projectKey': app + '-zap' ,
+       '-Dsonar.projectName': app  + '-zap',
+       '-Dappname': app  + '-zap',
+       '-DbranchName': targetBranch ,
+       '-Dsonar.projectVersion': env.BUILD_NUMBER ,
+       '-Dsonar.projectDescription': app + '_zap_test_results' ,
+       '-Dsonar.sources': "${env.WORKSPACE}/" ,
+       '-Dsonar.projectBaseDir': "${env.WORKSPACE}/${zapResultDir}" ,
+       '-Dsonar.zaproxy.reportPath': "${env.WORKSPACE}/${zapResultDir}/report.xml" ,
+       '-Dsonar.qualitygate': "${zapQualityGate}" ,
+       '-Dsonar.scm.enabled': 'true' ,
+       '-Dsonar.log.level':'ERROR'
+     ]
+
+
+try {
+  withEnv([
+   "APP=${app}",
+   "invokeBDD=${invokeBDD}",
+   "RESULTSDIR=tests/acceptance/wdio/utilities/output"
+  ]) {
+  sh 'rm -rf ${RESULTSDIR} && mkdir -p ${RESULTSDIR}'
 
 			createDockerContext('node48')
 			sh 'pipelines/scripts/bdd.sh'
@@ -32,36 +53,55 @@ def runTestHandler(String targetBranch, context) {
 			archiveArtifacts 'tests/acceptance/wdio/utilities/output/**'
 			archiveArtifacts 'zap-report/**'
 
-			dir("${RESULTSDIR}") {
-				stash     name: "BDD-${context.application}-${targetBranch}"
-				includes: '*.json'
-				withEnv([
-					"SCENARIO_PASS_THRESHOLD=${scenarioPassThreshold}"
-				]){    sh "${env.WORKSPACE}/pipelines/scripts/bdd-pass-threshold-checker.sh"    }
-			}
-		}
-	} catch (error) {
-		echo "FAILED: BDD"
-		throw error
-	} finally {
-		try{
-			step([	$class: 'CucumberReportPublisher',
-				failedFeaturesNumber: 99999999999,
-				failedScenariosNumber: 9999999999,
-				failedStepsNumber: 99999999999,
-				fileExcludePattern: '',
-				fileIncludePattern: '**/apitests**.json',
-				jsonReportDirectory: 'tests/acceptance/wdio/utilities/output',
-				parallelTesting: false,
-				pendingStepsNumber: 99999999999,
-				skippedStepsNumber: 99999999999,
-				trendsLimit: 0,
-				undefinedStepsNumber: 99999999999
-			])
-		} catch(error){
-			echo "FAILED; Cucumber publication. Not fatal"
-		}
-	}
+   dir("${RESULTSDIR}") {
+    stash     name: "BDD-${context.application}-${targetBranch}"
+    includes: '*.json'
+    withEnv([
+     "SCENARIO_PASS_THRESHOLD=${scenarioPassThreshold}"
+    ]){    sh "${env.WORKSPACE}/pipelines/scripts/bdd-pass-threshold-checker.sh"    }
+   }
+  }
+} catch (error) {
+  echo "FAILED: BDD"
+   sonarRunner {
+    sonarServer = sonarServerID
+    preRun = "pipelines/scripts/functions"
+    javaOptions = sonarJavaOptions
+   }
+  throw error
+}
+try {
+sonarRunner {
+  sonarServer = sonarServerID
+  preRun = "pipelines/scripts/functions"
+  javaOptions = sonarJavaOptions
+}
+} catch (error) {
+echo "FAILURE: Sonar Qualification failed"
+echo error.message
+throw error
+}
+finally {
+  try{
+   step([	$class: 'CucumberReportPublisher',
+    failedFeaturesNumber: 99999999999,
+    failedScenariosNumber: 9999999999,
+    failedStepsNumber: 99999999999,
+    fileExcludePattern: '',
+    fileIncludePattern: '**/*.json',
+    jsonReportDirectory: 'tests/acceptance/wdio/utilities/output',
+    parallelTesting: false,
+    pendingStepsNumber: 99999999999,
+    skippedStepsNumber: 99999999999,
+    trendsLimit: 0,
+    undefinedStepsNumber: 99999999999
+   ])
+  } catch(error){
+   echo "FAILED; Cucumber publication. Not fatal"
+  }
+
+}
+
 }
 
 def publishSplunk(String targetBranch, String epoch, context, handler){

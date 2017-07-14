@@ -28,7 +28,10 @@
     		"default_branch": "master",
     		"passthreshold": "90"
   	},
-
+ "zap":{
+       "sonarQuality_gate":"OB-ZAP-QG",
+       "resultdir":"zap-report"
+  },  
   "bluemix": {
     "domain": "lbg.eu-gb.bluemix.net",
     "api": "api.lbg.eu-gb.bluemix.net",
