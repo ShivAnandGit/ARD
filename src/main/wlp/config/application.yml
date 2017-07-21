@@ -7,26 +7,25 @@ spring:
     username: accountrequest
     password: default
     driver-class-name: oracle.jdbc.OracleDriver
-    initialSize: 3 
+    initialSize: 3
     maxActive: 5
     maxIdle: 1
     minIdle: 1
     removeAbandoned: true
     removeAbandonedTimeout: 120
     timeBetweenEvictionRunsMillis: 1000
-    minEvictableIdleTimeMillis: 1000   
+    minEvictableIdleTimeMillis: 1000
     tomcat:
-      max-active: 1 
+      max-active: 1
       min-idle: 1
-      initialSize: 1 
+      initialSize: 1
   h2.console.enabled: true
-
 
 ---
 
 spring:
   profiles: development
-  
+
 # context Path
 server:
     port: 8080
@@ -35,7 +34,7 @@ server:
 
 spring:
   profiles: test
-  
+
 # context Path
 server:
     port: 8080
@@ -45,12 +44,12 @@ server:
 
 spring:
   profiles: production
-  
+
 # context Path
 server:
     port: 8080
 
-       
+
 ---
 # common properties for yaml
 
@@ -75,24 +74,23 @@ hystrix:
       execution:
         isolation:
           thread:
-            timeoutInMilliseconds: 3000
-          strategy: THREAD
-      fallback:
-        enabled: true
-      circuitBreaker:
-        enabled: true
-        sleepWindowInMilliseconds: 500
-        requestVolumeThreshold: 2
-    entitlementService:
-      execution:
-        isolation:
-          thread:
-            timeoutInMilliseconds: 10000
+            timeoutInMilliseconds: ${hystrixThreadTimeoutInMillis}
             interruptOnTimeout: true
       fallback:
         enabled: true
       circuitBreaker:
         enabled: true
-        sleepWindowInMilliseconds: 500
-        requestVolumeThreshold: 2
-
+        sleepWindowInMilliseconds: ${circuitSleepWindowMillis}
+        requestVolumeThreshold: ${requestVolumeThreshold}
+    entitlementService:
+      execution:
+        isolation:
+          thread:
+            timeoutInMilliseconds: ${hystrixThreadTimeoutInMillis}
+            interruptOnTimeout: true
+      fallback:
+        enabled: true
+      circuitBreaker:
+        enabled: true
+        sleepWindowInMilliseconds: ${circuitSleepWindowMillis}
+        requestVolumeThreshold: ${requestVolumeThreshold}

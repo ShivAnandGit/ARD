@@ -1,7 +1,7 @@
 <settings>
     <servers>
         <server>
-            <id>deploy-repo</id>
+            <id>nexus-releases</id>
             <username>${nexus.user}</username>
             <password>${nexus.password}</password>
         </server>
@@ -16,22 +16,8 @@
     <mirrors>
         <mirror>
             <id>mirror</id>
-            <mirrorOf>*</mirrorOf>
-            <url>http://10.113.140.187:8081/nexus/content/groups/maven</url>
+            <mirrorOf>external:*</mirrorOf>
+            <url>http://nexus.sandbox.extranet.group/nexus/content/groups/maven</url>
         </mirror>
     </mirrors>
-
-
-    <profiles>
-        <profile>
-            <id>laptop</id>
-            <activation>
-                <activeByDefault>true</activeByDefault>
-            </activation>
-            <properties>
-                <sandbox.environment>sbdev</sandbox.environment>
-            </properties>
-
-        </profile>
-    </profiles>
 </settings>

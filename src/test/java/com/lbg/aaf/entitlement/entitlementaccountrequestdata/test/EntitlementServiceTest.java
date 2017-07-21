@@ -2,11 +2,15 @@ package com.lbg.aaf.entitlement.entitlementaccountrequestdata.test;
 
 import com.lbg.aaf.entitlement.entitlementaccountrequestdata.data.EntitlementOutputData;
 import com.lbg.aaf.entitlement.entitlementaccountrequestdata.exception.EntitlementUpdateFailedException;
-import com.lbg.aaf.entitlement.entitlementaccountrequestdata.service.EntitlementServiceImpl;
+import com.lbg.aaf.entitlement.entitlementaccountrequestdata.service.EntitlementProxyServiceImpl;
+import com.lbg.ob.logger.Logger;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mockito.*;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.Mockito;
+import org.mockito.MockitoAnnotations;
 import org.powermock.api.mockito.PowerMockito;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
@@ -24,27 +28,32 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
-import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyString;
+import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.when;
-import static org.mockito.MockitoAnnotations.initMocks;
 @RunWith(PowerMockRunner.class)
-@PrepareForTest({ EntitlementServiceImpl.class })
+@PrepareForTest({ EntitlementProxyServiceImpl.class })
 public class EntitlementServiceTest {
 
     String requestURL = "someurl";
 
     @Mock
+    Logger LOGGER;
+
+    @Mock
     AsyncRestTemplate restTemplate;
 
     @InjectMocks
-    EntitlementServiceImpl entitlementService;
+    EntitlementProxyServiceImpl entitlementService;
 
     @Before
     public void init()  {
         MockitoAnnotations.initMocks(this);
+        doNothing().when(LOGGER).logTrace(anyString(), anyString());
+        doNothing().when(LOGGER).logInfo(anyString(), anyString());
+        doNothing().when(LOGGER).logException(anyString(), any(Exception.class));
     }
 
     @Test

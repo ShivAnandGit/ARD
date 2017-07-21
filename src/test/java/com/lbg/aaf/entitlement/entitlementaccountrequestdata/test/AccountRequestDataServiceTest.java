@@ -3,18 +3,26 @@ package com.lbg.aaf.entitlement.entitlementaccountrequestdata.test;
 import com.lbg.aaf.entitlement.entitlementaccountrequestdata.data.*;
 import com.lbg.aaf.entitlement.entitlementaccountrequestdata.exception.InvalidRequestException;
 import com.lbg.aaf.entitlement.entitlementaccountrequestdata.exception.RecordNotFoundException;
-import com.lbg.aaf.entitlement.entitlementaccountrequestdata.repository.AccountRequestInfoRepository;
-import com.lbg.aaf.entitlement.entitlementaccountrequestdata.repository.AccountRequestStatusChangeHistoryRepository;
+import com.lbg.aaf.entitlement.entitlementaccountrequestdata.service.AccountRequestDAO;
 import com.lbg.aaf.entitlement.entitlementaccountrequestdata.service.AccountRequestDataServiceImpl;
-import com.lbg.aaf.entitlement.entitlementaccountrequestdata.service.EntitlementService;
+import com.lbg.aaf.entitlement.entitlementaccountrequestdata.service.EntitlementProxyService;
 import com.lbg.aaf.entitlement.entitlementaccountrequestdata.util.AccountRequestDataConstant;
 import com.lbg.aaf.entitlement.entitlementaccountrequestdata.util.StateChangeMachine;
+import com.lbg.ob.logger.Logger;
+import com.lbg.ob.logger.factory.LoggerFactory;
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
+import org.powermock.api.mockito.PowerMockito;
+import org.powermock.core.classloader.annotations.PrepareForTest;
+import org.powermock.modules.junit4.PowerMockRunner;
+import org.springframework.web.context.request.RequestContextHolder;
+import org.springframework.web.context.request.ServletRequestAttributes;
 
+import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
 import java.net.URISyntaxException;
 
@@ -22,20 +30,21 @@ import static com.lbg.aaf.entitlement.entitlementaccountrequestdata.exception.Ex
 import static com.lbg.aaf.entitlement.entitlementaccountrequestdata.exception.ExceptionConstants.BAD_REQUEST_INVALID_REQUEST;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
-import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyString;
-import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.when;
 
+@RunWith(PowerMockRunner.class)
+@PrepareForTest({ LoggerFactory.class,  RequestContextHolder.class, ServletRequestAttributes.class})
 public class AccountRequestDataServiceTest {
-    @Mock
-    AccountRequestInfoRepository accountRequestInfoRepository;
 
     @Mock
-    AccountRequestStatusChangeHistoryRepository accountRequestInfoHistoryRepository;
+    AccountRequestDAO accountRequestDAO;
 
     @Mock
-    EntitlementService entitlementService;
+    Logger LOGGER;
+
+    @Mock
+    EntitlementProxyService entitlementService;
 
     @Mock
     StateChangeMachine stateChangeMachine;
@@ -44,28 +53,28 @@ public class AccountRequestDataServiceTest {
     AccountRequestDataServiceImpl accountRequestDataService;
 
     @Before
-    public void init() {
+    public void init() throws Exception {
         MockitoAnnotations.initMocks(this);
     }
 
     @Test
     public void shouldUpdateAccountRequestDataForAuthorisedRequest() throws IOException, URISyntaxException, InvalidRequestException {
-
         UpdateAccountRequestInputData accountInputData = new UpdateAccountRequestInputData();
         accountInputData.setStatus("Authorised");
         accountInputData.setEntitlementId(123L);
         String testRequestId = "TestRequestId";
         String testClientId = "TestClientId";
         String testClientRole = "CUSTOMER";
-        AccountRequest accountRequest = new AccountRequest();
+        String txnCorrelationId = "correlationId";
         long accountRequestIdentifier = 1234L;
+        AccountRequest accountRequest = new AccountRequest();
         accountRequest.setAccountRequestIdentifier(accountRequestIdentifier);
-        when(accountRequestInfoRepository.findByAccountRequestExternalIdentifier(testRequestId)).thenReturn(accountRequest);
         AccountRequestStatusHistory t = new AccountRequestStatusHistory();
-        when(accountRequestInfoHistoryRepository.save(any(AccountRequestStatusHistory.class))).thenReturn(t);
+        t.setStatusUpdatedDateTime();
+        when(accountRequestDAO.getAccountRequest(testRequestId)).thenReturn(accountRequest);
+        when(accountRequestDAO.updateAccountRequest(accountRequest, InternalUserRoleEnum.CUSTOMER)).thenReturn(t);
         when(stateChangeMachine.getUpdatableStatus(anyString(), anyString())).thenReturn(AccountRequestStatusEnum.AUTHORISED);
-        when(accountRequestInfoRepository.save(accountRequest)).thenReturn(accountRequest);
-        UpdateAccountRequestOutputData updateAccountRequestOutputData = accountRequestDataService.updateAccountRequestData(accountInputData, testRequestId, testClientRole);
+        UpdateAccountRequestOutputData updateAccountRequestOutputData = accountRequestDataService.updateAccountRequestData(accountInputData, testRequestId, testClientRole, txnCorrelationId);
         assertNotNull(updateAccountRequestOutputData);
 
     }
@@ -77,15 +86,15 @@ public class AccountRequestDataServiceTest {
         String testRequestId = "TestRequestId";
         String testClientId = "TestClientId";
         String testClientRole = "CUSTOMER";
+        String txnCorrelationId = "correlationId";
+
         AccountRequest accountRequest = new AccountRequest();
         long accountRequestIdentifier = 1234L;
         accountRequest.setAccountRequestIdentifier(accountRequestIdentifier);
-        when(accountRequestInfoRepository.findByAccountRequestExternalIdentifier(testRequestId)).thenReturn(accountRequest);
         AccountRequestStatusHistory t = new AccountRequestStatusHistory();
-        when(accountRequestInfoHistoryRepository.save(any(AccountRequestStatusHistory.class))).thenReturn(t);
+        when(accountRequestDAO.getAccountRequest(testRequestId)).thenReturn(accountRequest);
         when(stateChangeMachine.getUpdatableStatus(anyString(), anyString())).thenReturn(AccountRequestStatusEnum.AUTHORISED);
-        when(accountRequestInfoRepository.save(accountRequest)).thenReturn(accountRequest);
-        UpdateAccountRequestOutputData updateAccountRequestOutputData = accountRequestDataService.updateAccountRequestData(accountInputData, testRequestId, testClientRole);
+        UpdateAccountRequestOutputData updateAccountRequestOutputData = accountRequestDataService.updateAccountRequestData(accountInputData, testRequestId, testClientRole, txnCorrelationId);
         assertNotNull(updateAccountRequestOutputData);
 
     }
@@ -98,15 +107,16 @@ public class AccountRequestDataServiceTest {
         String testRequestId = "TestRequestId";
         String testClientId = "TestClientId";
         String testClientRole = "CUSTOMER";
+        String txnCorrelationId = "correlationId";
         AccountRequest accountRequest = new AccountRequest();
         long accountRequestIdentifier = 1234L;
         accountRequest.setAccountRequestIdentifier(accountRequestIdentifier);
-        when(accountRequestInfoRepository.findByAccountRequestExternalIdentifier(testRequestId)).thenReturn(accountRequest);
         AccountRequestStatusHistory t = new AccountRequestStatusHistory();
+        t.setStatusUpdatedDateTime();
+        when(accountRequestDAO.getAccountRequest(testRequestId)).thenReturn(accountRequest);
+        when(accountRequestDAO.updateAccountRequest(accountRequest, InternalUserRoleEnum.CUSTOMER)).thenReturn(t);
         when(stateChangeMachine.getUpdatableStatus(anyString(), anyString())).thenReturn(AccountRequestStatusEnum.REJECTED);
-        when(accountRequestInfoHistoryRepository.save(any(AccountRequestStatusHistory.class))).thenReturn(t);
-        when(accountRequestInfoRepository.save(accountRequest)).thenReturn(accountRequest);
-        UpdateAccountRequestOutputData updateAccountRequestOutputData = accountRequestDataService.updateAccountRequestData(accountInputData, testRequestId, testClientRole);
+        UpdateAccountRequestOutputData updateAccountRequestOutputData = accountRequestDataService.updateAccountRequestData(accountInputData, testRequestId, testClientRole, txnCorrelationId);
         assertNotNull(updateAccountRequestOutputData);
     }
 
@@ -119,9 +129,10 @@ public class AccountRequestDataServiceTest {
         accountInputData.setStatus("AwaitingAuthorisation");
         String testRequestId = "TestRequestId";
         String testClientId = "TestClientId";
+        String txnCorrelationId = "correlationId";
         String testClientRole = "CUSTOMER";
-        when(accountRequestInfoRepository.findByAccountRequestExternalIdentifier(testRequestId)).thenReturn(accountRequest);
-        UpdateAccountRequestOutputData updateAccountRequestOutputData = accountRequestDataService.updateAccountRequestData(accountInputData, testRequestId, testClientRole);
+        when(accountRequestDAO.getAccountRequest(testRequestId)).thenReturn(accountRequest);
+        UpdateAccountRequestOutputData updateAccountRequestOutputData = accountRequestDataService.updateAccountRequestData(accountInputData, testRequestId, testClientRole, txnCorrelationId);
     }
 
 
@@ -134,15 +145,14 @@ public class AccountRequestDataServiceTest {
         accountRequest.setAccountRequestStatus(AccountRequestStatusEnum.AUTHORISED);
         accountRequest.setEntitlementId(entitlementId);
         String testRequestId = "testRequestid";
+        String txnCorrelationId = "correlationId";
         String testClientRole = "CUSTOMER";
-        when(accountRequestInfoRepository.findByAccountRequestExternalIdentifier(testRequestId)).thenReturn(accountRequest);
         AccountRequestStatusHistory t = new AccountRequestStatusHistory();
-        when(accountRequestInfoHistoryRepository.save(any(AccountRequestStatusHistory.class))).thenReturn(t);
         when(stateChangeMachine.getUpdatableStatus(AccountRequestDataConstant.AUTHORISED, AccountRequestStatusEnum.REVOKED)).thenReturn(AccountRequestStatusEnum.REVOKED);
-        when(accountRequestInfoRepository.save(accountRequest)).thenReturn(accountRequest);
         String correlationId = "correlationId";
         String internalUserId = "SYSTEM";
-//        doNothing().when(entitlementService.revokeEntitlement(entitlementId, internalUserId, testClientRole, correlationId));
+        when(accountRequestDAO.getAccountRequest(testRequestId)).thenReturn(accountRequest);
+        when(accountRequestDAO.updateAccountRequest(accountRequest, InternalUserRoleEnum.CUSTOMER)).thenReturn(t);
         accountRequestDataService.revokeAccountRequestData(testRequestId, testClientRole, correlationId);
         assertTrue(true);
     }
@@ -155,11 +165,10 @@ public class AccountRequestDataServiceTest {
         accountRequest.setAccountRequestStatus(AccountRequestStatusEnum.AWAITINGAUTHORISATION);
         String testRequestId = "testRequestid";
         String testClientRole = "CUSTOMER";
-        when(accountRequestInfoRepository.findByAccountRequestExternalIdentifier(testRequestId)).thenReturn(accountRequest);
         AccountRequestStatusHistory t = new AccountRequestStatusHistory();
-        when(accountRequestInfoHistoryRepository.save(any(AccountRequestStatusHistory.class))).thenReturn(t);
         when(stateChangeMachine.getUpdatableStatus(AccountRequestDataConstant.AWAITING_AUTHORISATION, AccountRequestStatusEnum.REVOKED)).thenReturn(AccountRequestStatusEnum.REVOKED);
-        when(accountRequestInfoRepository.save(accountRequest)).thenReturn(accountRequest);
+        when(accountRequestDAO.getAccountRequest(testRequestId)).thenReturn(accountRequest);
+        when(accountRequestDAO.updateAccountRequest(accountRequest, InternalUserRoleEnum.CUSTOMER)).thenReturn(t);
         String correlationId = "correlationId";
         String internalUserId = "SYSTEM";
         accountRequestDataService.revokeAccountRequestData(testRequestId, testClientRole, correlationId);
@@ -176,8 +185,8 @@ public class AccountRequestDataServiceTest {
         accountRequest.setEntitlementId(entitlementId);
         String testRequestId = "testRequestid";
         String testClientRole = "CUSTOMER";
-        when(accountRequestInfoRepository.findByAccountRequestExternalIdentifier(testRequestId)).thenReturn(accountRequest);
         when(stateChangeMachine.getUpdatableStatus(AccountRequestDataConstant.REVOKED, AccountRequestStatusEnum.REVOKED)).thenThrow(new InvalidRequestException(BAD_REQUEST_INVALID_REQUEST, ARD_API_ERR_007));
+        when(accountRequestDAO.getAccountRequest(testRequestId)).thenReturn(accountRequest);
         String correlationId = "correlationId";
         String internalUserId = "SYSTEM";
         accountRequestDataService.revokeAccountRequestData(testRequestId, testClientRole, correlationId);
@@ -186,33 +195,36 @@ public class AccountRequestDataServiceTest {
     @Test(expected = RecordNotFoundException.class)
     public void shouldThrowRecordNotFoundExceptionIfNoRecordReturnedForGETWithPath() throws IOException {
         String testRequestId = "test";
-        when(accountRequestInfoRepository.findByAccountRequestExternalIdentifier(testRequestId)).thenReturn(null);
-        accountRequestDataService.findByAccountRequestExternalIdentifier(testRequestId);
+        String txnCorrelationId = "correlationId";
+        when(accountRequestDAO.findAccountRequest(testRequestId)).thenThrow(new RecordNotFoundException("not found"));
+        accountRequestDataService.findByAccountRequestExternalIdentifier(testRequestId, txnCorrelationId);
     }
 
     @Test(expected = RecordNotFoundException.class)
     public void shouldThrowRecordNotFoundExceptionIfNoRecordReturnedForGETWithQuery() throws IOException {
         String testRequestId = "test";
         String clientid = "clientid";
-        when(accountRequestInfoRepository.findByAccountRequestExternalIdentifierAndProviderClientIdAndAccountRequestStatus(testRequestId, clientid, "AwaitingAuthorisation")).thenReturn(null);
-        accountRequestDataService.findByAccountRequestExternalIdentifierAndProviderClientId(testRequestId, clientid);
+        String txnCorrelationId = "correlationId";
+        when(accountRequestDAO.findAccountRequest(testRequestId, clientid)).thenThrow(new RecordNotFoundException("not found"));
+        accountRequestDataService.findByAccountRequestExternalIdentifierAndProviderClientId(testRequestId, clientid, txnCorrelationId);
     }
 
     @Test(expected = RecordNotFoundException.class)
     public void shouldThrowRecordNotFoundExceptionIfNoRecordReturnedForUpdateRequest() throws IOException, URISyntaxException {
         String testRequestId = "test";
-        when(accountRequestInfoRepository.findByAccountRequestExternalIdentifier(testRequestId)).thenReturn(null);
         UpdateAccountRequestInputData accountInputData = new UpdateAccountRequestInputData();
         accountInputData.setStatus("Authorised");
-        accountRequestDataService.updateAccountRequestData(accountInputData, testRequestId, "some-role");
+        String txnCorrelationId = "correlationId";
+        when(accountRequestDAO.getAccountRequest(testRequestId)).thenThrow(new RecordNotFoundException("not found"));
+        accountRequestDataService.updateAccountRequestData(accountInputData, testRequestId, "some-role", txnCorrelationId);
     }
 
     @Test(expected = RecordNotFoundException.class)
     public void shouldThrowRecordNotFoundExceptionIfNoRecordReturnedForDeleteRequest() throws IOException, URISyntaxException {
         String testRequestId = "test";
-        when(accountRequestInfoRepository.findByAccountRequestExternalIdentifier(testRequestId)).thenReturn(null);
         UpdateAccountRequestInputData accountInputData = new UpdateAccountRequestInputData();
         accountInputData.setStatus("Authorised");
+        when(accountRequestDAO.getAccountRequest(testRequestId)).thenThrow(new RecordNotFoundException("not found"));
         accountRequestDataService.revokeAccountRequestData(testRequestId, "some-role", "correlation-id");
     }
 

@@ -1,0 +1,13 @@
+---
+applications:
+- name: account-request-data
+  command: wlp/bin/server  run ard
+  buildpack: https://github.com/cloudfoundry/ibm-websphere-liberty-buildpack#v2.8.0.0
+  env:
+    IBM_JVM_LICENSE: L-PMAA-A3Z8P2
+    IBM_LIBERTY_LICENSE:  L-SWIS-AEPPZP
+    JAVA_HOME: /home/vcap/app/.java/jre
+#    JBP_LOG_LEVEL: DEBUG
+    IBM_JAVA_OPTIONS: '-Dspring.profiles.active=development  -Dhttp-port=$PORT'
+
+

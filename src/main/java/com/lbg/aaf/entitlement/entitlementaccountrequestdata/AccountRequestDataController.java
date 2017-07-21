@@ -1,30 +1,45 @@
 package com.lbg.aaf.entitlement.entitlementaccountrequestdata;
 
+import static com.lbg.aaf.entitlement.entitlementaccountrequestdata.util.AccountRequestDataConstant.X_FAPI_FINANCIAL_ID;
+import static com.lbg.aaf.entitlement.entitlementaccountrequestdata.util.AccountRequestDataConstant.X_FAPI_INTERACTION_ID;
+import static com.lbg.aaf.entitlement.entitlementaccountrequestdata.util.AccountRequestDataConstant.X_LBG_CLIENT_ID;
+import static com.lbg.aaf.entitlement.entitlementaccountrequestdata.util.AccountRequestDataConstant.X_LBG_INTERNAL_USER_ROLE;
+import static com.lbg.aaf.entitlement.entitlementaccountrequestdata.util.AccountRequestDataConstant.X_LBG_TXN_CORRELATION_ID;
+
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.util.concurrent.Callable;
-import java.util.logging.Logger;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
 
-import com.lbg.aaf.entitlement.entitlementaccountrequestdata.data.*;
+import com.lbg.ob.logger.Logger;
+import com.lbg.ob.logger.factory.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.util.StringUtils;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestHeader;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseStatus;
+import org.springframework.web.bind.annotation.RestController;
 
+import com.core.lbg.security.annotation.IsAllowed;
+import com.lbg.aaf.entitlement.entitlementaccountrequestdata.data.AccountRequestOutputResponse;
+import com.lbg.aaf.entitlement.entitlementaccountrequestdata.data.CreateAccountInputRequest;
+import com.lbg.aaf.entitlement.entitlementaccountrequestdata.data.UpdateAccountRequestInputData;
+import com.lbg.aaf.entitlement.entitlementaccountrequestdata.data.UpdateAccountRequestOutputData;
 import com.lbg.aaf.entitlement.entitlementaccountrequestdata.service.AccountRequestDataService;
-
-import static com.lbg.aaf.entitlement.entitlementaccountrequestdata.util.AccountRequestDataConstant.*;
-
 
 @RestController
 public final class AccountRequestDataController {
 
-    Logger logger = Logger.getLogger(AccountRequestDataController.class.getSimpleName());
+    private static Logger LOGGER = LoggerFactory.getLogger();
 
     @Autowired
     AccountRequestDataService<?> accountRequestDataService;
@@ -33,6 +48,7 @@ public final class AccountRequestDataController {
      * Create an account request
      * @return Callable<AccountRequestOutputData> List of accounts-requests
      */
+    @IsAllowed(role = {"SYSTEM"})
     @RequestMapping(value = "v1/accounts-requests", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     @ResponseStatus(HttpStatus.CREATED)
     public Callable<AccountRequestOutputResponse> createAccountRequests(
@@ -43,16 +59,18 @@ public final class AccountRequestDataController {
             @RequestHeader(value = X_FAPI_INTERACTION_ID, required = false) final String interactionId,
             @Valid @RequestBody final CreateAccountInputRequest createAccountInputRequest, final HttpServletRequest request,
             HttpServletResponse response) {
+        LOGGER.logTrace(request);
         if(!StringUtils.isEmpty(interactionId)) {
             response.setHeader(X_FAPI_INTERACTION_ID, interactionId);
         }
-        return () ->accountRequestDataService.createAccountRequestData(createAccountInputRequest, clientId, financialId);
+        return () ->accountRequestDataService.createAccountRequestData(createAccountInputRequest, clientId, financialId, txnCorrelationId);
     }
 
     /**
      * Get an account request for provided query parameter
      * @return Callable<AccountRequestOutputData> List of accounts-requests
      */
+    @IsAllowed(role = {"CUSTOMER"})
     @RequestMapping(value = "v1/accounts-requests", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
     @ResponseStatus(HttpStatus.OK)
     public Callable<AccountRequestOutputResponse> getAccountRequests(
@@ -60,13 +78,15 @@ public final class AccountRequestDataController {
             @RequestHeader(value = X_LBG_TXN_CORRELATION_ID) final String txnCorrelationId, final HttpServletRequest request, HttpServletResponse response,
             @RequestParam(required = true) final String accountRequestId,
             @RequestParam(required = true) final String clientId) {
-        return () -> accountRequestDataService.findByAccountRequestExternalIdentifierAndProviderClientId(accountRequestId, clientId);
+        LOGGER.logTrace(request);
+        return () -> accountRequestDataService.findByAccountRequestExternalIdentifierAndProviderClientId(accountRequestId, clientId, txnCorrelationId);
     }
 
     /**
      * Get an account request for unique account request identifier
      * @return Callable<AccountRequestOutputData> accounts-request
      */
+    @IsAllowed(role = {"SYSTEM"})
     @RequestMapping(value = "v1/accounts-requests/{accountRequestId}", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
     @ResponseStatus(HttpStatus.OK)
     public Callable<AccountRequestOutputResponse> getAccountRequestForAccountId(
@@ -77,10 +97,11 @@ public final class AccountRequestDataController {
             @RequestHeader(value = X_FAPI_INTERACTION_ID, required = false) final String interactionId,
             final HttpServletRequest request, HttpServletResponse response,
             @PathVariable final String accountRequestId) {
+        LOGGER.logTrace(request);
         if(!StringUtils.isEmpty(interactionId)) {
             response.setHeader(X_FAPI_INTERACTION_ID, interactionId);
         }
-        return () -> accountRequestDataService.findByAccountRequestExternalIdentifier(accountRequestId);
+        return () -> accountRequestDataService.findByAccountRequestExternalIdentifier(accountRequestId, txnCorrelationId);
     }
 
     /**
@@ -89,6 +110,7 @@ public final class AccountRequestDataController {
      * ASPSP
      * @return Callable<Boolean> accounts-request
      */
+    @IsAllowed(role = {"SYSTEM"})
     @RequestMapping(value = "v1/accounts-requests/{accountRequestId}", method = RequestMethod.DELETE, produces = MediaType.APPLICATION_JSON_VALUE)
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void deleteAccountRequestForAccountId(
@@ -99,6 +121,7 @@ public final class AccountRequestDataController {
             @RequestHeader(value = X_FAPI_INTERACTION_ID, required = false) final String interactionId,
             final HttpServletRequest request, HttpServletResponse response,
             @PathVariable final String accountRequestId) throws IOException, URISyntaxException {
+        LOGGER.logTrace(request);
         if(!StringUtils.isEmpty(interactionId)) {
             response.setHeader(X_FAPI_INTERACTION_ID, interactionId);
         }
@@ -109,6 +132,7 @@ public final class AccountRequestDataController {
      * AISP can Update a previously created account request (Authorised, Rejected).
      * @return Callable<UpdateAccountRequestOutputData> updatedRequestOuput
      */
+    @IsAllowed(role = {"CUSTOMER"})
     @RequestMapping(value = "v1/accounts-requests/{accountRequestId}/status", method = RequestMethod.PUT, produces = MediaType.APPLICATION_JSON_VALUE)
     @ResponseStatus(HttpStatus.OK)
     public Callable<UpdateAccountRequestOutputData> updateAccountRequestForRequestId(
@@ -116,7 +140,8 @@ public final class AccountRequestDataController {
             @RequestHeader(value = X_LBG_TXN_CORRELATION_ID) final String txnCorrelationId,
             final HttpServletRequest request, HttpServletResponse response,
             @PathVariable final String accountRequestId,
-            @RequestBody UpdateAccountRequestInputData inputData) throws Exception{
-        return () -> accountRequestDataService.updateAccountRequestData(inputData, accountRequestId, internalUserRole);
+            @RequestBody UpdateAccountRequestInputData inputData) {
+        LOGGER.logTrace(request);
+        return () -> accountRequestDataService.updateAccountRequestData(inputData, accountRequestId, internalUserRole, txnCorrelationId);
     }
 }

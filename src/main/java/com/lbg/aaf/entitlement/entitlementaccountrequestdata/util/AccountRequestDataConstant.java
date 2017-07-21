@@ -2,9 +2,10 @@ package com.lbg.aaf.entitlement.entitlementaccountrequestdata.util;
 
 public final class AccountRequestDataConstant {
 
+
     /*
-     * private constructor
-     */
+         * private constructor
+         */
     private AccountRequestDataConstant() {
         // private Constructor
     }
@@ -23,5 +24,6 @@ public final class AccountRequestDataConstant {
     public static final String REVOKED = "Revoked";
     public static final String X_FAPI_INTERACTION_ID = "x-fapi-interaction-id";
     public static final String X_FAPI_FINANCIAL_ID = "x-fapi-financial-id";
+    public static final String TIME_OUT_MSG = "Timed out while connecting to downstream service";
 
 }

@@ -2,7 +2,6 @@ package com.lbg.aaf.entitlement.entitlementaccountrequestdata.validation.validat
 
 import com.lbg.aaf.entitlement.entitlementaccountrequestdata.exception.ExceptionConstants;
 import com.lbg.aaf.entitlement.entitlementaccountrequestdata.exception.InvalidRequestException;
-import com.lbg.aaf.entitlement.entitlementaccountrequestdata.util.AccountRequestDataConstant;
 import com.lbg.aaf.entitlement.entitlementaccountrequestdata.validation.PermissionsConstraint;
 
 import javax.validation.ConstraintValidator;

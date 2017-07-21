@@ -4,7 +4,8 @@
 
 def deploy(String targetBranch, context) {
 	node() {
-		unstash "pipelines-${context.application}-${targetBranch}"
+	//	unstash "pipelines-${context.application}-${targetBranch}"
+		checkout scm
 		this.deployHandler(targetBranch, context)
 	}
 }
@@ -12,15 +13,15 @@ def deploy(String targetBranch, context) {
 def deployHandler(String targetBranch, context) {
 	def appName = appName(context, targetBranch)
 	def artifactName
-	String  memoryAllocation = context.config.environments.master.memory ?: '512M'
-	String  bluemixDomain =  context.config.bluemix.domain ?: 'lbg.eu-gb.bluemix.net'
-	String  bluemixAPI = context.config.bluemix.api ?: 'api.lbg.eu-gb.bluemix.net'
-	String  bluemixEnv = context.config.environments.master.bluemix.env ?: 'INVALID'
-	String  bluemixOrg = context.config.environments.master.bluemix.org ?: 'INVALID'
-	String  bluemixCredentials = context.config.bluemix.credentials ?: 'bluemix-global-deployer'
+	def memoryAllocation = context.config.environments.master.memory ?: '512M'
+	def bluemixDomain =  context.config.bluemix.domain ?: 'lbg.eu-gb.bluemix.net'
+	def bluemixAPI = context.config.bluemix.api ?: 'api.lbg.eu-gb.bluemix.net'
+	def bluemixEnv = context.config.environments.master.bluemix.env ?: 'INVALID'
+	def bluemixOrg = context.config.environments.master.bluemix.org ?: 'INVALID'
+	def bluemixCredentials = context.config.bluemix.credentials ?: 'bluemix-global-deployer'
 	dir('artifacts'){
 		unstash "artifact-${context.application}-${targetBranch}"
-		artifactName = sh(script: "ls *.?ar| head -1", returnStdout: true).trim()
+		artifactName = sh(script: "ls *.zip| grep -v config.zip | head -1", returnStdout: true).trim()
 	}
 	withCredentials([
 		usernamePassword(credentialsId: bluemixCredentials,
@@ -35,7 +36,7 @@ def deployHandler(String targetBranch, context) {
 			"MEMORY=${memoryAllocation}",
 			"APP=${appName}",
 			"CF_HOME=${env.WORKSPACE}",
-			"WARFILE=artifacts/${artifactName}"
+			"ZIPFILE=artifacts/${artifactName}"
 		]) {
 			try {
 				sh 'pipelines/scripts/bluemix_deploy.sh'
@@ -62,11 +63,11 @@ def purge(String targetBranch, context) {
 
 def purgeHandler(String targetBranch, context) {
 	def appName = appName(context, targetBranch)
-	String  bluemixDomain =  context.config.bluemix.domain ?: 'lbg.eu-gb.bluemix.net'
-	String  bluemixAPI = context.config.bluemix.api ?: 'api.lbg.eu-gb.bluemix.net'
-	String  bluemixEnv = context.config.environments.master.bluemix.env ?: 'INVALID'
-	String  bluemixOrg = context.config.environments.master.bluemix.org ?: 'INVALID'
-	String  bluemixCredentials = context.config.bluemix.credentials ?: 'bluemix-global-deployer'
+	def bluemixDomain =  context.config.bluemix.domain ?: 'lbg.eu-gb.bluemix.net'
+	def bluemixAPI = context.config.bluemix.api ?: 'api.lbg.eu-gb.bluemix.net'
+	def bluemixEnv = context.config.environments.master.bluemix.env ?: 'INVALID'
+	def bluemixOrg = context.config.environments.master.bluemix.org ?: 'INVALID'
+	def bluemixCredentials = context.config.bluemix.credentials ?: 'bluemix-global-deployer'
 
 	withCredentials([
 		usernamePassword(credentialsId: 'bluemix-global-deployer',
@@ -96,3 +97,4 @@ def name() {
 }
 
 return this;
+

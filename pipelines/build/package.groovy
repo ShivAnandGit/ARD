@@ -12,9 +12,9 @@ def pack(String targetBranch, String targetEnv, context) {
 
 def packHandler(String targetBranch, String targetEnv, context) {
 
-	String  mavenSettings  = context.config.maven.settings ?: 'pipelines/conf/settings.xml'
-	String  mavenPom = context.config.maven.pom ?: 'pom.xml'
-	String  mavenGoals = context.config.mavengoals.package?: "-U clean package -DskipTests=true"
+	def mavenSettings  = context.config.maven.settings ?: 'pipelines/conf/settings.xml'
+	def mavenPom = context.config.maven.pom ?: 'pom.xml'
+	def mavenGoals = context.config.mavengoals.package?: "-U clean package"
 	try {
 		dir('target'){deleteDir()}
 		sh """source pipelines/scripts/functions && \\
@@ -23,8 +23,8 @@ def packHandler(String targetBranch, String targetEnv, context) {
 					 				-f ${mavenPom} \\
 									"""
 		dir('target'){
-			archiveArtifacts '*.war,*.jar'
-			stash name: "artifact-${context.application}-${targetBranch}", includes: '*.war,*.jar'
+			archiveArtifacts '*.zip'
+			stash name: "artifact-${context.application}-${targetBranch}", includes: '*.zip'
 		}
 	} catch (error) {
 		echo "Caught: ${error}"
@@ -42,27 +42,41 @@ def publishNexus(String targetBranch, String targetEnv, context){
 	}
 }
 def publishNexusHandler(String targetBranch, String targetEnv, context){
-	def artifactName
-	String  nexusURL = context.config.nexus.url ?: 'http://invalid.url/'
-	def targetCommit =  sh(returnStdout: true, script: 'git rev-parse --short HEAD').trim()
-	def pomVersion = sh(returnStdout: true,	script: 'pipelines/scripts/maven_version.sh').trim()
-
-	def version = "${pomVersion}+${targetBranch}.${targetCommit}.${env.BUILD_NUMBER}"
+	String artifactName
+	String nexusURL = context.config.nexus.url ?: 'http://invalid.url/'
+	String targetCommit =  sh(returnStdout: true, script: 'git rev-parse --short HEAD').trim()
+	String classifier='SNAPSHOT'
+	String branchIdentifier = targetBranch.take(2)
+	switch(targetEnv) {
+		case 'integration':
+			if (targetBranch.startsWith('release')){
+				classifier = "release.${env.BUILD_NUMBER}"
+			} else if(targetBranch == 'master') {
+				classifier = "rc.${env.BUILD_NUMBER}"
+			} else if(targetBranch.startsWith('hotfix')) {
+				classifier = "hotfix.${env.BUILD_NUMBER}"
+			} else{
+				classifier = "${branchIdentifier}.${env.BUILD_NUMBER}"
+			}
+			break;
+		case 'feature': classifier = "SNAPSHOT" ; break ;
+		default: classifier = "SNAPSHOT" ; break ;
+	}
 
 	try {
 		dir ('j2'){
 			deleteDir()
 			unstash "artifact-${context.application}-${targetBranch}"
-			artifactName =  sh(returnStdout: true, script: 'ls *.?ar | head -1').trim()
+			artifactName =  sh(returnStdout: true, script: 'ls *.zip | head -1').trim()
 		}
 		withCredentials([
-			usernamePassword(credentialsId: 'nexus-snapshots',
+			usernamePassword(credentialsId: 'nexus-uploader',
 			passwordVariable: 'NEXUS_PASS',
 			usernameVariable: 'NEXUS_USER')
 		]) {
-			echo "PUBLISH: ${this.name()} artifact ${artifactName} v:${version} to ${nexusURL} "
+			echo "PUBLISH: ${this.name()} artifact ${artifactName} to ${nexusURL} "
 			withEnv([
-				"version=${version}",
+				"classifier=${classifier}",
 				"artifact=${artifactName}",
 				"url=${nexusURL}"
 			]){ sh 'pipelines/scripts/maven_deploy.sh'}

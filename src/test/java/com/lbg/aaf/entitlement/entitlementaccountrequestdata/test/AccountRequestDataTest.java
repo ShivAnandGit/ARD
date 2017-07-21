@@ -1,5 +1,7 @@
 package com.lbg.aaf.entitlement.entitlementaccountrequestdata.test;
 
+import java.lang.reflect.Field;
+import java.lang.reflect.Modifier;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -9,10 +11,23 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import com.lbg.aaf.entitlement.entitlementaccountrequestdata.data.*;
+import com.lbg.aaf.entitlement.entitlementaccountrequestdata.service.AccountRequestDataServiceImpl;
+import com.lbg.ob.logger.Logger;
+import com.lbg.ob.logger.factory.LoggerFactory;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
 import org.mockito.Mockito;
+import org.mockito.MockitoAnnotations;
+import org.powermock.api.mockito.PowerMockito;
+import org.powermock.core.classloader.annotations.PowerMockIgnore;
+import org.powermock.core.classloader.annotations.PrepareForTest;
+import org.powermock.modules.junit4.PowerMockRunner;
+import org.powermock.modules.junit4.PowerMockRunnerDelegate;
+import org.powermock.reflect.Whitebox;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
@@ -30,18 +45,22 @@ import com.lbg.aaf.entitlement.entitlementaccountrequestdata.service.AccountRequ
 import static org.junit.Assert.*;
 
 
-@RunWith(SpringRunner.class)
+//@RunWith(SpringRunner.class)
+@RunWith(PowerMockRunner.class)
+@PowerMockRunnerDelegate(SpringRunner.class)
 @DataJpaTest
 @SpringBootTest(classes = {AccountRequestDataServiceApplication.class})
 @Transactional(propagation = Propagation.NOT_SUPPORTED)
 @EnableWebMvc
+@PrepareForTest({AccountRequestDataController.class, LoggerFactory.class, AccountRequestDataServiceImpl.class, AccountRequestDataService.class, AccountRequestDataServiceApplication.class})
+@PowerMockIgnore({"javax.management.*"})
 public class AccountRequestDataTest<T> {
 
     @Autowired
     AccountRequestDataController accountRequestDataController;
 
     @Autowired
-    AccountRequestDataService<?> accountRequestDataService;
+    Logger LOGGER;
 
     @Value("${header.xlbginternaluserid}")
     private String xLbgInternalUserId;
@@ -55,9 +74,18 @@ public class AccountRequestDataTest<T> {
     @Autowired
     private JdbcTemplate jdbcTemplate;
 
+    @InjectMocks
+    AccountRequestDataServiceImpl accountRequestDataService;
+
     private static boolean setupDone = false;
+
     @Before
-    public void setup() {
+    public void setup() throws Exception {
+        MockitoAnnotations.initMocks(this);
+        PowerMockito.mockStatic(LoggerFactory.class);
+        Whitebox.setInternalState(AccountRequestDataController.class, LOGGER);
+        Whitebox.setInternalState(accountRequestDataService, "logger",LOGGER);
+        PowerMockito.when(LoggerFactory.getLogger()).thenReturn(LOGGER);
         if(setupDone) {
             return;
         }

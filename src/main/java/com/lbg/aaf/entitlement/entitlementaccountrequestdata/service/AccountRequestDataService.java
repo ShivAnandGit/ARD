@@ -15,8 +15,8 @@ public interface AccountRequestDataService<T> {
      * @throws IOException
      * @throws URISyntaxException
      */
-    public AccountRequestOutputResponse createAccountRequestData(CreateAccountInputRequest createAccountInputRequest, String clientId, String fapiFinancialId)
-            throws IOException, URISyntaxException;
+    public AccountRequestOutputResponse createAccountRequestData(CreateAccountInputRequest createAccountInputRequest, String clientId, String fapiFinancialId, String txnCorrelationId)
+            throws IOException, URISyntaxException, InterruptedException;
 
     /**
      * findByAccountRequestExternalIdentifierAndProviderClientId takes accountRequestId and clientId as input and will return the account request data associated with the request and client id
@@ -25,7 +25,7 @@ public interface AccountRequestDataService<T> {
      * @return AccountRequestOutputData accountRequestOutputData
      * @throws IOException
      */
-    public AccountRequestOutputResponse findByAccountRequestExternalIdentifierAndProviderClientId(String accountRequestId, String clientId)
+    public AccountRequestOutputResponse findByAccountRequestExternalIdentifierAndProviderClientId(String accountRequestId, String clientId, String txnCorrelationId)
             throws IOException, URISyntaxException;
 
     /**
@@ -34,7 +34,7 @@ public interface AccountRequestDataService<T> {
      * @return AccountRequestOutputData accountRequestOutputData
      * @throws IOException
      */
-    public AccountRequestOutputResponse findByAccountRequestExternalIdentifier(String accountRequestId)
+    public AccountRequestOutputResponse findByAccountRequestExternalIdentifier(String accountRequestId, String txnCorrelationId)
             throws IOException, URISyntaxException;
 
     /**
@@ -45,7 +45,7 @@ public interface AccountRequestDataService<T> {
      * @return AccountRequestOutputData accountRequestOutputData
      * @throws IOException, URISyntaxException
      */
-    public UpdateAccountRequestOutputData updateAccountRequestData(UpdateAccountRequestInputData createAccountInputData, String accountRequestId, String clientRole)
+    public UpdateAccountRequestOutputData updateAccountRequestData(UpdateAccountRequestInputData createAccountInputData, String accountRequestId, String clientRole, String txnCorrelationId)
             throws IOException, URISyntaxException;
 
     /**

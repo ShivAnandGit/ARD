@@ -39,7 +39,7 @@
   },
   "environments": {
   	"master": {
-  		"memory": "512M",
+  		"memory": "1024M",
   		"bluemix": {
 	       "org": "POC27_PSD2_AAF",
 	       "env": "DEV"

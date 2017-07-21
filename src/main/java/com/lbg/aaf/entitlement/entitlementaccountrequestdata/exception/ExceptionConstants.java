@@ -13,9 +13,17 @@ public final class ExceptionConstants {
     public static final String ARD_API_ERR_005 = "ARD_API_ERR_005";
 
     public static final String ARD_API_ERR_007 = "ARD_API_ERR_007";
+    
+    public static final String ARD_API_ERR_008 = "ARD_API_ERR_008";
 
     public static final String BAD_REQUEST_INVALID_REQUEST = "Bad request::Invalid request";
+    
+    public static final String INCORRECT_PERMISSIONS = "User doesn't have correct permissions";
 
     public static final String NOT_FOUND = "Not Found";
+    
+    
+
+    public static final String ARD_API_ERR_503 = "ARD_API_ERR_503";
 
 }

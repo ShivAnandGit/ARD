@@ -65,4 +65,19 @@ public final class AccountRequestStatusHistory {
         this.statusUpdatedByRole = statusUpdatedByRole;
     }
 
+    public Long getAccountRequestStatusHistoryId() {
+        return accountRequestStatusHistoryId;
+    }
+
+    public Long getAccountRequestInfoId() {
+        return accountRequestInfoId;
+    }
+
+    public String getAccountRequestStatus() {
+        return accountRequestStatus;
+    }
+
+    public InternalUserRoleEnum getStatusUpdatedByRole() {
+        return statusUpdatedByRole;
+    }
 }
