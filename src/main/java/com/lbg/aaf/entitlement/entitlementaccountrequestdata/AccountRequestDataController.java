@@ -9,6 +9,7 @@ import static com.lbg.aaf.entitlement.entitlementaccountrequestdata.util.Account
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutionException;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -39,7 +40,8 @@ import com.lbg.aaf.entitlement.entitlementaccountrequestdata.service.AccountRequ
 @RestController
 public final class AccountRequestDataController {
 
-    private static Logger LOGGER = LoggerFactory.getLogger();
+    @Autowired
+    Logger logger = LoggerFactory.getLogger();
 
     @Autowired
     AccountRequestDataService<?> accountRequestDataService;
@@ -59,7 +61,7 @@ public final class AccountRequestDataController {
             @RequestHeader(value = X_FAPI_INTERACTION_ID, required = false) final String interactionId,
             @Valid @RequestBody final CreateAccountInputRequest createAccountInputRequest, final HttpServletRequest request,
             HttpServletResponse response) {
-        LOGGER.logTrace(request);
+        logger.logTrace(request);
         if(!StringUtils.isEmpty(interactionId)) {
             response.setHeader(X_FAPI_INTERACTION_ID, interactionId);
         }
@@ -78,7 +80,7 @@ public final class AccountRequestDataController {
             @RequestHeader(value = X_LBG_TXN_CORRELATION_ID) final String txnCorrelationId, final HttpServletRequest request, HttpServletResponse response,
             @RequestParam(required = true) final String accountRequestId,
             @RequestParam(required = true) final String clientId) {
-        LOGGER.logTrace(request);
+        logger.logTrace(request);
         return () -> accountRequestDataService.findByAccountRequestExternalIdentifierAndProviderClientId(accountRequestId, clientId, txnCorrelationId);
     }
 
@@ -97,7 +99,7 @@ public final class AccountRequestDataController {
             @RequestHeader(value = X_FAPI_INTERACTION_ID, required = false) final String interactionId,
             final HttpServletRequest request, HttpServletResponse response,
             @PathVariable final String accountRequestId) {
-        LOGGER.logTrace(request);
+        logger.logTrace(request);
         if(!StringUtils.isEmpty(interactionId)) {
             response.setHeader(X_FAPI_INTERACTION_ID, interactionId);
         }
@@ -120,8 +122,8 @@ public final class AccountRequestDataController {
             @RequestHeader(value = X_FAPI_FINANCIAL_ID) final String financialId,
             @RequestHeader(value = X_FAPI_INTERACTION_ID, required = false) final String interactionId,
             final HttpServletRequest request, HttpServletResponse response,
-            @PathVariable final String accountRequestId) throws IOException, URISyntaxException {
-        LOGGER.logTrace(request);
+            @PathVariable final String accountRequestId) throws IOException, URISyntaxException, ExecutionException, InterruptedException {
+        logger.logTrace(request);
         if(!StringUtils.isEmpty(interactionId)) {
             response.setHeader(X_FAPI_INTERACTION_ID, interactionId);
         }
@@ -141,7 +143,7 @@ public final class AccountRequestDataController {
             final HttpServletRequest request, HttpServletResponse response,
             @PathVariable final String accountRequestId,
             @RequestBody UpdateAccountRequestInputData inputData) {
-        LOGGER.logTrace(request);
+        logger.logTrace(request);
         return () -> accountRequestDataService.updateAccountRequestData(inputData, accountRequestId, internalUserRole, txnCorrelationId);
     }
 }

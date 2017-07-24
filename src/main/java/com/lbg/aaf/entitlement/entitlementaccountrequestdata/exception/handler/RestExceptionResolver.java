@@ -1,7 +1,6 @@
 package com.lbg.aaf.entitlement.entitlementaccountrequestdata.exception.handler;
 
-import static com.lbg.aaf.entitlement.entitlementaccountrequestdata.exception.ExceptionConstants.ARD_API_ERR_002;
-
+import com.core.lbg.security.annotation.exception.ForbiddenException;
 import com.lbg.aaf.entitlement.entitlementaccountrequestdata.exception.*;
 import com.lbg.aaf.entitlement.entitlementaccountrequestdata.util.AccountRequestDataConstant;
 import com.lbg.ob.logger.Logger;
@@ -17,21 +16,13 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.context.request.WebRequest;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
 
-import com.core.lbg.security.annotation.exception.ForbiddenException;
-import com.lbg.aaf.entitlement.entitlementaccountrequestdata.exception.BaseException;
-import com.lbg.aaf.entitlement.entitlementaccountrequestdata.exception.EntitlementUpdateFailedException;
-import com.lbg.aaf.entitlement.entitlementaccountrequestdata.exception.ExceptionConstants;
-import com.lbg.aaf.entitlement.entitlementaccountrequestdata.exception.InvalidRequestException;
-import com.lbg.aaf.entitlement.entitlementaccountrequestdata.exception.RecordNotFoundException;
-
-import static com.lbg.aaf.entitlement.entitlementaccountrequestdata.exception.ExceptionConstants.ARD_API_ERR_002;
-import static com.lbg.aaf.entitlement.entitlementaccountrequestdata.exception.ExceptionConstants.ARD_API_ERR_503;
+import static com.lbg.aaf.entitlement.entitlementaccountrequestdata.exception.ExceptionConstants.*;
 import static com.lbg.aaf.entitlement.entitlementaccountrequestdata.util.AccountRequestDataConstant.X_LBG_TXN_CORRELATION_ID;
 
 @ControllerAdvice
 public class RestExceptionResolver extends ResponseEntityExceptionHandler {
 
-    public static final String TXN_CORRELATION_HEADER_MISSING = "x-lbg-txn-correlation-id header is missing";
+
     @Autowired
     private Logger exceptionLogger;
 
@@ -80,7 +71,6 @@ public class RestExceptionResolver extends ResponseEntityExceptionHandler {
     @ExceptionHandler(ResourceAccessException.class)
     public ResponseEntity<Object> handleHysterixException(ResourceAccessException ex, WebRequest request) {
         ErrorData errorData = new ErrorData(Long.valueOf(HttpStatus.SERVICE_UNAVAILABLE.toString()), ARD_API_ERR_503, AccountRequestDataConstant.TIME_OUT_MSG);
-        errorData.setStatusCode(Long.valueOf(HttpStatus.NOT_FOUND.toString()));
         exceptionLogger.logException(request.getHeader(X_LBG_TXN_CORRELATION_ID), ex.getCause());
         exceptionLogger.logFatal(request.getHeader(X_LBG_TXN_CORRELATION_ID), (null!=ex.getCause())?ex.getCause().getMessage():null);
         return handleExceptionInternal(ex, errorData, new HttpHeaders(), HttpStatus.SERVICE_UNAVAILABLE, request);
@@ -89,6 +79,10 @@ public class RestExceptionResolver extends ResponseEntityExceptionHandler {
     @ExceptionHandler(HystrixRuntimeException.class)
     public ResponseEntity<Object> hysterixExceptionHandler(HystrixRuntimeException ex, WebRequest request) {
         ErrorData errorData = new ErrorData(Long.valueOf(HttpStatus.SERVICE_UNAVAILABLE.toString()), ARD_API_ERR_503, AccountRequestDataConstant.TIME_OUT_MSG);
+        if(ex.getFailureType().equals(HystrixRuntimeException.FailureType.SHORTCIRCUIT)) {
+            errorData.setMessage(TOO_MANY_ERRORS);
+            errorData.setCode(ARD_API_ERR_100);
+        }
         exceptionLogger.logException(request.getHeader(X_LBG_TXN_CORRELATION_ID), ex.getCause());
         exceptionLogger.logFatal(request.getHeader(X_LBG_TXN_CORRELATION_ID), ex.getCause().getMessage());
         return handleExceptionInternal(ex, errorData, new HttpHeaders(), HttpStatus.SERVICE_UNAVAILABLE, request);

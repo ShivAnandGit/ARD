@@ -82,10 +82,6 @@ public class AccountRequestDataTest<T> {
     @Before
     public void setup() throws Exception {
         MockitoAnnotations.initMocks(this);
-        PowerMockito.mockStatic(LoggerFactory.class);
-        Whitebox.setInternalState(AccountRequestDataController.class, LOGGER);
-        Whitebox.setInternalState(accountRequestDataService, "logger",LOGGER);
-        PowerMockito.when(LoggerFactory.getLogger()).thenReturn(LOGGER);
         if(setupDone) {
             return;
         }
@@ -240,5 +236,6 @@ public class AccountRequestDataTest<T> {
         accountRequestDataController.deleteAccountRequestForAccountId("CUSTOMER", "adf", "clientid", "financial-id-1", null, request, response, "adf1");
         assertTrue(true);
     }
+
 
 }

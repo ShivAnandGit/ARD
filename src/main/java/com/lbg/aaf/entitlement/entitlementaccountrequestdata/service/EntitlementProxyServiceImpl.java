@@ -25,7 +25,6 @@ import static com.lbg.aaf.entitlement.entitlementaccountrequestdata.util.Account
 
 @Service
 @DefaultProperties(defaultFallback = "fallback")
-@PropertySource("classpath:app.properties")
 public class EntitlementProxyServiceImpl implements EntitlementProxyService {
 
     public static final String ENTITLEMENT_NOT_REVOKED = "Entitlement couldnt be revoked";
@@ -40,8 +39,8 @@ public class EntitlementProxyServiceImpl implements EntitlementProxyService {
     private String correlationId;
 
     @Override
-    @HystrixCommand(commandKey = "entitlementService", ignoreExceptions = {EntitlementUpdateFailedException.class, InterruptedException.class, ExecutionException.class})
-    public void revokeEntitlement(Long entitlementId, String internalUserId, String internalUserRole, String correlationId) {
+    @HystrixCommand(commandKey = "entitlementService", ignoreExceptions = {EntitlementUpdateFailedException.class})
+    public void revokeEntitlement(Long entitlementId, String internalUserId, String internalUserRole, String correlationId) throws ExecutionException, InterruptedException {
         logger.logTrace(correlationId, "ENTRY -> revokeEntitlement");
         this.correlationId = correlationId;
         AsyncRestTemplate restTemplate = new AsyncRestTemplate();
@@ -49,24 +48,20 @@ public class EntitlementProxyServiceImpl implements EntitlementProxyService {
         EntitlementStatusUpdateInputData entitlementStatusUpdateInputData = new EntitlementStatusUpdateInputData(entitlementId);
         HttpEntity<EntitlementStatusUpdateInputData> httpEntity = new HttpEntity<>(entitlementStatusUpdateInputData, requestHeaders);
         ListenableFuture<ResponseEntity<EntitlementOutputData[]>> future = restTemplate.exchange(requestURL, HttpMethod.PUT, httpEntity, EntitlementOutputData[].class);
-        try {
-            //waits for the result
-            ResponseEntity<EntitlementOutputData[]> entities = future.get();
-            int value = entities.getStatusCode().value();
-            if(value != 200) {
-                logger.logInfo(correlationId, "Entitlement API returned status code as - "+ value);
-                throw new EntitlementUpdateFailedException(ENTITLEMENT_NOT_REVOKED);
-            }
-            EntitlementOutputData[] body = entities.getBody();
-            String updatedEntitlementStatus = body[0].getUpdatedEntitlementStatus();
-            if(!(AccountRequestStatusEnum.REVOKED.getValue()).equalsIgnoreCase(updatedEntitlementStatus)) {
-                logger.logInfo(correlationId, "Entitlement API returned Entitlement status as - "+ updatedEntitlementStatus);
-                throw new EntitlementUpdateFailedException(ENTITLEMENT_NOT_REVOKED);
-            }
-        } catch (InterruptedException | ExecutionException e) {
-            logger.logException(correlationId, e);
-            throw new EntitlementUpdateFailedException(ENTITLEMENT_SERVICE_ERROR, e);
+        //waits for the result
+        ResponseEntity<EntitlementOutputData[]> entities = future.get();
+        int value = entities.getStatusCode().value();
+        if(value != 200) {
+            logger.logInfo(correlationId, "Entitlement API returned status code as - "+ value);
+            throw new EntitlementUpdateFailedException(ENTITLEMENT_NOT_REVOKED);
         }
+        EntitlementOutputData[] body = entities.getBody();
+        String updatedEntitlementStatus = body[0].getUpdatedEntitlementStatus();
+        if(!(AccountRequestStatusEnum.REVOKED.getValue()).equalsIgnoreCase(updatedEntitlementStatus)) {
+            logger.logInfo(correlationId, "Entitlement API returned Entitlement status as - "+ updatedEntitlementStatus);
+            throw new EntitlementUpdateFailedException(ENTITLEMENT_NOT_REVOKED);
+        }
+
         logger.logTrace(correlationId, "EXIT -> revokeEntitlement");
     }
 

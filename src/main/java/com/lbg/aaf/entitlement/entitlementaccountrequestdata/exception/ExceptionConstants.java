@@ -21,8 +21,12 @@ public final class ExceptionConstants {
     public static final String INCORRECT_PERMISSIONS = "User doesn't have correct permissions";
 
     public static final String NOT_FOUND = "Not Found";
-    
-    
+
+    public static final String TXN_CORRELATION_HEADER_MISSING = "x-lbg-txn-correlation-id header is missing";
+
+    public static final String ARD_API_ERR_100 = "ARD_API_ERR_100";
+
+    public static final String TOO_MANY_ERRORS = "Too many errors encountered while communicating with downstream service";
 
     public static final String ARD_API_ERR_503 = "ARD_API_ERR_503";
 

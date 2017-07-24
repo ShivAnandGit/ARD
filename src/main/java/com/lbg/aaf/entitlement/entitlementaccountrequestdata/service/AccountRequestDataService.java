@@ -2,6 +2,7 @@ package com.lbg.aaf.entitlement.entitlementaccountrequestdata.service;
 
 import java.io.IOException;
 import java.net.URISyntaxException;
+import java.util.concurrent.ExecutionException;
 
 import com.lbg.aaf.entitlement.entitlementaccountrequestdata.data.*;
 
@@ -57,6 +58,6 @@ public interface AccountRequestDataService<T> {
      * @throws IOException, URISyntaxException
      */
     public void revokeAccountRequestData(String accountRequestId, String clientRole, String txnCorrelationId)
-            throws IOException, URISyntaxException;
+            throws IOException, URISyntaxException, ExecutionException, InterruptedException;
 
 }

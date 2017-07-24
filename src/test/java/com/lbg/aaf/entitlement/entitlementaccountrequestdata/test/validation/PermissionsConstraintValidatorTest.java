@@ -3,12 +3,15 @@ package com.lbg.aaf.entitlement.entitlementaccountrequestdata.test.validation;
 import com.lbg.aaf.entitlement.entitlementaccountrequestdata.data.CreateAccountInputData;
 import com.lbg.aaf.entitlement.entitlementaccountrequestdata.data.CreateAccountInputRequest;
 import com.lbg.aaf.entitlement.entitlementaccountrequestdata.exception.InvalidRequestException;
+import com.lbg.aaf.entitlement.entitlementaccountrequestdata.test.TestConfig;
 import com.lbg.aaf.entitlement.entitlementaccountrequestdata.validation.validator.PermissionsConstraintValidator;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit4.SpringRunner;
 
 import javax.validation.ConstraintViolation;
@@ -24,9 +27,13 @@ import static org.junit.Assert.assertEquals;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest
+@TestPropertySource(properties = {
+        "entitlementURL=testValue",
+})
 public class PermissionsConstraintValidatorTest {
     CreateAccountInputData data;
     CreateAccountInputRequest createAccountInput;
+
 
     @Autowired
     private Validator validator;

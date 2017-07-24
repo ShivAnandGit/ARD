@@ -3,9 +3,9 @@ spring:
     default: development
     active: development
   datasource:
-    url: jdbc:oracle:thin:@10.112.159.86:40000/xe
-    username: accountrequest
-    password: default
+    url: ${datasourceURL}
+    username: ${datasourceUser}
+    password: ${datasourcePassword}
     driver-class-name: oracle.jdbc.OracleDriver
     initialSize: 3 
     maxActive: 5
@@ -26,7 +26,7 @@ spring:
 
 spring:
   profiles: development
-  
+
 # context Path
 server:
     port: 8080
@@ -35,7 +35,7 @@ server:
 
 spring:
   profiles: test
-  
+
 # context Path
 server:
     port: 8080
@@ -45,7 +45,7 @@ server:
 
 spring:
   profiles: production
-  
+
 # context Path
 server:
     port: 8080
@@ -75,24 +75,26 @@ hystrix:
       execution:
         isolation:
           thread:
-            timeoutInMilliseconds: 3000
+            timeoutInMilliseconds: 8000
           strategy: THREAD
       fallback:
         enabled: true
       circuitBreaker:
         enabled: true
-        sleepWindowInMilliseconds: 500
-        requestVolumeThreshold: 2
+        sleepWindowInMilliseconds: 30000
+        requestVolumeThreshold: 5
+        errorThresholdPercentage: 50
     entitlementService:
       execution:
         isolation:
           thread:
-            timeoutInMilliseconds: 10000
+            timeoutInMilliseconds: 5000
             interruptOnTimeout: true
       fallback:
         enabled: true
       circuitBreaker:
         enabled: true
-        sleepWindowInMilliseconds: 500
-        requestVolumeThreshold: 2
+        sleepWindowInMilliseconds: 30000
+        requestVolumeThreshold: 5
+        errorThresholdPercentage: 50
 

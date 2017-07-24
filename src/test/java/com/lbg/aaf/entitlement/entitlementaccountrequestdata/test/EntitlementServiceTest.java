@@ -1,9 +1,12 @@
 package com.lbg.aaf.entitlement.entitlementaccountrequestdata.test;
 
 import com.lbg.aaf.entitlement.entitlementaccountrequestdata.data.EntitlementOutputData;
+import com.lbg.aaf.entitlement.entitlementaccountrequestdata.data.UpdateAccountRequestInputData;
 import com.lbg.aaf.entitlement.entitlementaccountrequestdata.exception.EntitlementUpdateFailedException;
+import com.lbg.aaf.entitlement.entitlementaccountrequestdata.exception.ResourceAccessException;
 import com.lbg.aaf.entitlement.entitlementaccountrequestdata.service.EntitlementProxyServiceImpl;
 import com.lbg.ob.logger.Logger;
+import com.netflix.hystrix.exception.HystrixTimeoutException;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -14,6 +17,7 @@ import org.mockito.MockitoAnnotations;
 import org.powermock.api.mockito.PowerMockito;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
+import org.powermock.reflect.Whitebox;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
@@ -97,31 +101,13 @@ public class EntitlementServiceTest {
         entitlementService.revokeEntitlement(entitlementId, userId, internalUserRole, correlationId);
     }
 
-    @Test(expected = EntitlementUpdateFailedException.class)
-    public void shouldThrowExceptionWhenEntitlementCallIsInterrupted() throws Exception {
-        String correlationId = "corelation-id";
-        String internalUserRole = "some-role";
-        String userId = "SYSTEM";
-        long entitlementId = 1234L;
-        PowerMockito.whenNew(AsyncRestTemplate.class).withNoArguments().thenReturn(restTemplate);
-
-        ListenableFuture<ResponseEntity<EntitlementOutputData[]>> future = getListenableFuture("Active", HttpStatus.OK, new InterruptedException());
-        when(restTemplate.exchange(anyString(), Mockito.<HttpMethod> any(), Mockito.<HttpEntity> any(), Mockito.<Class<EntitlementOutputData[]>> any())).thenReturn(future);
-        entitlementService.revokeEntitlement(entitlementId, userId, internalUserRole, correlationId);
+    @Test(expected = ResourceAccessException.class)
+    public void shouldThrowResourceAccessExceptionForFallback() throws Exception {
+        Throwable ex = new HystrixTimeoutException();
+        Mockito.doNothing().when(LOGGER).logException(anyString(), any(Throwable.class));
+        Whitebox.invokeMethod(entitlementService,"fallback", ex);
     }
 
-    @Test(expected = EntitlementUpdateFailedException.class)
-    public void shouldThrowExceptionWhenEntitlementCallHasExecutionProblems() throws Exception {
-        String correlationId = "corelation-id";
-        String internalUserRole = "some-role";
-        String userId = "SYSTEM";
-        long entitlementId = 1234L;
-        PowerMockito.whenNew(AsyncRestTemplate.class).withNoArguments().thenReturn(restTemplate);
-
-        ListenableFuture<ResponseEntity<EntitlementOutputData[]>> future = getListenableFuture("Active", HttpStatus.OK, new ExecutionException("", new Exception()));
-        when(restTemplate.exchange(anyString(), Mockito.<HttpMethod> any(), Mockito.<HttpEntity> any(), Mockito.<Class<EntitlementOutputData[]>> any())).thenReturn(future);
-        entitlementService.revokeEntitlement(entitlementId, userId, internalUserRole, correlationId);
-    }
 
     private ListenableFuture<ResponseEntity<EntitlementOutputData[]>> getListenableFuture(String revokedStatus, HttpStatus status, final Throwable ex) {
         EntitlementOutputData entitlement = new EntitlementOutputData();

@@ -3,9 +3,9 @@ spring:
     default: development
     active: development
   datasource:
-    url: jdbc:oracle:thin:@10.112.159.86:40000/xe
-    username: accountrequest
-    password: default
+    url: ${datasourceURL}
+    username: ${datasourceUser}
+    password: ${datasourcePassword}
     driver-class-name: oracle.jdbc.OracleDriver
     initialSize: 3
     maxActive: 5
@@ -82,6 +82,7 @@ hystrix:
         enabled: true
         sleepWindowInMilliseconds: ${circuitSleepWindowMillis}
         requestVolumeThreshold: ${requestVolumeThreshold}
+        errorThresholdPercentage: ${errorThresholdPercentage}
     entitlementService:
       execution:
         isolation:
@@ -94,3 +95,4 @@ hystrix:
         enabled: true
         sleepWindowInMilliseconds: ${circuitSleepWindowMillis}
         requestVolumeThreshold: ${requestVolumeThreshold}
+        errorThresholdPercentage: ${errorThresholdPercentage}

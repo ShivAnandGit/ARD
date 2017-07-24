@@ -3,6 +3,7 @@ package com.lbg.aaf.entitlement.entitlementaccountrequestdata.test;
 import com.lbg.aaf.entitlement.entitlementaccountrequestdata.data.*;
 import com.lbg.aaf.entitlement.entitlementaccountrequestdata.exception.InvalidRequestException;
 import com.lbg.aaf.entitlement.entitlementaccountrequestdata.exception.RecordNotFoundException;
+import com.lbg.aaf.entitlement.entitlementaccountrequestdata.exception.ResourceAccessException;
 import com.lbg.aaf.entitlement.entitlementaccountrequestdata.service.AccountRequestDAO;
 import com.lbg.aaf.entitlement.entitlementaccountrequestdata.service.AccountRequestDataServiceImpl;
 import com.lbg.aaf.entitlement.entitlementaccountrequestdata.service.EntitlementProxyService;
@@ -10,27 +11,34 @@ import com.lbg.aaf.entitlement.entitlementaccountrequestdata.util.AccountRequest
 import com.lbg.aaf.entitlement.entitlementaccountrequestdata.util.StateChangeMachine;
 import com.lbg.ob.logger.Logger;
 import com.lbg.ob.logger.factory.LoggerFactory;
+import com.netflix.hystrix.exception.HystrixTimeoutException;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
+import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 import org.powermock.api.mockito.PowerMockito;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
+import org.powermock.reflect.Whitebox;
+import org.springframework.boot.context.config.ResourceNotFoundException;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
 
 import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
 import java.net.URISyntaxException;
+import java.util.concurrent.ExecutionException;
 
 import static com.lbg.aaf.entitlement.entitlementaccountrequestdata.exception.ExceptionConstants.ARD_API_ERR_007;
 import static com.lbg.aaf.entitlement.entitlementaccountrequestdata.exception.ExceptionConstants.BAD_REQUEST_INVALID_REQUEST;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
+import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyString;
+import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.when;
 
 @RunWith(PowerMockRunner.class)
@@ -137,7 +145,7 @@ public class AccountRequestDataServiceTest {
 
 
     @Test
-    public void shouldUpdateAccountRequestAsRevokedForValidRequestAuthorised() throws IOException, URISyntaxException {
+    public void shouldUpdateAccountRequestAsRevokedForValidRequestAuthorised() throws IOException, URISyntaxException, ExecutionException, InterruptedException {
         AccountRequest accountRequest = new AccountRequest();
         long accountRequestIdentifier = 1234L;
         long entitlementId = 1122L;
@@ -158,7 +166,7 @@ public class AccountRequestDataServiceTest {
     }
 
     @Test
-    public void shouldUpdateAccountRequestAsRevokedForValidRequestAwaitingAuth() throws IOException, URISyntaxException {
+    public void shouldUpdateAccountRequestAsRevokedForValidRequestAwaitingAuth() throws IOException, URISyntaxException, ExecutionException, InterruptedException {
         AccountRequest accountRequest = new AccountRequest();
         long accountRequestIdentifier = 1234L;
         accountRequest.setAccountRequestIdentifier(accountRequestIdentifier);
@@ -176,7 +184,7 @@ public class AccountRequestDataServiceTest {
     }
 
     @Test(expected = InvalidRequestException.class)
-    public void shouldThrowExceptionWhenRevokeRequestForAlreadyRevokedARD() throws IOException, URISyntaxException {
+    public void shouldThrowExceptionWhenRevokeRequestForAlreadyRevokedARD() throws IOException, URISyntaxException, ExecutionException, InterruptedException {
         AccountRequest accountRequest = new AccountRequest();
         long accountRequestIdentifier = 1234L;
         long entitlementId = 1122L;
@@ -220,12 +228,62 @@ public class AccountRequestDataServiceTest {
     }
 
     @Test(expected = RecordNotFoundException.class)
-    public void shouldThrowRecordNotFoundExceptionIfNoRecordReturnedForDeleteRequest() throws IOException, URISyntaxException {
+    public void shouldThrowRecordNotFoundExceptionIfNoRecordReturnedForDeleteRequest() throws IOException, URISyntaxException, ExecutionException, InterruptedException {
         String testRequestId = "test";
         UpdateAccountRequestInputData accountInputData = new UpdateAccountRequestInputData();
         accountInputData.setStatus("Authorised");
         when(accountRequestDAO.getAccountRequest(testRequestId)).thenThrow(new RecordNotFoundException("not found"));
         accountRequestDataService.revokeAccountRequestData(testRequestId, "some-role", "correlation-id");
+    }
+
+    @Test(expected = ResourceAccessException.class)
+    public void shouldThrowResourceAccessExceptionForCreateFallback() throws Exception {
+        String clientId = "clientid";
+        String fapiFinancialId = "fapiid";
+        String txnCorrelationId = "txnid";
+        Throwable ex = new HystrixTimeoutException();
+        CreateAccountInputRequest createAccountInputRequest = null;
+        Mockito.doNothing().when(LOGGER).logException(anyString(), any(Throwable.class));
+        Whitebox.invokeMethod(accountRequestDataService,"fallbackCreate",createAccountInputRequest, clientId, fapiFinancialId, txnCorrelationId, ex);
+    }
+
+    @Test(expected = ResourceAccessException.class)
+    public void shouldThrowResourceAccessExceptionForFallbackFindWithClientId() throws Exception {
+        String clientId = "clientid";
+        String accountRequestId = "accountRequestId";
+        String txnCorrelationId = "txnid";
+        Throwable ex = new HystrixTimeoutException();
+        Mockito.doNothing().when(LOGGER).logException(anyString(), any(Throwable.class));
+        Whitebox.invokeMethod(accountRequestDataService,"fallbackFindWithClientId", accountRequestId, clientId, txnCorrelationId, ex);
+    }
+
+    @Test(expected = ResourceAccessException.class)
+    public void shouldThrowResourceAccessExceptionForFallbackFind() throws Exception {
+        String accountRequestId = "accountRequestId";
+        String txnCorrelationId = "txnid";
+        Throwable ex = new HystrixTimeoutException();
+        Mockito.doNothing().when(LOGGER).logException(anyString(), any(Throwable.class));
+        Whitebox.invokeMethod(accountRequestDataService,"fallbackFind", accountRequestId, txnCorrelationId, ex);
+    }
+
+    @Test(expected = ResourceAccessException.class)
+    public void shouldThrowResourceAccessExceptionForFallbackRevoke() throws Exception {
+        String accountRequestId = "accountRequestId";
+        String txnCorrelationId = "txnid";
+        Throwable ex = new HystrixTimeoutException();
+        Mockito.doNothing().when(LOGGER).logException(anyString(), any(Throwable.class));
+        Whitebox.invokeMethod(accountRequestDataService,"fallbackRevoke", accountRequestId, "clientRole", txnCorrelationId, ex);
+    }
+
+    @Test(expected = ResourceAccessException.class)
+    public void shouldThrowResourceAccessExceptionForFallbackUpdate() throws Exception {
+        String accountRequestId = "accountRequestId";
+        String txnCorrelationId = "txnid";
+        Throwable ex = new HystrixTimeoutException();
+
+        Mockito.doNothing().when(LOGGER).logException(anyString(), any(Throwable.class));
+        UpdateAccountRequestInputData accountInputData = null;
+        Whitebox.invokeMethod(accountRequestDataService,"fallbackUpdate", accountInputData, accountRequestId, "clientRole", txnCorrelationId, ex);
     }
 
 }

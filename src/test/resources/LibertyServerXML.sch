@@ -398,7 +398,7 @@
                 [CRITICAL][SECURITY] ID=<sch:value-of select="$ID"/>: datasource should have a queryTimeout.  
                 The queryTimeout must NOT exceed the oracle.jdbc.ReadTimeout.  This is NOT checked by this tool!
             </sch:assert>                        
-              
+
             <sch:assert test="count(properties.oracle/@userName)=0">
                 [CRITICAL][SECURITY] ID=<sch:value-of select="$ID"/>: datasource should NOT have a userName.  Use a Authentication Alias instead&gt;
             </sch:assert>
@@ -406,16 +406,16 @@
             <sch:assert test="count(properties.oracle/@password)=0">
                 [CRITICAL][SECURITY] ID=<sch:value-of select="$ID"/>: datasource should NOT have a password.  Use a Authentication Alias instead&gt;
             </sch:assert>
-            
+
        		<sch:assert test="(boolean(//connectionManager[@id=@connectionManagerRef]) or connectionManager) and (count(//connectionManager[@id=@connectionManagerRef]) + count(connectionManager) = 1 )">
                 [ERROR][PERFORMANCE] ID=<sch:value-of select="$ID"/>: The datasource connectionManager configuration is incorrect.  It either does not use a connection manager or specifies both a connectionManagerRef and a connectionManager.
-            </sch:assert>   
-       		
+            </sch:assert>
+
        		<sch:assert test="boolean(properties.oracle/@connectionProperties[matches(.,'oracle\.jdbc\.ReadTimeout=([1-9]|[1-9][0-9]|1[0-1][1-9])(000;|000$)')])">
                 [ERROR][PERFORMANCE] ID=<sch:value-of select="$ID"/>: oracle.jdbc.ReadTimeout=[1-120] must be set;
                      <sch:value-of select="$connectionProperties"/>
-            </sch:assert>  
-       		
+            </sch:assert>
+
        		<sch:assert test="boolean(properties.oracle/@loginTimeout[matches(.,'([1-5])(s$)')])">
                 [ERROR][PERFORMANCE] ID=<sch:value-of select="$ID"/>: loginTimeout=[1-5]s must be set;
                      <sch:value-of select="$connectionProperties"/>
