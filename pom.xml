@@ -22,6 +22,20 @@
     <artifactId>account-request-data</artifactId>
     <version>0.0.1-SNAPSHOT</version>
     <packaging>war</packaging>
+   <distributionManagement>
+       <repository>
+           <uniqueVersion>true</uniqueVersion>
+           <id>nexus-releases</id>
+           <name>nexus-releases</name>
+           <url>http://nexus.sandbox.extranet.group/nexus/content/repositories/releases</url>
+       </repository>
+       <snapshotRepository>
+           <uniqueVersion>false</uniqueVersion>
+           <id>nexus-snapshots</id>
+           <name>nexus-snapshots</name>
+           <url>http://nexus.sandbox.extranet.group/nexus/content/repositories/maven-repo-snapshot</url>
+       </snapshotRepository>
+   </distributionManagement>
 
     <dependencies>
         <dependency>
