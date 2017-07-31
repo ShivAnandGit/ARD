@@ -349,8 +349,7 @@
                         <runtimeUrl>${wlpRuntime}</runtimeUrl>
                     </install>
                     <serverName>ard</serverName>
-                    <os>Linux</os>
-                    <include>minify</include>
+                    <include>all</include>
                     <installAppPackages>project</installAppPackages>
                     <appsDirectory>apps</appsDirectory>
                     <configDirectory>target/wlpconfig/</configDirectory>
