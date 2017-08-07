@@ -1,0 +1,58 @@
+#! /usr/local/bin/groovy
+
+@Library('workflowlib-sandbox@v2.6.1')
+import com.lbg.workflow.sandbox.*
+
+properties([
+	buildDiscarder(logRotator(artifactDaysToKeepStr: '1', artifactNumToKeepStr: '5', daysToKeepStr: '1', numToKeepStr: '5')),
+	[$class: 'RebuildSettings', autoRebuild: true, rebuildDisabled: false]
+])
+
+def deployer
+def context
+def tester
+def epoch
+
+def targetBranch= env.BRANCH_NAME?: 'veracode'
+
+
+stage('Initialize'){
+	node(){
+		deleteDir()
+		checkout scm
+		context = new BuildContext('ob-cnf-account-request-data-api', readFile('pipelines/cron/veracode/job-configuration.json'))
+		epoch = sh(returnStdout: true, script: 'date +%d%m%Y%H%M').trim()
+
+		deployer = load('pipelines/tests/veracode.groovy')
+
+
+	}
+}
+milestone(label:'initialized')
+
+lock(inversePrecedence: true, quantity: 1, resource: "ob-cnf-account-request-data-api-${targetBranch}"){
+
+
+	stage('package'){
+
+		try{
+			deployer.runTest("${targetBranch}", context)
+		}catch(error) {
+			echo error.message
+			echo "IGNORE: Failure"
+		}finally{
+        }
+	}
+	milestone(label:'packaged')
+
+	stage('veracode'){
+	node(){
+		deployer.uploadVeracode("${targetBranch}", context)
+		deployer.publishSplunk( targetBranch, epoch, context, 'handler')
+	}
+	}
+	milestone(label:'uploaded')
+
+
+
+} //End Lock
