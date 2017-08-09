@@ -38,13 +38,28 @@
 	"credentials": "bluemix-global-deployer"
   },
   "environments": {
-  	"master": {
-  		"memory": "1024M",
-  		"bluemix": {
-	       "org": "POC27_PSD2_AAF",
-	       "env": "DEV"
-		 }
-	 }
-  }
+		"master": {
+			"memory": "1024M",
+			"bluemix": {
+				"org": "POC27_PSD2_AAF",
+				"env": "DEV"
+			},
+			"dbUsername": "accountrequest",
+			"dbPassword": "default",
+			"dbConnectionString": "jdbc:oracle:thin:@10.112.159.89:40000/xe",
+			"entitlementRevokeUrl": "https://j2-ob-cnf-proxy-master.lbg.eu-gb.mybluemix.net/entitlement-service/v1/entitlements/status/revoke"
+		},
+		"ci": {
+			"memory": "1024M",
+			"bluemix": {
+				"org": "POC27_PSD2_AAF",
+				"env": "DEV"
+			},
+			"dbUsername": "accountrequest",
+			"dbPassword": "default",
+			"dbConnectionString": "jdbc:oracle:thin:@10.112.159.89:40000/xe",
+			"entitlementRevokeUrl": "https://j2-ob-cnf-proxy-ci.lbg.eu-gb.mybluemix.net/entitlement-service/v1/entitlements/status/revoke"
+		}
+	}
 }
 	

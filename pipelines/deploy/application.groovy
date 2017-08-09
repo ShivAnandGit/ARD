@@ -13,6 +13,10 @@ def deploy(String targetBranch, context) {
 def deployHandler(String targetBranch, context) {
 	def appName = appName(context, targetBranch)
 	def artifactName
+	def dbConnectionString
+	def dbUsername
+	def dbPassword
+	def entitlementRevokeUrl
 	def memoryAllocation = context.config.environments.master.memory ?: '512M'
 	def bluemixDomain =  context.config.bluemix.domain ?: 'lbg.eu-gb.bluemix.net'
 	def bluemixAPI = context.config.bluemix.api ?: 'api.lbg.eu-gb.bluemix.net'
@@ -23,12 +27,30 @@ def deployHandler(String targetBranch, context) {
 		unstash "artifact-${context.application}-${targetBranch}"
 		artifactName = sh(script: "ls *.zip| grep -v config.zip | head -1", returnStdout: true).trim()
 	}
+	switch (targetBranch) {
+		case 'master':
+			dbUsername = context.config.environments.master.dbUsername
+			dbPassword = context.config.environments.master.dbPassword
+			dbConnectionString = context.config.environments.master.dbConnectionString
+			entitlementRevokeUrl = context.config.environments.master.entitlementRevokeUrl
+			break
+		default:
+			dbUsername = context.config.environments.ci.dbUsername
+			dbPassword = context.config.environments.ci.dbPassword
+			dbConnectionString = context.config.environments.ci.dbConnectionString
+			entitlementRevokeUrl = context.config.environments.ci.entitlementRevokeUrl
+			break
+		}
 	withCredentials([
 		usernamePassword(credentialsId: bluemixCredentials,
 		passwordVariable: 'BM_PASS',
 		usernameVariable: 'BM_USER')
 	]) {
 		withEnv([
+			"DB_USERNAME=${dbUsername}",
+			"DB_PASSWORD=${dbPassword}",
+			"DB_CONNECTION_STRING=${dbConnectionString}",
+			"ENTITLEMENT_REVOKE_URL=${entitlementRevokeUrl}",
 			"BM_API=${bluemixAPI}",
 			"BM_DOMAIN=${bluemixDomain}",
 			"BM_ORG=${bluemixOrg}",

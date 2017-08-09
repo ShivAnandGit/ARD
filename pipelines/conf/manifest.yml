@@ -8,6 +8,6 @@ applications:
     IBM_LIBERTY_LICENSE:  L-SWIS-AEPPZP
     JAVA_HOME: /home/vcap/app/.java/jre
 #    JBP_LOG_LEVEL: DEBUG
-    IBM_JAVA_OPTIONS: '-Dspring.profiles.active=development  -Dhttp-port=$PORT'
+    IBM_JAVA_OPTIONS: '-Dspring.profiles.active=development  -Dhttp-port=$PORT  -Dspring.datasource.url=DB_CONNECTION_STRING -DdependentServices.entitlementRevokeUrl=ENTITLEMENT_REVOKE_URL  -Dspring.datasource.username=DB_USERNAME  -Dspring.datasource.password=DB_PASSWORD'
 
 

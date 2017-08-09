@@ -54,6 +54,9 @@ server:
 ---
 # common properties for yaml
 
+dependentServices:
+      entitlementRevokeUrl: ${entitlementRevokeUrl}
+
 # headers
 header:
       xlbginternaluserid: x-lbg-internal-user-id

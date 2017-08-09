@@ -28,7 +28,7 @@ import static org.junit.Assert.assertEquals;
 @RunWith(SpringRunner.class)
 @SpringBootTest
 @TestPropertySource(properties = {
-        "entitlementURL=testValue",
+        "dependentServices.entitlementRevokeUrl=testValue",
 })
 public class PermissionsConstraintValidatorTest {
     CreateAccountInputData data;

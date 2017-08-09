@@ -30,7 +30,7 @@ public class EntitlementProxyServiceImpl implements EntitlementProxyService {
     public static final String ENTITLEMENT_NOT_REVOKED = "Entitlement couldnt be revoked";
     public static final String ENTITLEMENT_SERVICE_ERROR = "Error calling entitlement revoke operation";
 
-    @Value("${entitlementURL}")
+    @Value("${dependentServices.entitlementRevokeUrl}")
     private String requestURL;
 
     @Autowired
