@@ -35,10 +35,17 @@ paths:
           schema:
             $ref: '#/definitions/AccountRequest'
         - $ref: '#/parameters/xLbgTxnCorrelationId'
-        - $ref: '#/parameters/xLbgInternalUserRole'
         - $ref: '#/parameters/xLbgClientId'
         - $ref: '#/parameters/xFapiFinancialId'
         - $ref: '#/parameters/xFapiInteractionId'
+        - name: x-lbg-internal-user-role
+          description: Internal User Role Header, should be SYSTEM for create
+          in: header
+          required: true
+          type: string
+          enum:
+            - SYSTEM
+
       responses:
         201:
           description: Account Request resource successfully created
@@ -88,7 +95,13 @@ paths:
         - $ref: '#/parameters/AccountRequestIdQueryParam'
         - $ref: '#/parameters/ClientId'
         - $ref: '#/parameters/xLbgTxnCorrelationId'
-        - $ref: '#/parameters/xLbgInternalUserRole'
+        - name: x-lbg-internal-user-role
+          description: Internal User Role Header, should be CUSTOMER for get with query
+          in: header
+          required: true
+          type: string
+          enum:
+            - CUSTOMER
       responses:
         200:
           description: Account Request resource successfully retrieved
@@ -133,8 +146,14 @@ paths:
       parameters:
         - $ref: '#/parameters/AccountRequestId'
         - $ref: '#/parameters/xLbgTxnCorrelationId'
-        - $ref: '#/parameters/xLbgInternalUserRole'
         - $ref: '#/parameters/xFapiInteractionId'
+        - name: x-lbg-internal-user-role
+          description: Internal User Role Header, should be SYSTEM for GET with path
+          in: header
+          required: true
+          type: string
+          enum:
+            - SYSTEM
         - name: x-fapi-financial-id
           description: The unique id of the ASPSP to which the request is issued. The unique id will be issued by OB.
           in: header
@@ -191,11 +210,16 @@ paths:
       parameters:
         - $ref: '#/parameters/AccountRequestId'
         - $ref: '#/parameters/xLbgTxnCorrelationId'
-        - $ref: '#/parameters/xLbgInternalUserRole'
         - $ref: '#/parameters/xFapiFinancialId'
         - $ref: '#/parameters/xLbgClientId'
         - $ref: '#/parameters/xFapiInteractionId'
-
+        - name: x-lbg-internal-user-role
+          description: Internal User Role Header, should be SYSTEM for delete
+          in: header
+          required: true
+          type: string
+          enum:
+            - SYSTEM
       responses:
         204:
           description: No Content if Account Request resource successfully deleted
@@ -241,8 +265,14 @@ paths:
       parameters:
         - $ref: '#/parameters/AccountRequestId'
         - $ref: '#/parameters/xLbgTxnCorrelationId'
-        - $ref: '#/parameters/xLbgInternalUserRole'
         - $ref: '#/parameters/xLbgClientId'
+        - name: x-lbg-internal-user-role
+          description: Internal User Role Header, should be CUSTOMER for update
+          in: header
+          required: true
+          type: string
+          enum:
+            - CUSTOMER
         - name: AccountRequestStatusInputData
           description: Account request status input data
           in: body

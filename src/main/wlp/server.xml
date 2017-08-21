@@ -20,12 +20,12 @@
 			keyStoreRef="defaultKeyStore" 
 			trustStoreRef="defaultTrustStore" />
 	
-	<keyStore 	password="${enc-defaultSSLConfig_password}"
-				location="${server.config.dir}/resources/security/default_key.jks" 
+	<keyStore 	password="${default-key-store-password}"
+				 location="${default-key-store}"
 				id="defaultKeyStore" />
 	
-	<keyStore 	password="${enc-defaultSSLConfig_password}"
-				location="${server.config.dir}/resources/security/default_trust.jks"
+	<keyStore 	password="${default-trust-store-password}"
+				 location="${default-trust-store}"
 				id="defaultTrustStore" />
 
 

@@ -41,7 +41,7 @@ import com.lbg.aaf.entitlement.entitlementaccountrequestdata.service.AccountRequ
 public final class AccountRequestDataController {
 
     @Autowired
-    Logger logger = LoggerFactory.getLogger();
+    Logger logger;
 
     @Autowired
     AccountRequestDataService<?> accountRequestDataService;

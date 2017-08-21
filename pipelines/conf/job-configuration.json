@@ -22,7 +22,7 @@
     "settings": "pipelines/conf/settings.xml"
   },
 	"bdd": {
-    		"invocation": "sleep 10; gulp wdio-cnf --ff ARD*",
+    		"invocation": "sleep 10; ./node_modules/.bin/wdio tests/acceptance/wdio/conf/api.conf.js --env Test --ff ARD*",
     		"git_repo": "ssh://gerrit.sandbox.extranet.group:29418/ob-cnf-ft2-bdd",
     		"git_credentials": "ob-codeuser",
     		"default_branch": "master",
@@ -44,9 +44,9 @@
 				"org": "POC27_PSD2_AAF",
 				"env": "DEV"
 			},
-			"dbUsername": "accountrequest",
-			"dbPassword": "default",
-			"dbConnectionString": "jdbc:oracle:thin:@10.112.159.89:40000/xe",
+			"dbUsername": "ACCOUNTREQUEST",
+			"dbPassword": "ACCOUNT123",
+			"dbConnectionString": "jdbc:oracle:thin:@dev-p1-db-02.sandbox.local:1521/CON1D.sandbox.lloydsbanking.com",
 			"entitlementRevokeUrl": "https://j2-ob-cnf-proxy-master.lbg.eu-gb.mybluemix.net/entitlement-service/v1/entitlements/status/revoke"
 		},
 		"ci": {
@@ -55,9 +55,9 @@
 				"org": "POC27_PSD2_AAF",
 				"env": "DEV"
 			},
-			"dbUsername": "accountrequest",
-			"dbPassword": "default",
-			"dbConnectionString": "jdbc:oracle:thin:@10.112.159.89:40000/xe",
+			"dbUsername": "ACCOUNTREQUEST",
+			"dbPassword": "ACCOUNT123",
+			"dbConnectionString": "jdbc:oracle:thin:@dev-p1-db-02.sandbox.local:1521/CON1D.sandbox.lloydsbanking.com",
 			"entitlementRevokeUrl": "https://j2-ob-cnf-proxy-ci.lbg.eu-gb.mybluemix.net/entitlement-service/v1/entitlements/status/revoke"
 		}
 	}
