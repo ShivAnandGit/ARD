@@ -26,7 +26,7 @@
     		"git_repo": "ssh://gerrit.sandbox.extranet.group:29418/ob-cnf-ft2-bdd",
     		"git_credentials": "ob-codeuser",
     		"default_branch": "master",
-    		"passthreshold": "90"
+    		"passthreshold": "95"
   	},
  "zap":{
        "sonarQuality_gate":"OB-ZAP-QG",
