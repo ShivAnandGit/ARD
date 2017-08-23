@@ -3,24 +3,7 @@ spring:
     default: development
     active: development
   datasource:
-    url: ${datasourceURL}
-    username: ${datasourceUser}
-    password: ${datasourcePassword}
-    driver-class-name: oracle.jdbc.OracleDriver
-    initialSize: 3
-    maxActive: 5
-    maxIdle: 1
-    minIdle: 1
-    removeAbandoned: true
-    removeAbandonedTimeout: 120
-    timeBetweenEvictionRunsMillis: 1000
-    minEvictableIdleTimeMillis: 1000
-    tomcat:
-      max-active: 1
-      min-idle: 1
-      initialSize: 1
-  h2.console.enabled: true
-
+    jndi-name: java:comp/DefaultDataSource
 ---
 
 spring:

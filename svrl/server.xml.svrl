@@ -56,4 +56,8 @@
     <fired-rule context="//logging"/>
     <fired-rule context="//logging"/>
     <fired-rule context="//logging"/>
+    <fired-rule context="//dataSource"/>
+    <fired-rule context="//dataSource"/>
+    <fired-rule context="//dataSource"/>
+    <fired-rule context="//dataSource"/>
 </schematron-output>

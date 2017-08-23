@@ -291,6 +291,9 @@
                             <filters>
                                 <filter>src/test/resources/dev.liberty.properties</filter>
                             </filters>
+                            <nonFilteredFileExtensions>
+                                <nonFilteredFileExtension>jar</nonFilteredFileExtension>
+                            </nonFilteredFileExtensions> 
                             <resources>
                                 <resource>
                                     <directory>src/main/wlp</directory>

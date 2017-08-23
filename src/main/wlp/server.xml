@@ -64,7 +64,7 @@
 	<pluginConfiguration 	connectTimeout="4"
 							serverIOTimeout="100" />
 
-	<!--<dataSource id="DefaultDataSource" jndiName="jdbc/oracle" queryTimeout="${datasourceQueryTimeout}" >
+	<dataSource id="DefaultDataSource" jndiName="jdbc/oracle" queryTimeout="${datasourceQueryTimeout}" >
 		<jdbcDriver libraryRef="OracleLib"/>
 		<connectionManager maxPoolSize="10" minPoolSize="2"/>
 		<properties.oracle URL="${datasourceURL}"  user="${datasourceUser}"
@@ -76,7 +76,6 @@
 	<library id="OracleLib">
 		<fileset dir="${server.config.dir}/lib"  includes="ojdbc7-12.1.0.1.jar"/>
 	</library>
--->
 	<application 	name="${app-name}" 
 					context-root="${context-root}"
 					location="${app-location}" 
