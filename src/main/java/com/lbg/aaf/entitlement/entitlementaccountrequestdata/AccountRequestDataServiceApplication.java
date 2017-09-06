@@ -15,6 +15,11 @@ import org.springframework.transaction.annotation.EnableTransactionManagement;
 import org.springframework.web.context.request.RequestContextListener;
 import springfox.documentation.swagger2.annotations.EnableSwagger2;
 
+import javax.naming.InitialContext;
+import javax.naming.NameClassPair;
+import javax.naming.NamingEnumeration;
+import javax.naming.NamingException;
+
 /**
  * Spring Boot Initializer class Uses @SpringBootApplication
  * @author Amit Jain
@@ -48,8 +53,9 @@ public class AccountRequestDataServiceApplication<T> extends SpringBootServletIn
         return LoggerFactory.getLogger();
     }
 
-    @Bean
-    public RequestContextListener requestContextListener(){
-        return new RequestContextListener();
-    }
+//    @Bean
+//    public RequestContextListener requestContextListener() throws NamingException {
+//        return new RequestContextListener();
+//    }
+
 }
