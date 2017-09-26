@@ -409,6 +409,8 @@ definitions:
         $ref: '#/definitions/Status'
       Permissions:
         $ref: '#/definitions/Permissions'
+      CreationDateTime:
+        $ref: '#/definitions/CreationDateTime'
       ExpirationDateTime:
         $ref: '#/definitions/ExpirationDateTime'
       TransactionFromDateTime:
@@ -461,7 +463,12 @@ definitions:
         type: string
   ExpirationDateTime:
     title: ExpirationDateTime
-    description: Specifiedified date and time the permissions will expire. If this is not populated, the permissions will be open ended.
+    description: Specified date and time the permissions will expire. If this is not populated, the permissions will be open ended.
+    type: string
+    format: date-time
+  CreationDateTime:
+    title: CreationDateTime
+    description: The creation date and time of the Account request.
     type: string
     format: date-time
   ApplicableAuthorisationStatus:

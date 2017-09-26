@@ -54,8 +54,7 @@ server:
 ---
 # common properties for yaml
 
-dependentServices:
-      entitlementRevokeUrl: ${entitlementRevokeUrl}
+entitlementRevokeUrl: ${entitlementRevokeUrl}
 
 # headers
 header:

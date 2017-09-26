@@ -17,7 +17,7 @@
         <mirror>
             <id>mirror</id>
             <mirrorOf>external:*</mirrorOf>
-            <url>http://nexus.sandbox.extranet.group/nexus/content/groups/maven</url>
+            <url>https://nexus.sandbox.extranet.group/nexus/content/groups/maven</url>
         </mirror>
     </mirrors>
 </settings>

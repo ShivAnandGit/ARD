@@ -14,7 +14,7 @@
         <spring.hystrix.version>1.3.1.RELEASE</spring.hystrix.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <wlpRuntime>
-            http://nexus.sandbox.extranet.group/nexus/content/repositories/maven/com/ibm/websphere/appserver/runtime/wlp-javaee7/17.0.0.2/wlp-javaee7-17.0.0.2.zip
+            https://nexus.sandbox.extranet.group/nexus/content/repositories/maven/com/ibm/websphere/appserver/runtime/wlp-javaee7/17.0.0.2/wlp-javaee7-17.0.0.2.zip
         </wlpRuntime>
     </properties>
 
@@ -27,13 +27,13 @@
            <uniqueVersion>true</uniqueVersion>
            <id>nexus-releases</id>
            <name>nexus-releases</name>
-           <url>http://nexus.sandbox.extranet.group/nexus/content/repositories/releases</url>
+           <url>https://nexus.sandbox.extranet.group/nexus/content/repositories/releases</url>
        </repository>
        <snapshotRepository>
            <uniqueVersion>false</uniqueVersion>
            <id>nexus-snapshots</id>
            <name>nexus-snapshots</name>
-           <url>http://nexus.sandbox.extranet.group/nexus/content/repositories/maven-repo-snapshot</url>
+           <url>https://nexus.sandbox.extranet.group/nexus/content/repositories/maven-repo-snapshot</url>
        </snapshotRepository>
    </distributionManagement>
 
@@ -427,7 +427,7 @@
     <repositories>
         <repository>
             <id>nexussnaps</id>
-            <url>http://10.113.140.187:8081/nexus/content/groups/maven</url>
+            <url>https://nexus.sandbox.extranet.group/nexus/content/groups/maven</url>
             <snapshots>
                 <enabled>true</enabled>
             </snapshots>
@@ -436,7 +436,7 @@
     <pluginRepositories>
         <pluginRepository>
             <id>nexussnaps</id>
-            <url>http://10.113.140.187:8081/nexus/content/groups/maven</url>
+            <url>https://nexus.sandbox.extranet.group/nexus/content/groups/maven</url>
             <snapshots>
                 <enabled>true</enabled>
             </snapshots>
