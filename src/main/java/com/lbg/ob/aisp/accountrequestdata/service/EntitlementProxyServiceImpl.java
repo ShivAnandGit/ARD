@@ -47,7 +47,7 @@ public class EntitlementProxyServiceImpl implements EntitlementProxyService {
     @Override
     @HystrixCommand(commandKey = "entitlementService", ignoreExceptions = {EntitlementUpdateFailedException.class})
     public void revokeEntitlement(Long entitlementId, String internalUserId, String internalUserRole, String correlationId) throws ExecutionException, InterruptedException {
-        logger.logTrace(correlationId, "ENTRY -> revokeEntitlement");
+        logger.trace(correlationId, "ENTRY ->");
         this.correlationId = correlationId;
         AsyncRestTemplate restTemplate = new AsyncRestTemplate();
         HttpHeaders requestHeaders = getHttpHeaders(internalUserId, internalUserRole, correlationId);
@@ -58,20 +58,20 @@ public class EntitlementProxyServiceImpl implements EntitlementProxyService {
         ResponseEntity<EntitlementOutputData[]> entities = future.get();
         int value = entities.getStatusCode().value();
         if(value != 200) {
-            logger.logInfo(correlationId, "Entitlement API returned status code as - "+ value);
+            logger.info(correlationId, "Entitlement API returned status code as - "+ value);
             throw new EntitlementUpdateFailedException(ENTITLEMENT_NOT_REVOKED);
         }
         EntitlementOutputData[] body = entities.getBody();
         String updatedEntitlementStatus = body[0].getUpdatedEntitlementStatus();
         if(!(AccountRequestStatusEnum.REVOKED.getValue()).equalsIgnoreCase(updatedEntitlementStatus)) {
-            logger.logInfo(correlationId, "Entitlement API returned Entitlement status as - "+ updatedEntitlementStatus);
+            logger.info(correlationId, "Entitlement API returned Entitlement status as - "+ updatedEntitlementStatus);
             throw new EntitlementUpdateFailedException(ENTITLEMENT_NOT_REVOKED);
         }
-
-        logger.logTrace(correlationId, "EXIT -> revokeEntitlement");
+        logger.trace(correlationId,"<-- EXIT");
     }
 
     private HttpHeaders getHttpHeaders(String internalUserId, String internalUserRole, String correlationId) {
+        logger.debug(correlationId,"creating http headers");
         HttpHeaders requestHeaders = new HttpHeaders();
         requestHeaders.setContentType(MediaType.APPLICATION_JSON);
         requestHeaders.add(X_LBG_INTERNAL_USER_ID, internalUserId);
@@ -81,8 +81,8 @@ public class EntitlementProxyServiceImpl implements EntitlementProxyService {
     }
 
     public void fallback(Throwable ex) {                                                                                                                            //NOSONAR
-        logger.logException(correlationId, ex);                                                                                                                     //NOSONAR
-        ErrorData errorData = new ErrorData(Long.valueOf(HttpStatus.SERVICE_UNAVAILABLE.toString()), ARD_API_ERR_503, AccountRequestDataConstant.TIME_OUT_MSG);     //NOSONAR
-        throw new ResourceAccessException(errorData, ex.getCause());                                                                                                //NOSONAR
+        logger.exception(correlationId, ex);                                                                                                                     //NOSONAR
+        ErrorData errorData = new ErrorData(Long.valueOf(HttpStatus.SERVICE_UNAVAILABLE.toString()), ARD_API_ERR_503, ex.getMessage());     //NOSONAR
+        throw new ResourceAccessException(errorData, ex);                                                                                                //NOSONAR
     }
 }

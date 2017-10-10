@@ -182,7 +182,7 @@
         <dependency>
             <groupId>com.lbg.ob.core</groupId>
             <artifactId>common-logger</artifactId>
-            <version>1.0.0-rc.8</version>
+            <version>1.0.7-rc.18</version>
         </dependency>
         <dependency>
             <groupId>org.apache.logging.log4j</groupId>

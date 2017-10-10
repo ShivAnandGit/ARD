@@ -14,10 +14,6 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
 import springfox.documentation.swagger2.annotations.EnableSwagger2;
 
-/**
- * Spring Boot Initializer class Uses @SpringBootApplication
- * @author Amit Jain
- */
 @EnableCircuitBreaker
 @Configuration
 @SpringBootApplication
@@ -46,10 +42,5 @@ public class AccountRequestDataServiceApplication<T> extends SpringBootServletIn
     public Logger createLogger() {
         return LoggerFactory.getLogger();
     }
-
-//    @Bean
-//    public RequestContextListener requestContextListener() throws NamingException {
-//        return new RequestContextListener();
-//    }
 
 }

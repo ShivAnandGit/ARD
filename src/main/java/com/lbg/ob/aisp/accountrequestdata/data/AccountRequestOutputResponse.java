@@ -24,10 +24,6 @@ public final class AccountRequestOutputResponse {
         //DEFAULT CONSTRUCTOR NEEDED FOR JACKSON UNMARSHALLING
     }
 
-    public AccountRequestOutputResponse(String jsonString) throws IOException {
-
-    }
-
     public AccountRequestOutputResponse(String accountRequestExternalIdentifier, String accountRequestStatus, Timestamp createdDateTime, String accountRequestJsonString) throws IOException {
         ObjectMapper mapper = new ObjectMapper();
         AccountRequestOutputResponse accountRequestOutputResponse = mapper.readValue(accountRequestJsonString, AccountRequestOutputResponse.class);

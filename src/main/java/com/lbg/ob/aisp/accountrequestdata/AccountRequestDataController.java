@@ -60,11 +60,15 @@ public final class AccountRequestDataController {
             @RequestHeader(value = X_FAPI_INTERACTION_ID, required = false) final String interactionId,
             @Valid @RequestBody final CreateAccountInputRequest createAccountInputRequest, final HttpServletRequest request,
             HttpServletResponse response) {
-        logger.logTrace(request);
-        if(!StringUtils.isEmpty(interactionId)) {
-            response.setHeader(X_FAPI_INTERACTION_ID, interactionId);
-        }
-        return () ->accountRequestDataService.createAccountRequestData(createAccountInputRequest, clientId, financialId, txnCorrelationId);
+        return () -> {
+            logger.trace(request);
+            if(!StringUtils.isEmpty(interactionId)) {
+                response.setHeader(X_FAPI_INTERACTION_ID, interactionId);
+            }
+            AccountRequestOutputResponse accountRequestData = accountRequestDataService.createAccountRequestData(createAccountInputRequest, clientId, financialId, txnCorrelationId);
+            logger.trace(txnCorrelationId, "<-- EXIT");
+            return accountRequestData;
+        };
     }
 
     /**
@@ -79,8 +83,12 @@ public final class AccountRequestDataController {
             @RequestHeader(value = X_LBG_TXN_CORRELATION_ID) final String txnCorrelationId, final HttpServletRequest request, HttpServletResponse response,
             @RequestParam(required = true) final String accountRequestId,
             @RequestParam(required = true) final String clientId) {
-        logger.logTrace(request);
-        return () -> accountRequestDataService.findByAccountRequestExternalIdentifierAndProviderClientId(accountRequestId, clientId, txnCorrelationId);
+        return () -> {
+            logger.trace(request);
+            AccountRequestOutputResponse accountRequestData = accountRequestDataService.findByAccountRequestExternalIdentifierAndProviderClientId(accountRequestId, clientId, txnCorrelationId);
+            logger.trace(txnCorrelationId, "<-- EXIT");
+            return accountRequestData;
+        };
     }
 
     /**
@@ -98,11 +106,15 @@ public final class AccountRequestDataController {
             @RequestHeader(value = X_FAPI_INTERACTION_ID, required = false) final String interactionId,
             final HttpServletRequest request, HttpServletResponse response,
             @PathVariable final String accountRequestId) {
-        logger.logTrace(request);
-        if(!StringUtils.isEmpty(interactionId)) {
-            response.setHeader(X_FAPI_INTERACTION_ID, interactionId);
-        }
-        return () -> accountRequestDataService.findByAccountRequestExternalIdentifier(accountRequestId, txnCorrelationId);
+        return () -> {
+            logger.trace(request);
+            if(!StringUtils.isEmpty(interactionId)) {
+                response.setHeader(X_FAPI_INTERACTION_ID, interactionId);
+            }
+            AccountRequestOutputResponse accountRequestData = accountRequestDataService.findByAccountRequestExternalIdentifier(accountRequestId, txnCorrelationId);
+            logger.trace(txnCorrelationId, "<-- EXIT");
+            return accountRequestData;
+        };
     }
 
     /**
@@ -113,8 +125,8 @@ public final class AccountRequestDataController {
      */
     @IsAllowed(role = {"SYSTEM"})
     @RequestMapping(value = "v1/accounts-requests/{accountRequestId}", method = RequestMethod.DELETE, produces = MediaType.APPLICATION_JSON_VALUE)
-    @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void deleteAccountRequestForAccountId(
+        @ResponseStatus(HttpStatus.NO_CONTENT)
+    public Callable<Void> deleteAccountRequestForAccountId(
             @RequestHeader(value = X_LBG_INTERNAL_USER_ROLE) final String internalUserRole,
             @RequestHeader(value = X_LBG_TXN_CORRELATION_ID) final String txnCorrelationId,
             @RequestHeader(value = X_LBG_CLIENT_ID) final String clientId,
@@ -122,11 +134,15 @@ public final class AccountRequestDataController {
             @RequestHeader(value = X_FAPI_INTERACTION_ID, required = false) final String interactionId,
             final HttpServletRequest request, HttpServletResponse response,
             @PathVariable final String accountRequestId) throws IOException, URISyntaxException, ExecutionException, InterruptedException {
-        logger.logTrace(request);
-        if(!StringUtils.isEmpty(interactionId)) {
-            response.setHeader(X_FAPI_INTERACTION_ID, interactionId);
-        }
-        accountRequestDataService.revokeAccountRequestData(accountRequestId, internalUserRole, txnCorrelationId);
+        return () -> {
+            logger.trace(request);
+            if (!StringUtils.isEmpty(interactionId)) {
+                response.setHeader(X_FAPI_INTERACTION_ID, interactionId);
+            }
+            accountRequestDataService.revokeAccountRequestData(accountRequestId, internalUserRole, txnCorrelationId);
+            logger.trace(txnCorrelationId, "<-- EXIT");
+            return null;
+        };
     }
 
     /**
@@ -142,7 +158,11 @@ public final class AccountRequestDataController {
             final HttpServletRequest request, HttpServletResponse response,
             @PathVariable final String accountRequestId,
             @RequestBody UpdateAccountRequestInputData inputData) {
-        logger.logTrace(request);
-        return () -> accountRequestDataService.updateAccountRequestData(inputData, accountRequestId, internalUserRole, txnCorrelationId);
+        return () -> {
+            logger.trace(request);
+            UpdateAccountRequestOutputData updateAccountRequestOutputData = accountRequestDataService.updateAccountRequestData(inputData, accountRequestId, internalUserRole, txnCorrelationId);
+            logger.trace(txnCorrelationId, "<-- EXIT");
+            return updateAccountRequestOutputData;
+        };
     }
 }
