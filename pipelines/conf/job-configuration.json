@@ -44,10 +44,12 @@
 				"org": "POC27_PSD2_AAF",
 				"env": "DEV"
 			},
-			"dbUsername": "ACCOUNTREQUEST",
-			"dbPassword": "ACCOUNT123",
-			"dbConnectionString": "jdbc:oracle:thin:@dev-p1-db-02.sandbox.local:1521/CON1D.sandbox.lloydsbanking.com",
-			"entitlementRevokeUrl": "https://j2-ob-cnf-entitlement-api-master.lbg.eu-gb.mybluemix.net/entitlement-service/v1/entitlements/status/revoke"
+			"tokens": {
+				"DS1_USER": "ACCOUNTREQUEST",
+				"DS1_ENC_PASSWORD": "ACCOUNT123",
+				"DS1_URL": "jdbc:oracle:thin:@dev-p1-db-02.sandbox.local:1521/CON1D.sandbox.lloydsbanking.com",
+				"ENTITLEMENT_REVOKE_URL": "https://j2-ob-cnf-entitlement-api-master.lbg.eu-gb.mybluemix.net/entitlement-service/v1/entitlements/status/revoke"
+			}
 		},
 		"ci": {
 			"memory": "1024M",
@@ -55,10 +57,12 @@
 				"org": "POC27_PSD2_AAF",
 				"env": "DEV"
 			},
-			"dbUsername": "ACCOUNTREQUEST",
-			"dbPassword": "ACCOUNT123",
-			"dbConnectionString": "jdbc:oracle:thin:@dev-p1-db-02.sandbox.local:1521/CON1D.sandbox.lloydsbanking.com",
-			"entitlementRevokeUrl": "https://j2-ob-cnf-entitlement-api-master.lbg.eu-gb.mybluemix.net/entitlement-service/v1/entitlements/status/revoke"
+			"tokens": {
+				"DS1_USER": "ACCOUNTREQUEST",
+				"DS1_ENC_PASSWORD": "ACCOUNT123",
+				"DS1_URL": "jdbc:oracle:thin:@dev-p1-db-02.sandbox.local:1521/CON1D.sandbox.lloydsbanking.com",
+				"ENTITLEMENT_REVOKE_URL": "https://j2-ob-cnf-entitlement-api-master.lbg.eu-gb.mybluemix.net/entitlement-service/v1/entitlements/status/revoke"
+			}
 		}
 	}
 }

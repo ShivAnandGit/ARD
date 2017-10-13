@@ -16,7 +16,20 @@
         <wlpRuntime>
             https://nexus.sandbox.extranet.group/nexus/content/repositories/maven/com/ibm/websphere/appserver/runtime/wlp-javaee7/17.0.0.2/wlp-javaee7-17.0.0.2.zip
         </wlpRuntime>
-    </properties>
+	<wlpConfig>src/main/wlp</wlpConfig>
+        <wlpServerName>ees</wlpServerName>
+   </properties>
+ <profiles>
+        <profile>
+            <id>dev</id>
+            <activation>
+                <activeByDefault>false</activeByDefault>
+            </activation>
+            <properties>
+                <wlpConfig>target/wlpconfig</wlpConfig>
+            </properties>
+   </profile>
+ </profiles>
 
     <groupId>com.lbg.ob.cnf.account.data</groupId>
     <artifactId>account-request-data</artifactId>
@@ -361,11 +374,11 @@
                     <install>
                         <runtimeUrl>${wlpRuntime}</runtimeUrl>
                     </install>
-                    <serverName>ard</serverName>
+                    <serverName>${wlpServerName}</serverName>
                     <include>all</include>
                     <installAppPackages>project</installAppPackages>
                     <appsDirectory>apps</appsDirectory>
-                    <configDirectory>target/wlpconfig/</configDirectory>
+                    <configDirectory>${wlpConfig}</configDirectory>
                 </configuration>
                 <executions>
                     <execution>

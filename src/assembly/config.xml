@@ -12,13 +12,10 @@
 			<directory>${project.basedir}/src/main/wlp/</directory>
 			<outputDirectory>.</outputDirectory>
 			<includes>
-				<include>**</include>
+				<include>bootstrap.properties</include>
+                                <include>jvm.options</include>
+                                <include>server.env</include>
 			</includes>
-			<excludes>
-				<exclude>server.xml</exclude>
-			</excludes>
-
 		</fileSet>
-
 	</fileSets>
 </assembly>
