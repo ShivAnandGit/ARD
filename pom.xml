@@ -17,7 +17,7 @@
             https://nexus.sandbox.extranet.group/nexus/content/repositories/maven/com/ibm/websphere/appserver/runtime/wlp-javaee7/17.0.0.2/wlp-javaee7-17.0.0.2.zip
         </wlpRuntime>
 	<wlpConfig>src/main/wlp</wlpConfig>
-        <wlpServerName>ees</wlpServerName>
+        <wlpServerName>ard</wlpServerName>
    </properties>
  <profiles>
         <profile>
