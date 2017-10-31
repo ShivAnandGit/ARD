@@ -41,6 +41,7 @@ public final class ErrorData {
         return statusCode;
     }
 
+    @JsonProperty("statusCode")
     public void setStatusCode(Long statusCode) {
         this.statusCode = statusCode;
     }
@@ -50,6 +51,7 @@ public final class ErrorData {
         return code;
     }
 
+    @JsonProperty("code")
     public void setCode(String code) {
         this.code = code;
     }
@@ -59,6 +61,7 @@ public final class ErrorData {
         return message;
     }
 
+    @JsonProperty("message")
     public void setMessage(String message) {
         this.message = message;
     }

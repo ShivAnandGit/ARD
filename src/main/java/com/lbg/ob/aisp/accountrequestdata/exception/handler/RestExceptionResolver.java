@@ -42,7 +42,12 @@ public class RestExceptionResolver extends ResponseEntityExceptionHandler {
     @ExceptionHandler(value = {EntitlementUpdateFailedException.class})
     protected ResponseEntity<ErrorData> handleInternalServerErrors(BaseException ex, WebRequest request) {
         ErrorData errorData = ex.getErrorData();
-        errorData.setStatusCode(Long.valueOf(HttpStatus.INTERNAL_SERVER_ERROR.toString()));
+        if(errorData.getStatusCode() == null) {
+            errorData.setStatusCode(Long.valueOf(HttpStatus.INTERNAL_SERVER_ERROR.toString()));
+        }
+        if(errorData.getCode() == null) {
+            errorData.setCode(ARD_API_ERR_503);
+        }
         exceptionLogger.exception(request.getHeader(X_LBG_TXN_CORRELATION_ID), (EntitlementUpdateFailedException)ex);
         return new ResponseEntity<>(errorData, HttpStatus.INTERNAL_SERVER_ERROR);
     }

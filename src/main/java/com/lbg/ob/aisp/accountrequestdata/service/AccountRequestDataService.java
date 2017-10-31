@@ -57,10 +57,11 @@ public interface AccountRequestDataService<T> {
      * be called to revoke the entitlement.
      * @param String accountRequestId
      * @param String clientId
+     * @param clientId
      * @return AccountRequestOutputData accountRequestOutputData
      * @throws IOException, URISyntaxException
      */
-    public void revokeAccountRequestData(String accountRequestId, String clientRole, String txnCorrelationId)
+    public void revokeAccountRequestData(String accountRequestId, String clientRole, String txnCorrelationId, String clientId)
             throws IOException, URISyntaxException, ExecutionException, InterruptedException;
 
 }

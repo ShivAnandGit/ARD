@@ -34,10 +34,9 @@ public final class Util {
     public static String formatDateAsISO8601(LocalDateTime localDateTime) {
         if (localDateTime == null) {
             throw new IllegalArgumentException();
-        } else {
-            ZonedDateTime zonedDateTime = localDateTime.atZone(ZoneId.of(TIMEZONE));
-            String formatDateTime = zonedDateTime.format(DateTimeFormatter.ISO_OFFSET_DATE_TIME);
-            return formatDateTime;
         }
+        ZonedDateTime zonedDateTime = localDateTime.atZone(ZoneId.of(TIMEZONE));
+        String formatDateTime = zonedDateTime.format(DateTimeFormatter.ISO_OFFSET_DATE_TIME);
+        return formatDateTime;
     }
 }

@@ -74,6 +74,7 @@ public class AccountRequestDataServiceImpl<T> implements AccountRequestDataServi
     }
 
     private String getJsonRequest(CreateAccountInputRequest request) throws IOException {
+        logger.debug("Getting JSON Request");
         ObjectMapper mapper = new ObjectMapper();
         return mapper.writeValueAsString(request);
     }
@@ -157,7 +158,7 @@ public class AccountRequestDataServiceImpl<T> implements AccountRequestDataServi
 
     @HystrixCommand(commandKey = "database", fallbackMethod = "fallbackRevoke", ignoreExceptions = {RecordNotFoundException.class, EntitlementUpdateFailedException.class, InvalidRequestException.class})
     @Override
-    public void revokeAccountRequestData(String accountRequestId, String clientRole, String txnCorrelationId) throws IOException, URISyntaxException, ExecutionException, InterruptedException {
+    public void revokeAccountRequestData(String accountRequestId, String clientRole, String txnCorrelationId, String clientId) throws IOException, URISyntaxException, ExecutionException, InterruptedException {
         ThreadContext.put(CORRELATION_ID.value(), txnCorrelationId);
         logger.trace( "ENTRY --> ");
         AccountRequest accountRequestInfo = accountRequestDAO.getAccountRequest(accountRequestId);
@@ -166,7 +167,7 @@ public class AccountRequestDataServiceImpl<T> implements AccountRequestDataServi
         //call the entitlement API to revoke the entitlement, if the status was authorised
         if(accountRequestStatus.equals(AccountRequestDataConstant.AUTHORISED)) {
             Long entitlementId = accountRequestInfo.getEntitlementId();
-            entitlementService.revokeEntitlement(entitlementId, InternalUserRoleEnum.SYSTEM.toString(), clientRole, txnCorrelationId);
+            entitlementService.revokeEntitlement(entitlementId, InternalUserRoleEnum.SYSTEM.toString(), clientRole, txnCorrelationId, clientId);
         }
         accountRequestDAO.revokeAccountRequest(clientRole, accountRequestInfo, updateableStatus);
         logger.trace("<-- EXIT");
@@ -178,7 +179,7 @@ public class AccountRequestDataServiceImpl<T> implements AccountRequestDataServi
         ErrorData errorData = new ErrorData(Long.valueOf(HttpStatus.SERVICE_UNAVAILABLE.toString()), ARD_API_ERR_503, ex.getMessage());                               //NOSONAR
         throw new ResourceAccessException(errorData, ex);                                                                                                                          //NOSONAR
     }
-    
+
     private AccountRequestOutputResponse fallbackFindWithClientId(String accountRequestId, String clientId, String txnCorrelationId,  Throwable ex) {                                         //NOSONAR
         logger.exception(txnCorrelationId, ex);                                                                                                                                            //NOSONAR
         ErrorData errorData = new ErrorData(Long.valueOf(HttpStatus.SERVICE_UNAVAILABLE.toString()), ARD_API_ERR_503, ex.getMessage());                               //NOSONAR
@@ -191,7 +192,7 @@ public class AccountRequestDataServiceImpl<T> implements AccountRequestDataServi
         throw new ResourceAccessException(errorData, ex);                                                                                                                          //NOSONAR
     }
 
-    private void fallbackRevoke(String accountRequestId, String clientRole, String txnCorrelationId,  Throwable ex) {                                                                         //NOSONAR
+    private void fallbackRevoke(String accountRequestId, String clientRole, String txnCorrelationId, String clientId, Throwable ex) {                                                                         //NOSONAR
         logger.exception(txnCorrelationId, ex);                                                                                                                                            //NOSONAR
         ErrorData errorData = new ErrorData(Long.valueOf(HttpStatus.SERVICE_UNAVAILABLE.toString()), ARD_API_ERR_503, ex.getMessage());                               //NOSONAR
         throw new ResourceAccessException(errorData, ex);                                                                                                                          //NOSONAR

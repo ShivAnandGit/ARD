@@ -62,6 +62,8 @@ public class AccountRequestDataServiceTest {
     @InjectMocks
     AccountRequestDataServiceImpl accountRequestDataService;
 
+    private String clientId = "ace";
+
     @Before
     public void init() throws Exception {
         MockitoAnnotations.initMocks(this);
@@ -163,7 +165,7 @@ public class AccountRequestDataServiceTest {
         String internalUserId = "SYSTEM";
         when(accountRequestDAO.getAccountRequest(testRequestId)).thenReturn(accountRequest);
         when(accountRequestDAO.updateAccountRequest(accountRequest, InternalUserRoleEnum.CUSTOMER)).thenReturn(t);
-        accountRequestDataService.revokeAccountRequestData(testRequestId, testClientRole, correlationId);
+        accountRequestDataService.revokeAccountRequestData(testRequestId, testClientRole, correlationId, clientId);
         assertTrue(true);
     }
 
@@ -181,7 +183,7 @@ public class AccountRequestDataServiceTest {
         when(accountRequestDAO.updateAccountRequest(accountRequest, InternalUserRoleEnum.CUSTOMER)).thenReturn(t);
         String correlationId = "correlationId";
         String internalUserId = "SYSTEM";
-        accountRequestDataService.revokeAccountRequestData(testRequestId, testClientRole, correlationId);
+        accountRequestDataService.revokeAccountRequestData(testRequestId, testClientRole, correlationId, clientId);
         assertTrue(true);
     }
 
@@ -199,7 +201,7 @@ public class AccountRequestDataServiceTest {
         when(accountRequestDAO.getAccountRequest(testRequestId)).thenReturn(accountRequest);
         String correlationId = "correlationId";
         String internalUserId = "SYSTEM";
-        accountRequestDataService.revokeAccountRequestData(testRequestId, testClientRole, correlationId);
+        accountRequestDataService.revokeAccountRequestData(testRequestId, testClientRole, correlationId, clientId);
     }
 
     @Test(expected = RecordNotFoundException.class)
@@ -235,7 +237,7 @@ public class AccountRequestDataServiceTest {
         UpdateAccountRequestInputData accountInputData = new UpdateAccountRequestInputData();
         accountInputData.setStatus("Authorised");
         when(accountRequestDAO.getAccountRequest(testRequestId)).thenThrow(new RecordNotFoundException("not found"));
-        accountRequestDataService.revokeAccountRequestData(testRequestId, "some-role", "correlation-id");
+        accountRequestDataService.revokeAccountRequestData(testRequestId, "some-role", "correlation-id", clientId);
     }
 
     @Test(expected = ResourceAccessException.class)
@@ -274,7 +276,7 @@ public class AccountRequestDataServiceTest {
         String txnCorrelationId = "txnid";
         Throwable ex = new HystrixTimeoutException();
         Mockito.doNothing().when(LOGGER).logException(anyString(), any(Throwable.class));
-        Whitebox.invokeMethod(accountRequestDataService,"fallbackRevoke", accountRequestId, "clientRole", txnCorrelationId, ex);
+        Whitebox.invokeMethod(accountRequestDataService,"fallbackRevoke", accountRequestId, "clientRole", txnCorrelationId, clientId, ex);
     }
 
     @Test(expected = ResourceAccessException.class)

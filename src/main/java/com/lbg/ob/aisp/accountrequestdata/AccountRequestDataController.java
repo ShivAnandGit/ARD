@@ -125,7 +125,7 @@ public final class AccountRequestDataController {
      */
     @IsAllowed(role = {"SYSTEM"})
     @RequestMapping(value = "v1/accounts-requests/{accountRequestId}", method = RequestMethod.DELETE, produces = MediaType.APPLICATION_JSON_VALUE)
-        @ResponseStatus(HttpStatus.NO_CONTENT)
+    @ResponseStatus(HttpStatus.NO_CONTENT)
     public Callable<Void> deleteAccountRequestForAccountId(
             @RequestHeader(value = X_LBG_INTERNAL_USER_ROLE) final String internalUserRole,
             @RequestHeader(value = X_LBG_TXN_CORRELATION_ID) final String txnCorrelationId,
@@ -139,7 +139,7 @@ public final class AccountRequestDataController {
             if (!StringUtils.isEmpty(interactionId)) {
                 response.setHeader(X_FAPI_INTERACTION_ID, interactionId);
             }
-            accountRequestDataService.revokeAccountRequestData(accountRequestId, internalUserRole, txnCorrelationId);
+            accountRequestDataService.revokeAccountRequestData(accountRequestId, internalUserRole, txnCorrelationId, clientId);
             logger.trace(txnCorrelationId, "<-- EXIT");
             return null;
         };
