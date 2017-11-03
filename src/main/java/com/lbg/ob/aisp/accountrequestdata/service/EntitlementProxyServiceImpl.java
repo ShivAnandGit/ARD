@@ -34,6 +34,7 @@ import java.util.Map;
 import java.util.concurrent.ExecutionException;
 
 import static com.lbg.ob.aisp.accountrequestdata.exception.ExceptionConstants.ARD_API_ERR_503;
+import static com.lbg.ob.aisp.accountrequestdata.util.AccountRequestDataConstant.X_LBG_FOV_INDICATOR;
 import static com.lbg.ob.aisp.accountrequestdata.util.AccountRequestDataConstant.X_LBG_INTERNAL_USER_ID;
 import static com.lbg.ob.aisp.accountrequestdata.util.AccountRequestDataConstant.X_LBG_INTERNAL_USER_ROLE;
 import static com.lbg.ob.aisp.accountrequestdata.util.AccountRequestDataConstant.X_LBG_TXN_CORRELATION_ID;
@@ -43,7 +44,6 @@ import static com.lbg.ob.aisp.accountrequestdata.util.AccountRequestDataConstant
 public class EntitlementProxyServiceImpl implements EntitlementProxyService {
 
     public static final String ENTITLEMENT_NOT_REVOKED = "Entitlement couldnt be revoked";
-    public static final String ENTITLEMENT_SERVICE_ERROR = "Error calling entitlement revoke operation";
     public static final String X_LBG_UPDATED_BY_USER_ID = "x-lbg-updated-by-user-id";
 
     @Value("${entitlementRevokeUrl}")
@@ -56,7 +56,7 @@ public class EntitlementProxyServiceImpl implements EntitlementProxyService {
 
     @Override
     @HystrixCommand(commandKey = "entitlementService", ignoreExceptions = {EntitlementUpdateFailedException.class})
-    public void revokeEntitlement(Long entitlementId, String internalUserId, String internalUserRole, String correlationId, String clientId) throws ExecutionException, InterruptedException {
+    public void revokeEntitlement(Long entitlementId, String internalUserId, String internalUserRole, String correlationId, String clientId, Boolean fovIndicator) throws ExecutionException, InterruptedException {
         logger.trace(correlationId, "ENTRY ->");
         this.correlationId = correlationId;
         AsyncRestTemplate restTemplate = new AsyncRestTemplate();
@@ -87,7 +87,7 @@ public class EntitlementProxyServiceImpl implements EntitlementProxyService {
                 }
             }
         });
-        HttpHeaders requestHeaders = getHttpHeaders(internalUserId, internalUserRole, correlationId, clientId);
+        HttpHeaders requestHeaders = getHttpHeaders(internalUserId, internalUserRole, correlationId, clientId, fovIndicator);
         EntitlementStatusUpdateInputData entitlementStatusUpdateInputData = new EntitlementStatusUpdateInputData(entitlementId);
         HttpEntity<EntitlementStatusUpdateInputData> httpEntity = new HttpEntity<>(entitlementStatusUpdateInputData, requestHeaders);
         ListenableFuture<ResponseEntity<EntitlementOutputData[]>> future = restTemplate.exchange(requestURL, HttpMethod.PUT, httpEntity, EntitlementOutputData[].class);
@@ -102,7 +102,7 @@ public class EntitlementProxyServiceImpl implements EntitlementProxyService {
         logger.trace(correlationId,"<-- EXIT");
     }
 
-    private HttpHeaders getHttpHeaders(String internalUserId, String internalUserRole, String correlationId, String clientId) {
+    private HttpHeaders getHttpHeaders(String internalUserId, String internalUserRole, String correlationId, String clientId, Boolean fovIndicator) {
         logger.debug(correlationId,"creating http headers");
         HttpHeaders requestHeaders = new HttpHeaders();
         requestHeaders.setContentType(MediaType.APPLICATION_JSON);
@@ -110,6 +110,8 @@ public class EntitlementProxyServiceImpl implements EntitlementProxyService {
         requestHeaders.add(X_LBG_INTERNAL_USER_ROLE, internalUserRole);
         requestHeaders.add(X_LBG_TXN_CORRELATION_ID, correlationId);
         requestHeaders.add(X_LBG_UPDATED_BY_USER_ID, clientId);
+        String fov = (fovIndicator == null)?null : fovIndicator.toString();
+        requestHeaders.add(X_LBG_FOV_INDICATOR, fov);
         return requestHeaders;
     }
 

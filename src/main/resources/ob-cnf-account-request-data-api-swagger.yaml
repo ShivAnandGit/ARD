@@ -38,6 +38,7 @@ paths:
         - $ref: '#/parameters/xLbgClientId'
         - $ref: '#/parameters/xFapiFinancialId'
         - $ref: '#/parameters/xFapiInteractionId'
+        - $ref: '#/parameters/xLbgFovIndicator'        
         - name: x-lbg-internal-user-role
           description: Internal User Role Header, should be SYSTEM for create
           in: header
@@ -95,6 +96,7 @@ paths:
         - $ref: '#/parameters/AccountRequestIdQueryParam'
         - $ref: '#/parameters/ClientId'
         - $ref: '#/parameters/xLbgTxnCorrelationId'
+        - $ref: '#/parameters/xLbgFovIndicator'        
         - name: x-lbg-internal-user-role
           description: Internal User Role Header, should be CUSTOMER for get with query
           in: header
@@ -147,6 +149,7 @@ paths:
         - $ref: '#/parameters/AccountRequestId'
         - $ref: '#/parameters/xLbgTxnCorrelationId'
         - $ref: '#/parameters/xFapiInteractionId'
+        - $ref: '#/parameters/xLbgFovIndicator'        
         - name: x-lbg-internal-user-role
           description: Internal User Role Header, should be SYSTEM for GET with path
           in: header
@@ -213,6 +216,7 @@ paths:
         - $ref: '#/parameters/xFapiFinancialId'
         - $ref: '#/parameters/xLbgClientId'
         - $ref: '#/parameters/xFapiInteractionId'
+        - $ref: '#/parameters/xLbgFovIndicator'        
         - name: x-lbg-internal-user-role
           description: Internal User Role Header, should be SYSTEM for delete
           in: header
@@ -266,6 +270,7 @@ paths:
         - $ref: '#/parameters/AccountRequestId'
         - $ref: '#/parameters/xLbgTxnCorrelationId'
         - $ref: '#/parameters/xLbgClientId'
+        - $ref: '#/parameters/xLbgFovIndicator'        
         - name: x-lbg-internal-user-role
           description: Internal User Role Header, should be CUSTOMER for update
           in: header
@@ -536,6 +541,12 @@ parameters:
     in: header
     required: true
     type: string
+  xLbgFovIndicator:
+    name: x-lbg-fov-indicator
+    description: 'Optional, First Operational Verification header'
+    in: header
+    required: false
+    type: boolean    
   xLbgInternalUserRole:
     name: x-lbg-internal-user-role
     description: Internal User Role Header

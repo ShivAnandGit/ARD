@@ -15,6 +15,7 @@ public final class AccountRequestDataConstant {
     public static final String X_LBG_CLIENT_ID = "x-lbg-client-id";
     public static final String X_LBG_INTERNAL_USER_ROLE = "x-lbg-internal-user-role";
     public static final String X_LBG_TXN_CORRELATION_ID = "x-lbg-txn-correlation-id";
+    public static final String X_LBG_FOV_INDICATOR = "x-lbg-fov-indicator";
     public static final String AUTHORISED = "Authorised";
     public static final String REJECTED = "Rejected";
     public static final String AWAITING_AUTHORISATION = "AwaitingAuthorisation";

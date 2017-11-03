@@ -41,6 +41,7 @@ public class EntitlementServiceTest {
 
     @InjectMocks
     EntitlementProxyServiceImpl entitlementService;
+    private Boolean fovIndicator = false;
 
     @Before
     public void init()  {
@@ -73,7 +74,7 @@ public class EntitlementServiceTest {
                 .withHeader("Content-Type", "application/json;charset=UTF-8")
                 .withStatus(200);
         entitlementService.setRequestURL("http://localhost:"+port()+"/entitlements/status/revoke");
-        entitlementService.revokeEntitlement(entitlementId, userId, internalUserRole, correlationId, clientId);
+        entitlementService.revokeEntitlement(entitlementId, userId, internalUserRole, correlationId, clientId, fovIndicator);
         assertTrue(true);
     }
 
@@ -98,7 +99,7 @@ public class EntitlementServiceTest {
                 .withHeader("Content-Type", "application/json;charset=UTF-8")
                 .withStatus(404);
         entitlementService.setRequestURL("http://localhost:"+port()+"/entitlements/status/revoke");
-        entitlementService.revokeEntitlement(entitlementId, userId, internalUserRole, correlationId, clientId);
+        entitlementService.revokeEntitlement(entitlementId, userId, internalUserRole, correlationId, clientId, fovIndicator);
     }
 
     @Test(expected = EntitlementUpdateFailedException.class)
@@ -121,7 +122,7 @@ public class EntitlementServiceTest {
                 .withHeader("Content-Type", "application/json;charset=UTF-8")
                 .withStatus(200);
         entitlementService.setRequestURL("http://localhost:"+port()+"/entitlements/status/revoke");
-        entitlementService.revokeEntitlement(entitlementId, userId, internalUserRole, correlationId, clientId);
+        entitlementService.revokeEntitlement(entitlementId, userId, internalUserRole, correlationId, clientId, fovIndicator);
     }
 
 
@@ -146,7 +147,7 @@ public class EntitlementServiceTest {
                 .withHeader("Content-Type", "application/json;charset=UTF-8")
                 .withStatus(404);
         entitlementService.setRequestURL("http://localhost:"+port()+"/entitlements/status/revoke");
-        entitlementService.revokeEntitlement(entitlementId, userId, internalUserRole, correlationId, clientId);
+        entitlementService.revokeEntitlement(entitlementId, userId, internalUserRole, correlationId, clientId, fovIndicator);
     }
 
     @Test(expected = ResourceAccessException.class)

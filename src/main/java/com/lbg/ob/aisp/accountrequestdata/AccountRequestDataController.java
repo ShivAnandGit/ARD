@@ -5,6 +5,7 @@ import static com.lbg.ob.aisp.accountrequestdata.util.AccountRequestDataConstant
 import static com.lbg.ob.aisp.accountrequestdata.util.AccountRequestDataConstant.X_LBG_CLIENT_ID;
 import static com.lbg.ob.aisp.accountrequestdata.util.AccountRequestDataConstant.X_LBG_INTERNAL_USER_ROLE;
 import static com.lbg.ob.aisp.accountrequestdata.util.AccountRequestDataConstant.X_LBG_TXN_CORRELATION_ID;
+import static com.lbg.ob.aisp.accountrequestdata.util.AccountRequestDataConstant.X_LBG_FOV_INDICATOR;
 
 import java.io.IOException;
 import java.net.URISyntaxException;
@@ -58,6 +59,7 @@ public final class AccountRequestDataController {
             @RequestHeader(value = X_LBG_CLIENT_ID) final String clientId,
             @RequestHeader(value = X_FAPI_FINANCIAL_ID) final String financialId,
             @RequestHeader(value = X_FAPI_INTERACTION_ID, required = false) final String interactionId,
+            @RequestHeader(value = X_LBG_FOV_INDICATOR, required = false) final Boolean fovIndicator,
             @Valid @RequestBody final CreateAccountInputRequest createAccountInputRequest, final HttpServletRequest request,
             HttpServletResponse response) {
         return () -> {
@@ -80,7 +82,9 @@ public final class AccountRequestDataController {
     @ResponseStatus(HttpStatus.OK)
     public Callable<AccountRequestOutputResponse> getAccountRequests(
             @RequestHeader(value = X_LBG_INTERNAL_USER_ROLE) final String internalUserRole,
-            @RequestHeader(value = X_LBG_TXN_CORRELATION_ID) final String txnCorrelationId, final HttpServletRequest request, HttpServletResponse response,
+            @RequestHeader(value = X_LBG_TXN_CORRELATION_ID) final String txnCorrelationId, 
+            @RequestHeader(value = X_LBG_FOV_INDICATOR, required = false) final Boolean fovIndicator,
+            final HttpServletRequest request, HttpServletResponse response,
             @RequestParam(required = true) final String accountRequestId,
             @RequestParam(required = true) final String clientId) {
         return () -> {
@@ -104,6 +108,7 @@ public final class AccountRequestDataController {
             @RequestHeader(value = X_LBG_CLIENT_ID, required = false) final String clientId,
             @RequestHeader(value = X_FAPI_FINANCIAL_ID, required = false) final String financialId,
             @RequestHeader(value = X_FAPI_INTERACTION_ID, required = false) final String interactionId,
+            @RequestHeader(value = X_LBG_FOV_INDICATOR, required = false) final Boolean fovIndicator,
             final HttpServletRequest request, HttpServletResponse response,
             @PathVariable final String accountRequestId) {
         return () -> {
@@ -132,6 +137,7 @@ public final class AccountRequestDataController {
             @RequestHeader(value = X_LBG_CLIENT_ID) final String clientId,
             @RequestHeader(value = X_FAPI_FINANCIAL_ID) final String financialId,
             @RequestHeader(value = X_FAPI_INTERACTION_ID, required = false) final String interactionId,
+            @RequestHeader(value = X_LBG_FOV_INDICATOR, required = false) final Boolean fovIndicator,
             final HttpServletRequest request, HttpServletResponse response,
             @PathVariable final String accountRequestId) throws IOException, URISyntaxException, ExecutionException, InterruptedException {
         return () -> {
@@ -139,7 +145,7 @@ public final class AccountRequestDataController {
             if (!StringUtils.isEmpty(interactionId)) {
                 response.setHeader(X_FAPI_INTERACTION_ID, interactionId);
             }
-            accountRequestDataService.revokeAccountRequestData(accountRequestId, internalUserRole, txnCorrelationId, clientId);
+            accountRequestDataService.revokeAccountRequestData(accountRequestId, internalUserRole, txnCorrelationId, clientId, fovIndicator);
             logger.trace(txnCorrelationId, "<-- EXIT");
             return null;
         };
@@ -155,6 +161,7 @@ public final class AccountRequestDataController {
     public Callable<UpdateAccountRequestOutputData> updateAccountRequestForRequestId(
             @RequestHeader(value = X_LBG_INTERNAL_USER_ROLE) final String internalUserRole,
             @RequestHeader(value = X_LBG_TXN_CORRELATION_ID) final String txnCorrelationId,
+            @RequestHeader(value = X_LBG_FOV_INDICATOR, required = false) final Boolean fovIndicator,
             final HttpServletRequest request, HttpServletResponse response,
             @PathVariable final String accountRequestId,
             @RequestBody UpdateAccountRequestInputData inputData) {

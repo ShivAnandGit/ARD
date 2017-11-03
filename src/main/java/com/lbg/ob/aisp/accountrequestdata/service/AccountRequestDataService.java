@@ -58,10 +58,11 @@ public interface AccountRequestDataService<T> {
      * @param String accountRequestId
      * @param String clientId
      * @param clientId
+     * @param fovIndicator
      * @return AccountRequestOutputData accountRequestOutputData
      * @throws IOException, URISyntaxException
      */
-    public void revokeAccountRequestData(String accountRequestId, String clientRole, String txnCorrelationId, String clientId)
+    public void revokeAccountRequestData(String accountRequestId, String clientRole, String txnCorrelationId, String clientId, Boolean fovIndicator)
             throws IOException, URISyntaxException, ExecutionException, InterruptedException;
 
 }
