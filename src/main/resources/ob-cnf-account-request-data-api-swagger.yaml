@@ -3,10 +3,10 @@ swagger: '2.0'
 info:
   title: Open Banking Account Request Data Enterprise API
   description: Swagger specification for Account Request Data Enterprise API
-  version: v0.1
+  version: 1.0.0
 # the domain of the service
 host: api.lbg.com
-basePath: /account-request-data/v1
+basePath: /account-request-data/v1.0
 schemes:
   - https
 produces:

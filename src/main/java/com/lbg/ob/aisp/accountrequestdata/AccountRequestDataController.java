@@ -51,7 +51,7 @@ public final class AccountRequestDataController {
      * @return Callable<AccountRequestOutputData> List of accounts-requests
      */
     @IsAllowed(role = {"SYSTEM"})
-    @RequestMapping(value = "v1/accounts-requests", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+    @RequestMapping(value = "/accounts-requests", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     @ResponseStatus(HttpStatus.CREATED)
     public Callable<AccountRequestOutputResponse> createAccountRequests(
             @RequestHeader(value = X_LBG_INTERNAL_USER_ROLE) final String internalUserRole,
@@ -78,7 +78,7 @@ public final class AccountRequestDataController {
      * @return Callable<AccountRequestOutputData> List of accounts-requests
      */
     @IsAllowed(role = {"CUSTOMER"})
-    @RequestMapping(value = "v1/accounts-requests", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
+    @RequestMapping(value = "/accounts-requests", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
     @ResponseStatus(HttpStatus.OK)
     public Callable<AccountRequestOutputResponse> getAccountRequests(
             @RequestHeader(value = X_LBG_INTERNAL_USER_ROLE) final String internalUserRole,
@@ -100,7 +100,7 @@ public final class AccountRequestDataController {
      * @return Callable<AccountRequestOutputData> accounts-request
      */
     @IsAllowed(role = {"SYSTEM"})
-    @RequestMapping(value = "v1/accounts-requests/{accountRequestId}", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
+    @RequestMapping(value = "/accounts-requests/{accountRequestId}", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
     @ResponseStatus(HttpStatus.OK)
     public Callable<AccountRequestOutputResponse> getAccountRequestForAccountId(
             @RequestHeader(value = X_LBG_INTERNAL_USER_ROLE) final String internalUserRole,
@@ -129,8 +129,8 @@ public final class AccountRequestDataController {
      * @return Callable<Boolean> accounts-request
      */
     @IsAllowed(role = {"SYSTEM"})
-    @RequestMapping(value = "v1/accounts-requests/{accountRequestId}", method = RequestMethod.DELETE, produces = MediaType.APPLICATION_JSON_VALUE)
-    @ResponseStatus(HttpStatus.NO_CONTENT)
+    @RequestMapping(value = "/accounts-requests/{accountRequestId}", method = RequestMethod.DELETE, produces = MediaType.APPLICATION_JSON_VALUE)
+        @ResponseStatus(HttpStatus.NO_CONTENT)
     public Callable<Void> deleteAccountRequestForAccountId(
             @RequestHeader(value = X_LBG_INTERNAL_USER_ROLE) final String internalUserRole,
             @RequestHeader(value = X_LBG_TXN_CORRELATION_ID) final String txnCorrelationId,
@@ -156,7 +156,7 @@ public final class AccountRequestDataController {
      * @return Callable<UpdateAccountRequestOutputData> updatedRequestOuput
      */
     @IsAllowed(role = {"CUSTOMER"})
-    @RequestMapping(value = "v1/accounts-requests/{accountRequestId}/status", method = RequestMethod.PUT, produces = MediaType.APPLICATION_JSON_VALUE)
+    @RequestMapping(value = "/accounts-requests/{accountRequestId}/status", method = RequestMethod.PUT, produces = MediaType.APPLICATION_JSON_VALUE)
     @ResponseStatus(HttpStatus.OK)
     public Callable<UpdateAccountRequestOutputData> updateAccountRequestForRequestId(
             @RequestHeader(value = X_LBG_INTERNAL_USER_ROLE) final String internalUserRole,

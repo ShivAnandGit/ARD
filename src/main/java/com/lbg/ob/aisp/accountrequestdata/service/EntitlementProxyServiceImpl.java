@@ -65,7 +65,6 @@ public class EntitlementProxyServiceImpl implements EntitlementProxyService {
             public boolean hasError(ClientHttpResponse response) throws IOException {
                 return (!HttpStatus.OK.equals(response.getStatusCode()));
             }
-
             @Override
             public void handleError(ClientHttpResponse response) throws IOException {
                 try {
@@ -76,13 +75,11 @@ public class EntitlementProxyServiceImpl implements EntitlementProxyService {
                     String content = writer.toString();
                     TypeReference<Map<String,ErrorData>> typeRef
                             = new TypeReference<Map<String, ErrorData>>() {};
-
                     Map<String,ErrorData> map = objectMapper.readValue(content, typeRef);
                     ErrorData errorData = map.get("error");
                     throw new EntitlementUpdateFailedException(errorData);
                 } catch (IOException ioe) {
                     logger.exception(correlationId, ioe);
-                    //No body specified, hence got IOException, send the status text and raw code in the exception
                     throw new EntitlementUpdateFailedException(new ErrorData(Long.valueOf(response.getRawStatusCode()), null, ENTITLEMENT_NOT_REVOKED ));
                 }
             }
