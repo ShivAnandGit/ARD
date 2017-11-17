@@ -5,81 +5,64 @@
 		<feature> monitor-1.0 </feature>
 		<feature> requestTiming-1.0 </feature>
 	</featureManager>
-	
+
 	<httpDispatcher enableWelcomePage="false" />
 
-	<sslOptions id="memberSSLOptions" 
-				sslRef="defaultSSLConfig" />
-	
+	<sslOptions id="memberSSLOptions" sslRef="defaultSSLConfig" />
+
 	<sslDefault sslRef="defaultSSLConfig" />
-	
-	<ssl 	id="defaultSSLConfig" 
-			securityLevel="HIGH"
-			clientAuthenticationSupported="true" 
-			sslProtocol="TLSv1.2"
-			keyStoreRef="defaultKeyStore" 
-			trustStoreRef="defaultTrustStore" />
-	
-	<keyStore 	password="${default-key-store-password}"
-				 location="${default-key-store}"
-				id="defaultKeyStore" />
-	
-	<keyStore 	password="${default-trust-store-password}"
-				 location="${default-trust-store}"
-				id="defaultTrustStore" />
+
+	<ssl id="defaultSSLConfig" securityLevel="HIGH"
+		clientAuthenticationSupported="true" sslProtocol="TLSv1.2"
+		keyStoreRef="defaultKeyStore" trustStoreRef="defaultTrustStore" />
+
+	<keyStore password="${default-key-store-password}" location="${default-key-store}"
+		id="defaultKeyStore" />
+
+	<keyStore password="${default-trust-store-password}" location="${default-trust-store}"
+		id="defaultTrustStore" />
 
 
-	<httpEndpoint 	id="defaultHttpEndpoint" 
-					host="*" 
-					httpPort="${http-port}"
-					httpsPort="${https-port}" 
-					sslOptionsRef="memberSSLOptions">
-					<tcpOptions> soReuseAddr="true" </tcpOptions>
-					<httpOptions 	readTimeout="5s" 
-									writeTimeout="5s"
-									removeServerHeader="true" />
-					<sslOptions> sslRef="defaultSSLConfig" </sslOptions>
+	<httpEndpoint id="defaultHttpEndpoint" host="*" httpPort="${http-port}"
+		httpsPort="${https-port}" sslOptionsRef="memberSSLOptions">
+		<tcpOptions> soReuseAddr="true" </tcpOptions>
+		<httpOptions readTimeout="5s" writeTimeout="5s"
+			removeServerHeader="true" />
+		<sslOptions> sslRef="defaultSSLConfig" </sslOptions>
 	</httpEndpoint>
-	
-	<logging 	traceSpecification="*=info" 
-				maxFiles="50" 
-				maxFileSize="20"
-				logDirectory="${log-dir}" 
-				copySystemStreams="${copy-system-streams}"
-				consoleLogLevel="${console-log-level}" />
-	
-	<requestTiming 	sampleRate="1" 
-					slowRequestThreshold="10s"
-					hungRequestThreshold="50s" 
-					includeContextInfo="true" />
-	
-	<applicationMonitor dropinsEnabled="false" />
-	
-	<httpSession 	maxInMemorySessionCount="750" 
-					cookieSecure="true"
-					allowOverflow="false" />
-	
-	<webAppSecurity ssoRequiresSSL="true" />
-	
-	<pluginConfiguration 	connectTimeout="4"
-							serverIOTimeout="100" />
 
-	<dataSource id="DefaultDataSource" jndiName="jdbc/oracle" queryTimeout="${datasourceQueryTimeout}" >
-		<jdbcDriver libraryRef="OracleLib"/>
-		<connectionManager maxPoolSize="10" minPoolSize="2"/>
-		<properties.oracle URL="${datasourceURL}"  user="${datasourceUser}"
-						   password="${datasourcePassword}"
-						   loginTimeout="${datasourceLoginTimeout}"
-						   connectionProperties="oracle.jdbc.ReadTimeout:100"/>
+	<logging traceSpecification="*=info" maxFiles="50" maxFileSize="20"
+		logDirectory="${log-dir}" copySystemStreams="${copy-system-streams}"
+		consoleLogLevel="${console-log-level}" />
+
+	<requestTiming sampleRate="1" slowRequestThreshold="10s"
+		hungRequestThreshold="50s" includeContextInfo="true" />
+
+	<applicationMonitor dropinsEnabled="false" />
+
+	<httpSession maxInMemorySessionCount="750" cookieSecure="true"
+		allowOverflow="false" />
+
+	<webAppSecurity ssoRequiresSSL="true" />
+
+	<pluginConfiguration connectTimeout="4"
+		serverIOTimeout="100" />
+
+	<dataSource id="DefaultDataSource" jndiName="jdbc/oracle"
+		queryTimeout="${datasourceQueryTimeout}">
+		<jdbcDriver libraryRef="OracleLib" />
+		<connectionManager maxPoolSize="${datasourceMaxPoolSize}"
+			connectionTimeout="${datasourceConnectionTimeout}" />
+		<properties.oracle URL="${datasourceURL}" user="${datasourceUser}"
+			password="${datasourcePassword}" loginTimeout="${datasourceLoginTimeout}"
+			connectionProperties="oracle.jdbc.ReadTimeout:100" />
 	</dataSource>
 
 	<library id="OracleLib">
-		<fileset dir="${server.config.dir}/lib"  includes="ojdbc7-12.1.0.1.jar"/>
+		<fileset dir="${server.config.dir}/lib" includes="ojdbc7-12.1.0.1.jar" />
 	</library>
-	<application 	name="${app-name}"
-					context-root="${context-root}"
-					location="${app-location}" 
-					type="war" />
+	<application name="${app-name}" context-root="${context-root}"
+		location="${app-location}" type="war" />
 
 
 </server>

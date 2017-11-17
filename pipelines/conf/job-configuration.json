@@ -1,43 +1,43 @@
-{ 
-  "journey": "ob-cnf",
-  "mavengoals": {
-  	"unit": "clean test",
-  	"sonar": "clean test cobertura:cobertura sonar:sonar",
-  	"package": "-U clean package -DskipTests=true"
-  },
-  "nexus": {
-    "url": "https://nexus.sandbox.extranet.group/nexus/content/repositories/releases"
-  },
-  "sonar": {
-    "coverage_exclusions": "**/pipelines/**,Jenkinsfile,/j2/**,src/main/java/com/lbg/ob/aisp/accountrequestdata/data/**,**/AccountRequestDataServiceApplication.java,**/AccountRequestDataConstant.java,**/exception/**,**/config/**",
-    "server_id": "SONAR-main",
-    "quality_gate": "OB-CNF-API-QG",
-    "exclusions": "**/pipelines/**,Jenkinsfile,/j2/**"
-  },
-  "splunk": {
-    "reportdir": "/apps/splunkreports/ob-cnf-web-bdd/tmp"
-  },
-  "maven": {
-    "pom": "",
-    "settings": "pipelines/conf/settings.xml"
-  },
+{
+	"journey": "ob-cnf",
+	"mavengoals": {
+		"unit": "clean test",
+		"sonar": "clean test cobertura:cobertura sonar:sonar",
+		"package": "-U clean package -DskipTests=true"
+	},
+	"nexus": {
+		"url": "https://nexus.sandbox.extranet.group/nexus/content/repositories/releases"
+	},
+	"sonar": {
+		"coverage_exclusions": "**/pipelines/**,Jenkinsfile,/j2/**,src/main/java/com/lbg/ob/aisp/accountrequestdata/data/**,**/AccountRequestDataServiceApplication.java,**/AccountRequestDataConstant.java,**/exception/**,**/config/**",
+		"server_id": "SONAR-main",
+		"quality_gate": "OB-CNF-API-QG",
+		"exclusions": "**/pipelines/**,Jenkinsfile,/j2/**"
+	},
+	"splunk": {
+		"reportdir": "/apps/splunkreports/ob-cnf-web-bdd/tmp"
+	},
+	"maven": {
+		"pom": "",
+		"settings": "pipelines/conf/settings.xml"
+	},
 	"bdd": {
-    		"invocation": "sleep 300; ./node_modules/.bin/wdio tests/acceptance/wdio/conf/api.conf.js --env Test --ff ARD*",
-    		"git_repo": "ssh://gerrit.sandbox.extranet.group:29418/ob-cnf-ft2-bdd",
-    		"git_credentials": "ob-codeuser",
-    		"default_branch": "master",
-    		"passthreshold": "95"
-  	},
- "zap":{
-       "sonarQuality_gate":"OB-ZAP-QG",
-       "resultdir":"zap-report"
-  },  
-  "bluemix": {
-    "domain": "lbg.eu-gb.bluemix.net",
-    "api": "api.lbg.eu-gb.bluemix.net",
-	"credentials": "bluemix-global-deployer"
-  },
-  "environments": {
+		"invocation": "sleep 300; ./node_modules/.bin/wdio tests/acceptance/wdio/conf/api.conf.js --env Test --ff ARD*",
+		"git_repo": "ssh://gerrit.sandbox.extranet.group:29418/ob-cnf-ft2-bdd",
+		"git_credentials": "ob-codeuser",
+		"default_branch": "master",
+		"passthreshold": "95"
+	},
+	"zap": {
+		"sonarQuality_gate": "OB-ZAP-QG",
+		"resultdir": "zap-report"
+	},
+	"bluemix": {
+		"domain": "lbg.eu-gb.bluemix.net",
+		"api": "api.lbg.eu-gb.bluemix.net",
+		"credentials": "bluemix-global-deployer"
+	},
+	"environments": {
 		"master": {
 			"memory": "1024M",
 			"bluemix": {
@@ -48,6 +48,8 @@
 				"DS1_USER": "ACCOUNTREQUEST",
 				"DS1_ENC_PASSWORD": "ACCOUNT123",
 				"DS1_URL": "jdbc:oracle:thin:@dev-p1-db-02.sandbox.local:1521/CON1D.sandbox.lloydsbanking.com",
+				"DS1_MAX_POOL_SIZE": "20",
+				"DS1_CONNECTION_TIMEOUT": "30s",
 				"ENTITLEMENT_REVOKE_URL": "https://j2-ob-cnf-entitlement-api-master.lbg.eu-gb.mybluemix.net/entitlement-service/v1.0/entitlements/status/revoke",
 				"LOG_ROLL_INTERVAL": "1",
 				"LOG_DEBUG_LEVEL": "debug",
@@ -56,7 +58,11 @@
 				"LOG_FILE_PREFIX": "ARD",
 				"LOG_FILE_SIZE_IN_MBS": "5",
 				"LOG_FILE_AGE": "5",
-				"LOG_CONSOLE_OUTPUT": "true"
+				"LOG_CONSOLE_OUTPUT": "true",
+				"REQUEST_TIMEOUT_IN_MILLISECONDS": "4000",
+				"OPEN_CIRCUIT_TIMEOUT_IN_MILLISECONDS": "5000",
+				"MINIMUM_REQUEST_FOR_HEATH_CHECK": "2",
+				"ERROR_THRESHOLD_PERCENTAGE": "50"
 			}
 		},
 		"ci": {
@@ -69,6 +75,8 @@
 				"DS1_USER": "ACCOUNTREQUEST",
 				"DS1_ENC_PASSWORD": "ACCOUNT123",
 				"DS1_URL": "jdbc:oracle:thin:@dev-p1-db-02.sandbox.local:1521/CON1D.sandbox.lloydsbanking.com",
+				"DS1_MAX_POOL_SIZE": "20",
+				"DS1_CONNECTION_TIMEOUT": "30s",
 				"ENTITLEMENT_REVOKE_URL": "https://j2-ob-cnf-entitlement-api-master.lbg.eu-gb.mybluemix.net/entitlement-service/v1.0/entitlements/status/revoke",
 				"LOG_ROLL_INTERVAL": "1",
 				"LOG_DEBUG_LEVEL": "debug",
@@ -77,7 +85,11 @@
 				"LOG_FILE_PREFIX": "ARD",
 				"LOG_FILE_SIZE_IN_MBS": "5",
 				"LOG_FILE_AGE": "5",
-				"LOG_CONSOLE_OUTPUT": "true"
+				"LOG_CONSOLE_OUTPUT": "true",
+				"REQUEST_TIMEOUT_IN_MILLISECONDS": "4000",
+				"OPEN_CIRCUIT_TIMEOUT_IN_MILLISECONDS": "5000",
+				"MINIMUM_REQUEST_FOR_HEATH_CHECK": "2",
+				"ERROR_THRESHOLD_PERCENTAGE": "50"
 			}
 		}
 	}
