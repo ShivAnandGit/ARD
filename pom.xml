@@ -195,7 +195,7 @@
         <dependency>
             <groupId>com.lbg.ob.core</groupId>
             <artifactId>common-logger</artifactId>
-            <version>1.0.7-rc.23</version>
+            <version>1.0.7-rc.31</version>
         </dependency>
         <dependency>
             <groupId>commons-io</groupId>
