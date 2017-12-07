@@ -1,4 +1,4 @@
-package com.lbg.ob.aisp.accountrequestdata;
+package com.lbg.ob.aisp.accountrequestdata.controller;
 
 import static com.lbg.ob.aisp.accountrequestdata.util.AccountRequestDataConstant.X_FAPI_FINANCIAL_ID;
 import static com.lbg.ob.aisp.accountrequestdata.util.AccountRequestDataConstant.X_FAPI_INTERACTION_ID;

@@ -1,7 +1,7 @@
 package com.lbg.ob.aisp.accountrequestdata.test;
 
-import com.lbg.ob.aisp.accountrequestdata.AccountRequestDataController;
 import com.lbg.ob.aisp.accountrequestdata.AccountRequestDataServiceApplication;
+import com.lbg.ob.aisp.accountrequestdata.controller.AccountRequestDataController;
 import com.lbg.ob.aisp.accountrequestdata.data.AccountRequestOutputData;
 import com.lbg.ob.aisp.accountrequestdata.data.AccountRequestStatusHistory;
 import com.lbg.ob.aisp.accountrequestdata.data.CreateAccountInputData;

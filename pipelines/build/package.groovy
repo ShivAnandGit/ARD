@@ -14,14 +14,21 @@ def packHandler(String targetBranch, String targetEnv, context) {
 
 	def mavenSettings  = context.config.maven.settings ?: 'pipelines/conf/settings.xml'
 	def mavenPom = context.config.maven.pom ?: 'pom.xml'
+	String application = context.application
 	def mavenGoals = context.config.mavengoals.package?: "-U clean package"
+        String targetCommit =  sh(returnStdout: true, script: 'git rev-parse --short HEAD').trim()
+        String prereleaseID = this.getReleaseIdentifier(targetBranch, targetEnv, targetCommit);
+	String buildMetadata = ''
+
 	try {
 		dir('target'){deleteDir()}
-		sh """source pipelines/scripts/functions && \\
-								mvn ${mavenGoals} 	\\
-									-s ${mavenSettings} \\
-					 				-f ${mavenPom} \\
-									"""
+  	 	withEnv([
+                                "prereleaseID=${prereleaseID}",
+                                "application=${application}",
+                                "buildMetadata=${buildMetadata}",
+				"mavenGoals=${mavenGoals}"
+                        ]){ sh 'pipelines/scripts/maven_package.sh'}
+
 		dir('target'){
 			archiveArtifacts '*.zip'
 			stash name: "artifact-${context.application}-${targetBranch}", includes: '*.zip'
@@ -42,51 +49,56 @@ def publishNexus(String targetBranch, String targetEnv, context){
 	}
 }
 def publishNexusHandler(String targetBranch, String targetEnv, context){
-   String artifactName
-   String buildMetadata = ''
-   String nexusURL = context.config.nexus.url ?: 'http://invalid.url/'
-   String targetCommit =  sh(returnStdout: true, script: 'git rev-parse --short HEAD').trim()
-   String prereleaseID='-SNAPSHOT'
-   String application = 'account-request-data'
-   String branchIdentifier = targetBranch.take(2)
-   switch(targetEnv) {
-       case 'integration':
-           if (targetBranch.startsWith('release')){
-               prereleaseID = ""
-           } else if(targetBranch == 'master') {
-               prereleaseID = "-rc.${env.BUILD_NUMBER}.${targetCommit}"
-           } else if(targetBranch.startsWith('hotfix')) {
-               prereleaseID = "-hotfix.${env.BUILD_NUMBER}.${targetCommit}"
-           } else{
-               prereleaseID = "-${branchIdentifier}.${env.BUILD_NUMBER}.${targetCommit}"
-           }
-           break;
-       case 'feature': prereleaseID = "-SNAPSHOT" ; break ;
-       default: prereleaseID = "-SNAPSHOT" ; break ;
-   }
- 
-   try {
-       dir ('target'){
-           deleteDir()
-           unstash "artifact-${context.application}-${targetBranch}"
- 
-       }
-       withCredentials([
-           usernamePassword(credentialsId: 'nexus-uploader',
-           passwordVariable: 'NEXUS_PASS',
-           usernameVariable: 'NEXUS_USER')
-       ]) {
-           echo "PUBLISH: ${this.name()} artifact ${artifactName} to ${nexusURL} "
-           withEnv([
-               "prereleaseID=${prereleaseID}",
-               "application=${application}",
-               "buildMetadata=${buildMetadata}",
-               "url=${nexusURL}"
-           ]){ sh 'pipelines/scripts/maven_deploy.sh'}
-       }
-   } catch (error) {
-       echo "Failed to publish artifact to Nexus"
-   } finally {    }
+	String artifactName
+	String buildMetadata = ''
+	String nexusURL = context.config.nexus.url ?: 'http://invalid.url/'
+	String targetCommit =  sh(returnStdout: true, script: 'git rev-parse --short HEAD').trim()
+	String application = context.application
+	String prereleaseID = this.getReleaseIdentifier(targetBranch, targetEnv, targetCommit);
+
+	try {
+		dir ('target'){
+			deleteDir()
+			unstash "artifact-${context.application}-${targetBranch}"
+
+		}
+		withCredentials([
+			usernamePassword(credentialsId: 'nexus-uploader',
+			passwordVariable: 'NEXUS_PASS',
+			usernameVariable: 'NEXUS_USER')
+		]) {
+			echo "PUBLISH: ${this.name()} artifact ${artifactName} to ${nexusURL} "
+			withEnv([
+				"prereleaseID=${prereleaseID}",
+				"application=${application}",
+				"buildMetadata=${buildMetadata}",
+				"url=${nexusURL}"
+			]){ sh 'pipelines/scripts/maven_deploy.sh'}
+		}
+	} catch (error) {
+		echo "Failed to publish artifact to Nexus ${error.message}"
+	} finally {	}
+}
+String getReleaseIdentifier(String targetBranch, String targetEnv, String targetCommit){
+ String prereleaseID='-SNAPSHOT'
+        String branchIdentifier = targetBranch.take(2)
+        switch(targetEnv) {
+                case 'integration':
+                        if (targetBranch.startsWith('release')){
+                                prereleaseID = ""
+                        } else if(targetBranch == 'master') {
+                                prereleaseID = "-rc.${env.BUILD_NUMBER}.${targetCommit}"
+                        } else if(targetBranch.startsWith('hotfix')) {
+                                prereleaseID = "-hotfix.${env.BUILD_NUMBER}.${targetCommit}"
+                        } else{
+                                prereleaseID = "-${branchIdentifier}.${env.BUILD_NUMBER}.${targetCommit}"
+                        }
+                        break;
+                case 'feature': prereleaseID = "-SNAPSHOT" ; break ;
+                default: prereleaseID = "-SNAPSHOT" ; break ;
+        }
+
+	return prereleaseID;
 }
 
 def name() {
