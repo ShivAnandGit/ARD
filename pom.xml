@@ -39,7 +39,7 @@
 
 
 	<scm>
-		<url>https://gerrit.sandbox.extranet.group/ob-pisp-initiate-ds-api</url>
+		<url>https://gerrit.sandbox.extranet.group/ob-cnf-account-request-data-api</url>
 	</scm>
 
 	<distributionManagement>
@@ -281,7 +281,7 @@
 		</dependency>
 	</dependencies>
 	<build>
-		<finalName>account-request-data</finalName>
+		<finalName>ob-cnf-account-request-data-api</finalName>
 		<plugins>
 			<plugin>
 				<groupId>org.codehaus.mojo</groupId>
