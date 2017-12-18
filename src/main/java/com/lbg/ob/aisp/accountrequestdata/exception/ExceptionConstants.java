@@ -2,6 +2,7 @@ package com.lbg.ob.aisp.accountrequestdata.exception;
 
 public final class ExceptionConstants {
 
+
     private ExceptionConstants() {
         //private constructor
     }
@@ -13,7 +14,11 @@ public final class ExceptionConstants {
     public static final String ARD_API_ERR_005 = "ARD_API_ERR_005";
 
     public static final String ARD_API_ERR_007 = "ARD_API_ERR_007";
-    
+
+    public static final String ARD_API_ERR_009 = "ARD_API_ERR_009";
+
+    public static final String ARD_API_ERR_010 = "ARD_API_ERR_010";
+
     public static final String ARD_API_ERR_008 = "ARD_API_ERR_008";
 
     public static final String BAD_REQUEST_INVALID_REQUEST = "Bad request::Invalid request";

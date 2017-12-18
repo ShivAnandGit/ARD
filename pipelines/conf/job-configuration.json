@@ -9,7 +9,7 @@
 		"url": "https://nexus.sandbox.extranet.group/nexus/content/repositories/releases"
 	},
 	"sonar": {
-		"coverage_exclusions": "**/pipelines/**,Jenkinsfile,/j2/**,src/main/java/com/lbg/ob/aisp/accountrequestdata/data/**,**/AccountRequestDataServiceApplication.java,**/AccountRequestDataConstant.java,**/exception/**,**/config/**",
+		"coverage_exclusions": "**/pipelines/**,Jenkinsfile,/j2/**,src/main/java/com/lbg/ob/aisp/accountrequestdata/data/**,**/AccountRequestDataServiceApplication.java,**/AccountRequestDataConstant.java,**/exception/**,**/config/**,**/Util.java",
 		"server_id": "SONAR-main",
 		"quality_gate": "OB-CNF-API-QG",
 		"exclusions": "**/pipelines/**,Jenkinsfile,/j2/**"

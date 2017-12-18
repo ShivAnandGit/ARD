@@ -7,9 +7,11 @@ import java.util.Map;
 import com.fasterxml.jackson.annotation.JsonAnyGetter;
 import com.fasterxml.jackson.annotation.JsonAnySetter;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.lbg.ob.aisp.accountrequestdata.validation.MetadataConstraint;
 import com.lbg.ob.aisp.accountrequestdata.validation.PermissionsConstraint;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
@@ -18,6 +20,7 @@ public final class CreateAccountInputData {
     @PermissionsConstraint
     private List<String> permissions;
 
+    @MetadataConstraint
     private Map<String, Object> metadata = new HashMap<>();
 
     public CreateAccountInputData() {
@@ -41,5 +44,11 @@ public final class CreateAccountInputData {
     @JsonAnySetter
     public void set(String name, Object value) {
         this.metadata.put(name, value);
+    }
+
+    //Created a getter for the spring framework
+    @JsonIgnore
+    public Map<String, Object> getMetadata() {
+        return metadata;
     }
 }

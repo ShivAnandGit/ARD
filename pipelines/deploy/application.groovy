@@ -56,11 +56,10 @@ def deployHandler(String targetBranch, context) {
 				echo "Deployment failed"
 				throw error
 			} finally {
+				archiveArtifacts "artifacts/wlp/usr/servers/**/bootstrap.properties"
+				archiveArtifacts "artifacts/wlp/usr/servers/**/jvm.options"
+				archiveArtifacts "artifacts/wlp/usr/servers/**/server.env"
 				step([$class: 'WsCleanup', notFailBuild: true])
-                                archiveArtifacts "artifacts/wlp/usr/servers/**/bootstrap.properties"
-                                archiveArtifacts "artifacts/wlp/usr/servers/**/jvm.options"
-                                archiveArtifacts "artifacts/wlp/usr/servers/**/server.env"
-
 			}
 		}
 	}

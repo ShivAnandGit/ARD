@@ -13,11 +13,13 @@ def builder = 'pipelines/build/package.groovy'
 def deployer = 'pipelines/deploy/application.groovy'
 def unitTests = 	  [	'pipelines/tests/unit.groovy']
 def staticAnalyses =  [	'pipelines/tests/sonar.groovy',
-						'pipelines/tests/checkstyle.groovy' ]
-						
-def integrationTests = ['pipelines/tests/bdd.groovy',
-						'pipelines/tests/reserved.groovy' ]					
+                        'pipelines/tests/checkstyle.groovy' ]
 
+def integrationTests = ['pipelines/tests/bdd.groovy',
+						'pipelines/tests/reserved.groovy' ]
+
+String notify = 'LloydsOpenBankingConsentandFraud@sapient.com,lloydscjtdevops@sapient.com'
+Integer timeout = 30
 def configuration = "pipelines/conf/job-configuration.json"
 BuildHandlers handlers = new ConfigurableBuildHandlers(	builder, 
 							deployer, 
@@ -25,11 +27,4 @@ BuildHandlers handlers = new ConfigurableBuildHandlers(	builder,
 							staticAnalyses, 
 							integrationTests) as BuildHandlers
 
-
-String notify = 'LloydsOpenBankingConsentandFraud@sapient.com,lloydscjtdevops@sapient.com'
-Integer timeout = 30
-
-//Single line invocation
-invokeBuildPipelineHawk( 'ob-cnf-account-request-data-api', handlers, configuration, notify , timeout )
-
-	
+invokeBuildPipelineHawk('ob-cnf-account-request-data-api', handlers, configuration, notify, timeout)

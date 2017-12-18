@@ -3,7 +3,7 @@ spring:
     default: development
     active: development
   datasource:
-    url: ${datasourceURL}
+    url: jdbc:oracle:thin:@dev-p1-db-02.sandbox.local:1521/CON1D.sandbox.lloydsbanking.com
     username: ${datasourceUser}
     password: ${datasourcePassword}
     driver-class-name: oracle.jdbc.OracleDriver
