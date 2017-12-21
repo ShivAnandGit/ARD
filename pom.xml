@@ -19,15 +19,6 @@
 		<wlpConfig>src/main/wlp</wlpConfig>
 		<wlpServerName>ard</wlpServerName>
 		<artifact.version>${project.version}</artifact.version>
-		<!-- propertied set by maven plugins or system -->
-		<git.commit.user.name>NOTE_SPECIFIED</git.commit.user.name>
-		<git.commit.user.email>NOTE_SPECIFIED</git.commit.user.email>
-		<git.commit.time>NOTE_SPECIFIED</git.commit.time>
-		<git.remote.origin.url>NOTE_SPECIFIED</git.remote.origin.url>
-		<git.commit.id>NOTE_SPECIFIED</git.commit.id>
-		<git.tags>NOTE_SPECIFIED</git.tags>
-		<git.branch>NOTE_SPECIFIED</git.branch>
-		<env.BUILD_NUMBER>NOT_SPECIFIED</env.BUILD_NUMBER>
 	</properties>
 	<profiles>
 		<profile>
