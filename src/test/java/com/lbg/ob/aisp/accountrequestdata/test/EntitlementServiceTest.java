@@ -3,9 +3,11 @@ package com.lbg.ob.aisp.accountrequestdata.test;
 import com.lbg.ob.aisp.accountrequestdata.exception.EntitlementUpdateFailedException;
 import com.lbg.ob.aisp.accountrequestdata.exception.ResourceAccessException;
 import com.lbg.ob.aisp.accountrequestdata.service.EntitlementProxyServiceImpl;
-import com.lbg.ob.logger.Logger;
 import com.netflix.hystrix.exception.HystrixTimeoutException;
 import net.jadler.stubbing.server.jdk.JdkStubHttpServer;
+
+import org.apache.log4j.LogManager;
+import org.apache.log4j.Logger;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -34,11 +36,11 @@ public class EntitlementServiceTest {
     String clientId = "abcd";
 
     @Mock
-    Logger LOGGER;
-
-    @Mock
     AsyncRestTemplate restTemplate;
 
+//    @Mock
+//    private static final Logger logger = LogManager.getLogger(AccountRequestDataServiceTest.class);
+    
     @InjectMocks
     EntitlementProxyServiceImpl entitlementService;
     private Boolean fovIndicator = false;
@@ -56,7 +58,6 @@ public class EntitlementServiceTest {
 
     @Test
     public void shouldReturnSuccessWhenEntitlementIsRevokedSuccessfully() throws Exception {
-        String correlationId = "corelation-id";
         String internalUserRole = "some-role";
         String userId = "SYSTEM";
         long entitlementId = 23L;
@@ -64,7 +65,6 @@ public class EntitlementServiceTest {
                 .havingMethodEqualTo("PUT")
                 .havingPathEqualTo("/entitlements/status/revoke")
                 .havingHeaderEqualTo("Content-Type", "application/json")
-                .havingHeaderEqualTo("x-lbg-txn-correlation-id", correlationId)
                 .havingHeaderEqualTo(X_LBG_INTERNAL_USER_ID, userId)
                 .havingHeaderEqualTo(X_LBG_UPDATED_BY_USER_ID, clientId)
                 .havingHeaderEqualTo(X_LBG_INTERNAL_USER_ROLE, internalUserRole )
@@ -74,13 +74,12 @@ public class EntitlementServiceTest {
                 .withHeader("Content-Type", "application/json;charset=UTF-8")
                 .withStatus(200);
         entitlementService.setRequestURL("http://localhost:"+port()+"/entitlements/status/revoke");
-        entitlementService.revokeEntitlement(entitlementId, userId, internalUserRole, correlationId, clientId, fovIndicator);
+        entitlementService.revokeEntitlement(entitlementId, userId, internalUserRole, clientId, fovIndicator);
         assertTrue(true);
     }
 
     @Test(expected = ExecutionException.class)
     public void shouldThrowExceptionWhenEntitlementRevokedResponseIsnt200() throws Exception {
-        String correlationId = "corelation-id";
         String internalUserRole = "some-role";
         String userId = "SYSTEM";
         long entitlementId = 23L;
@@ -89,7 +88,6 @@ public class EntitlementServiceTest {
                 .havingMethodEqualTo("PUT")
                 .havingPathEqualTo("/entitlements/status/revoke")
                 .havingHeaderEqualTo("Content-Type", "application/json")
-                .havingHeaderEqualTo("x-lbg-txn-correlation-id", correlationId)
                 .havingHeaderEqualTo(X_LBG_INTERNAL_USER_ID, userId)
                 .havingHeaderEqualTo(X_LBG_UPDATED_BY_USER_ID, clientId)
                 .havingHeaderEqualTo(X_LBG_INTERNAL_USER_ROLE, internalUserRole )
@@ -99,7 +97,7 @@ public class EntitlementServiceTest {
                 .withHeader("Content-Type", "application/json;charset=UTF-8")
                 .withStatus(404);
         entitlementService.setRequestURL("http://localhost:"+port()+"/entitlements/status/revoke");
-        entitlementService.revokeEntitlement(entitlementId, userId, internalUserRole, correlationId, clientId, fovIndicator);
+        entitlementService.revokeEntitlement(entitlementId, userId, internalUserRole, clientId, fovIndicator);
     }
 
     @Test(expected = EntitlementUpdateFailedException.class)
@@ -112,7 +110,6 @@ public class EntitlementServiceTest {
                 .havingMethodEqualTo("PUT")
                 .havingPathEqualTo("/entitlements/status/revoke")
                 .havingHeaderEqualTo("Content-Type", "application/json")
-                .havingHeaderEqualTo("x-lbg-txn-correlation-id", correlationId)
                 .havingHeaderEqualTo(X_LBG_INTERNAL_USER_ID, userId)
                 .havingHeaderEqualTo(X_LBG_UPDATED_BY_USER_ID, clientId)
                 .havingHeaderEqualTo(X_LBG_INTERNAL_USER_ROLE, internalUserRole )
@@ -122,7 +119,7 @@ public class EntitlementServiceTest {
                 .withHeader("Content-Type", "application/json;charset=UTF-8")
                 .withStatus(200);
         entitlementService.setRequestURL("http://localhost:"+port()+"/entitlements/status/revoke");
-        entitlementService.revokeEntitlement(entitlementId, userId, internalUserRole, correlationId, clientId, fovIndicator);
+        entitlementService.revokeEntitlement(entitlementId, userId, internalUserRole, clientId, fovIndicator);
     }
 
 
@@ -147,27 +144,27 @@ public class EntitlementServiceTest {
                 .withHeader("Content-Type", "application/json;charset=UTF-8")
                 .withStatus(404);
         entitlementService.setRequestURL("http://localhost:"+port()+"/entitlements/status/revoke");
-        entitlementService.revokeEntitlement(entitlementId, userId, internalUserRole, correlationId, clientId, fovIndicator);
+        entitlementService.revokeEntitlement(entitlementId, userId, internalUserRole, correlationId, fovIndicator);
     }
 
     @Test(expected = ResourceAccessException.class)
     public void shouldThrowResourceAccessExceptionForFallback() throws Exception {
         Throwable ex = new HystrixTimeoutException();
-        Mockito.doNothing().when(LOGGER).logException(anyString(), any(Throwable.class));
+//        Mockito.doNothing().when(logger).error(anyString(), any(Throwable.class));
         Whitebox.invokeMethod(entitlementService,"fallback", ex);
     }
 
     @Test(expected = EntitlementUpdateFailedException.class)
     public void shouldThrowEntitlementUpdateFailedExceptionForFallback() throws Exception {
         ExecutionException ex = new ExecutionException("test ex", new EntitlementUpdateFailedException("test msg"));
-        Mockito.doNothing().when(LOGGER).logException(anyString(), any(Throwable.class));
+//        Mockito.doNothing().when(logger).error(anyString(), any(Throwable.class));
         Whitebox.invokeMethod(entitlementService,"fallback", ex);
     }
 
     @Test(expected = ResourceAccessException.class)
     public void shouldThrowResourceAccessExceptionForFallback2() throws Exception {
         ExecutionException ex = new ExecutionException("test ex", new Exception("test msg"));
-        Mockito.doNothing().when(LOGGER).logException(anyString(), any(Throwable.class));
+//        Mockito.doNothing().when(LOGGER).logException(anyString(), any(Throwable.class));
         Whitebox.invokeMethod(entitlementService,"fallback", ex);
     }
 

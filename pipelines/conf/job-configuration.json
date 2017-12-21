@@ -51,18 +51,19 @@
 				"DS1_MAX_POOL_SIZE": "20",
 				"DS1_CONNECTION_TIMEOUT": "30s",
 				"ENTITLEMENT_REVOKE_URL": "https://j2-ob-cnf-entitlement-api-master.lbg.eu-gb.mybluemix.net/entitlement-service/v1.0/entitlements/status/revoke",
-				"LOG_ROLL_INTERVAL": "1",
-				"LOG_DEBUG_LEVEL": "debug",
-				"LOG_INFO_LEVEL": "info",
-				"APP_LOG_DIR": "./logs",
-				"LOG_FILE_PREFIX": "ARD",
-				"LOG_FILE_SIZE_IN_MBS": "5",
-				"LOG_FILE_AGE": "5",
-				"LOG_CONSOLE_OUTPUT": "true",
 				"REQUEST_TIMEOUT_IN_MILLISECONDS": "4000",
 				"OPEN_CIRCUIT_TIMEOUT_IN_MILLISECONDS": "5000",
 				"MINIMUM_REQUEST_FOR_HEATH_CHECK": "2",
-				"ERROR_THRESHOLD_PERCENTAGE": "50"
+				"ERROR_THRESHOLD_PERCENTAGE": "50",
+				"APP_LOG_DIR": "./logs",
+				"LOG_FILE_PREFIX": "ARD",
+				"ROOT_LOG_LEVEL": "INFO",
+				"APPLICATION_LOG_LEVEL": "DEBUG",
+				"CONSOLE_LOG_LEVEL": "DEBUG",
+				"FILE_LOG_LEVEL": "OFF",
+				"LOG_IMMEDIATE_FLUSH": "true",
+				"MAX_SIZE_IN_MB_PER_LOG_FILE": "5",
+				"MAXIMUM_NUMBER_OF_ROLLED_FILES": "2"
 			}
 		},
 		"ci": {
@@ -78,18 +79,19 @@
 				"DS1_MAX_POOL_SIZE": "20",
 				"DS1_CONNECTION_TIMEOUT": "30s",
 				"ENTITLEMENT_REVOKE_URL": "https://j2-ob-cnf-entitlement-api-master.lbg.eu-gb.mybluemix.net/entitlement-service/v1.0/entitlements/status/revoke",
-				"LOG_ROLL_INTERVAL": "1",
-				"LOG_DEBUG_LEVEL": "debug",
-				"LOG_INFO_LEVEL": "info",
-				"APP_LOG_DIR": "./logs",
-				"LOG_FILE_PREFIX": "ARD",
-				"LOG_FILE_SIZE_IN_MBS": "5",
-				"LOG_FILE_AGE": "5",
-				"LOG_CONSOLE_OUTPUT": "true",
 				"REQUEST_TIMEOUT_IN_MILLISECONDS": "4000",
 				"OPEN_CIRCUIT_TIMEOUT_IN_MILLISECONDS": "5000",
 				"MINIMUM_REQUEST_FOR_HEATH_CHECK": "2",
-				"ERROR_THRESHOLD_PERCENTAGE": "50"
+				"ERROR_THRESHOLD_PERCENTAGE": "50",
+				"APP_LOG_DIR": "./logs",
+				"LOG_FILE_PREFIX": "ARD",
+				"ROOT_LOG_LEVEL": "INFO",
+				"APPLICATION_LOG_LEVEL": "DEBUG",
+				"CONSOLE_LOG_LEVEL": "DEBUG",
+				"FILE_LOG_LEVEL": "OFF",
+				"LOG_IMMEDIATE_FLUSH": "true",
+				"MAX_SIZE_IN_MB_PER_LOG_FILE": "5",
+				"MAXIMUM_NUMBER_OF_ROLLED_FILES": "2"
 			}
 		}
 	}

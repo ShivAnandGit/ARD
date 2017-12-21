@@ -17,9 +17,10 @@ import com.lbg.ob.aisp.accountrequestdata.exception.handler.ErrorData;
 import com.lbg.ob.aisp.accountrequestdata.util.AccountRequestDataConstant;
 import com.lbg.ob.aisp.accountrequestdata.util.StateChangeMachine;
 import com.lbg.ob.aisp.accountrequestdata.util.Util;
-import com.lbg.ob.logger.Logger;
 import com.netflix.hystrix.contrib.javanica.annotation.HystrixCommand;
-import org.apache.logging.log4j.ThreadContext;
+
+import org.apache.log4j.LogManager;
+import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
@@ -31,7 +32,6 @@ import java.util.concurrent.ExecutionException;
 import static com.lbg.ob.aisp.accountrequestdata.exception.ExceptionConstants.ARD_API_ERR_007;
 import static com.lbg.ob.aisp.accountrequestdata.exception.ExceptionConstants.ARD_API_ERR_503;
 import static com.lbg.ob.aisp.accountrequestdata.exception.ExceptionConstants.BAD_REQUEST_INVALID_REQUEST;
-import static com.lbg.ob.enums.CommonLoggerEnums.CORRELATION_ID;
 
 /**
  * Class AccountRequestDataServiceImpl.All Service Class will implement this interface.
@@ -42,9 +42,6 @@ import static com.lbg.ob.enums.CommonLoggerEnums.CORRELATION_ID;
 public class AccountRequestDataServiceImpl<T> implements AccountRequestDataService<T> {
 
     @Autowired
-    private Logger logger;
-
-    @Autowired
     private EntitlementProxyService entitlementService;
 
     @Autowired
@@ -52,6 +49,9 @@ public class AccountRequestDataServiceImpl<T> implements AccountRequestDataServi
 
     @Autowired
     private AccountRequestDAO accountRequestDAO;
+
+    private static final Logger logger = LogManager.getLogger(EntitlementProxyServiceImpl.class);
+
     /**
      * createAccountRequestData takes CreateAccountInputData as input and will create entitlement
      * for each request .
@@ -62,14 +62,13 @@ public class AccountRequestDataServiceImpl<T> implements AccountRequestDataServi
      */
     @HystrixCommand(commandKey = "database", fallbackMethod = "fallbackCreate")
     @Override
-    public AccountRequestOutputResponse createAccountRequestData(CreateAccountInputRequest createAccountInputRequest, String clientId, String fapiFinancialId, String txnCorrelationId)
+    public AccountRequestOutputResponse createAccountRequestData(CreateAccountInputRequest createAccountInputRequest, String clientId, String fapiFinancialId)
             throws IOException, URISyntaxException, InterruptedException {
-        ThreadContext.put(CORRELATION_ID.value(), txnCorrelationId);
-        logger.trace( "ENTRY --> ");
+        logger.trace( "ENTRY --> createAccountRequestData");
         String json = getJsonRequest(createAccountInputRequest);
         AccountRequest accountRequestInfo = new AccountRequest(createAccountInputRequest.getCreateAccountInputData(), clientId, fapiFinancialId, json);
         AccountRequestOutputResponse accountRequestOutputResponse = accountRequestDAO.createAccountRequest(accountRequestInfo);
-        logger.trace( "<-- EXIT");
+        logger.trace("createAccountRequestData <-- EXIT");
         return accountRequestOutputResponse;
     }
 
@@ -79,44 +78,41 @@ public class AccountRequestDataServiceImpl<T> implements AccountRequestDataServi
         return mapper.writeValueAsString(request);
     }
 
-
     /**
-     * findByAccountRequestExternalIdentifierAndProviderClientId takes accountRequestId and clientId as input and will return the account request data associated with the request and client id
+     * findByAccountRequestExternalIdentifierAndProviderClientId takes accountRequestId and clientId
+     * as input and will return the account request data associated with the request and client id
      * @param String accountRequestId
      * @param String clientId
      * @return AccountRequestOutputData accountRequestOutputData
      * @throws IOException
      */
     @HystrixCommand(commandKey = "database", fallbackMethod = "fallbackFindWithClientId", ignoreExceptions = {RecordNotFoundException.class})
-    public AccountRequestOutputResponse findByAccountRequestExternalIdentifierAndProviderClientId(String accountRequestId, String clientId, String txnCorrelationId) throws IOException {
-        ThreadContext.put(CORRELATION_ID.value(), txnCorrelationId);
-        logger.trace( "ENTRY --> ");
+    public AccountRequestOutputResponse findByAccountRequestExternalIdentifierAndProviderClientId(String accountRequestId, String clientId) throws IOException {
+        logger.trace( "ENTRY --> findByAccountRequestExternalIdentifierAndProviderClientId");
         AccountRequestOutputResponse accountRequestOutputResponse = accountRequestDAO.findAccountRequest(accountRequestId, clientId);
-        logger.trace("<-- EXIT");
+        logger.trace("findByAccountRequestExternalIdentifierAndProviderClientId <-- EXIT");
         return accountRequestOutputResponse;
     }
 
-
-
     /**
-     * findByAccountRequestExternalIdentifier takes accountRequestId as input and will return the account request data associated with the request and client id
+     * findByAccountRequestExternalIdentifier takes accountRequestId as input and will return the
+     * account request data associated with the request and client id
      * @param accountRequestId
      * @return AccountRequestOutputData accountRequestOutputData
      * @throws IOException
      */
 
     @HystrixCommand(commandKey = "database", fallbackMethod = "fallbackFind", ignoreExceptions = {RecordNotFoundException.class})
-    public AccountRequestOutputResponse findByAccountRequestExternalIdentifier(String accountRequestId, String txnCorrelationId) throws IOException {
-        ThreadContext.put(CORRELATION_ID.value(), txnCorrelationId);
-        logger.trace( "ENTRY --> ");
+    public AccountRequestOutputResponse findByAccountRequestExternalIdentifier(String accountRequestId) throws IOException {
+        logger.trace( "ENTRY --> findByAccountRequestExternalIdentifier");
         AccountRequestOutputResponse accountRequestOutputResponse = accountRequestDAO.findAccountRequest(accountRequestId);
-        logger.trace("<-- EXIT");
+        logger.trace("findByAccountRequestExternalIdentifier <-- EXIT");
         return accountRequestOutputResponse;
     }
 
-
     /**
-     * updateAccountRequestData UpdateAccountInputdata as input and will update the associated account request data associated with the request and client id
+     * updateAccountRequestData UpdateAccountInputdata as input and will update the associated
+     * account request data associated with the request and client id
      * @param accountInputData accountInputData
      * @param accountRequestId
      * @param clientRole
@@ -125,20 +121,20 @@ public class AccountRequestDataServiceImpl<T> implements AccountRequestDataServi
      */
     @HystrixCommand(commandKey = "database", fallbackMethod = "fallbackUpdate", ignoreExceptions = {InvalidRequestException.class, RecordNotFoundException.class})
     @Override
-    public UpdateAccountRequestOutputData updateAccountRequestData(UpdateAccountRequestInputData accountInputData, String accountRequestId, String clientRole, String txnCorrelationId) throws IOException, URISyntaxException {
-        ThreadContext.put(CORRELATION_ID.value(), txnCorrelationId);
-        logger.trace( "ENTRY --> ");
+    public UpdateAccountRequestOutputData updateAccountRequestData(UpdateAccountRequestInputData accountInputData, String accountRequestId, String clientRole)
+            throws IOException, URISyntaxException {
+        logger.trace( "ENTRY --> updateAccountRequestData");
         AccountRequest accountRequestInfo = accountRequestDAO.getAccountRequest(accountRequestId);
         String possibleStatus = accountInputData.getStatus();
-        if(!(AccountRequestDataConstant.AUTHORISED.equalsIgnoreCase(possibleStatus) || AccountRequestDataConstant.REJECTED.equalsIgnoreCase(possibleStatus))) {
+        if (!(AccountRequestDataConstant.AUTHORISED.equalsIgnoreCase(possibleStatus) || AccountRequestDataConstant.REJECTED.equalsIgnoreCase(possibleStatus))) {
             throw new InvalidRequestException(BAD_REQUEST_INVALID_REQUEST, ARD_API_ERR_007);
         }
         AccountRequestStatusEnum accountRequestStatusEnum = stateChangeMachine.getUpdatableStatus(accountRequestInfo.getAccountRequestStatus(), possibleStatus);
         //update the status in ACCT_REQUEST
         accountRequestInfo.setAccountRequestStatus(accountRequestStatusEnum);
-        if(accountRequestStatusEnum.equals(AccountRequestStatusEnum.AUTHORISED)) {
+        if (accountRequestStatusEnum.equals(AccountRequestStatusEnum.AUTHORISED)) {
             Long entitlementId = accountInputData.getEntitlementId();
-            if(entitlementId == null || entitlementId == 0) {
+            if (entitlementId == null || entitlementId == 0) {
                 throw new InvalidRequestException("Request can't be authorised without an Entitlement Id", "ARD_API_ERR_999");
             }
             accountRequestInfo.setEntitlementId(entitlementId);
@@ -152,57 +148,55 @@ public class AccountRequestDataServiceImpl<T> implements AccountRequestDataServi
         updateAccountRequestOutputData.setAccountRequestId(accountRequestId);
         updateAccountRequestOutputData.setUpdatedAtTimestamp(Util.formatDateAsISO8601(savedAccountRequestStatusHistory.getStatusUpdatedDateTime().toLocalDateTime()));
         updateAccountRequestOutputData.setUpdatedStatus(accountRequestStatusEnum.getValue());
-        logger.trace("<-- EXIT");
+        logger.trace("updateAccountRequestData <-- EXIT");
         return updateAccountRequestOutputData;
     }
 
     @HystrixCommand(commandKey = "database", fallbackMethod = "fallbackRevoke", ignoreExceptions = {RecordNotFoundException.class, EntitlementUpdateFailedException.class, InvalidRequestException.class})
     @Override
-    public void revokeAccountRequestData(String accountRequestId, String clientRole, String txnCorrelationId, String clientId, Boolean fovIndicator) throws IOException, URISyntaxException, ExecutionException, InterruptedException {
-        ThreadContext.put(CORRELATION_ID.value(), txnCorrelationId);
-        logger.trace( "ENTRY --> ");
+    public void revokeAccountRequestData(String accountRequestId, String clientRole, String clientId, Boolean fovIndicator)
+            throws IOException, URISyntaxException, ExecutionException, InterruptedException {
+        logger.trace( "ENTRY --> revokeAccountRequestData");
         AccountRequest accountRequestInfo = accountRequestDAO.getAccountRequest(accountRequestId);
         String accountRequestStatus = accountRequestInfo.getAccountRequestStatus();
         AccountRequestStatusEnum updateableStatus = stateChangeMachine.getUpdatableStatus(accountRequestStatus, AccountRequestStatusEnum.REVOKED);
         //call the entitlement API to revoke the entitlement, if the status was authorised
-        if(accountRequestStatus.equals(AccountRequestDataConstant.AUTHORISED)) {
+        if (accountRequestStatus.equals(AccountRequestDataConstant.AUTHORISED)) {
             Long entitlementId = accountRequestInfo.getEntitlementId();
-            entitlementService.revokeEntitlement(entitlementId, InternalUserRoleEnum.SYSTEM.toString(), clientRole, txnCorrelationId, clientId, fovIndicator);
+            entitlementService.revokeEntitlement(entitlementId, InternalUserRoleEnum.SYSTEM.toString(), clientRole, clientId, fovIndicator);
         }
         accountRequestDAO.revokeAccountRequest(clientRole, accountRequestInfo, updateableStatus);
-        logger.trace("<-- EXIT");
+        logger.trace("revokeAccountRequestData <-- EXIT");
     }
 
-
-    private AccountRequestOutputResponse fallbackCreate(CreateAccountInputRequest createAccountInputRequest, String clientId, String fapiFinancialId, String txnCorrelationId,Throwable ex) { //NOSONAR
-        logger.exception(txnCorrelationId, ex);                                                                                                                                            //NOSONAR
-        ErrorData errorData = new ErrorData(Long.valueOf(HttpStatus.SERVICE_UNAVAILABLE.toString()), ARD_API_ERR_503, ex.getMessage());                               //NOSONAR
-        throw new ResourceAccessException(errorData, ex);                                                                                                                          //NOSONAR
+    private AccountRequestOutputResponse fallbackCreate(CreateAccountInputRequest createAccountInputRequest, String clientId, String fapiFinancialId, Throwable ex) { //NOSONAR
+        logger.error(ex); //NOSONAR
+        ErrorData errorData = new ErrorData(Long.valueOf(HttpStatus.SERVICE_UNAVAILABLE.toString()), ARD_API_ERR_503, ex.getMessage()); //NOSONAR
+        throw new ResourceAccessException(errorData, ex); //NOSONAR
     }
 
-    private AccountRequestOutputResponse fallbackFindWithClientId(String accountRequestId, String clientId, String txnCorrelationId,  Throwable ex) {                                         //NOSONAR
-        logger.exception(txnCorrelationId, ex);                                                                                                                                            //NOSONAR
-        ErrorData errorData = new ErrorData(Long.valueOf(HttpStatus.SERVICE_UNAVAILABLE.toString()), ARD_API_ERR_503, ex.getMessage());                               //NOSONAR
-        throw new ResourceAccessException(errorData, ex);                                                                                                                          //NOSONAR
+    private AccountRequestOutputResponse fallbackFindWithClientId(String accountRequestId, String clientId, Throwable ex) { //NOSONAR
+        logger.error(ex); //NOSONAR
+        ErrorData errorData = new ErrorData(Long.valueOf(HttpStatus.SERVICE_UNAVAILABLE.toString()), ARD_API_ERR_503, ex.getMessage()); //NOSONAR
+        throw new ResourceAccessException(errorData, ex); //NOSONAR
     }
 
-    private AccountRequestOutputResponse fallbackFind(String accountRequestId, String txnCorrelationId,  Throwable ex) {                                                                      //NOSONAR
-        logger.exception(txnCorrelationId, ex);                                                                                                                                            //NOSONAR
-        ErrorData errorData = new ErrorData(Long.valueOf(HttpStatus.SERVICE_UNAVAILABLE.toString()), ARD_API_ERR_503, ex.getMessage());                               //NOSONAR
-        throw new ResourceAccessException(errorData, ex);                                                                                                                          //NOSONAR
+    private AccountRequestOutputResponse fallbackFind(String accountRequestId, Throwable ex) { //NOSONAR
+        logger.error(ex); //NOSONAR
+        ErrorData errorData = new ErrorData(Long.valueOf(HttpStatus.SERVICE_UNAVAILABLE.toString()), ARD_API_ERR_503, ex.getMessage()); //NOSONAR
+        throw new ResourceAccessException(errorData, ex); //NOSONAR
     }
 
-    private void fallbackRevoke(String accountRequestId, String clientRole, String txnCorrelationId, String clientId, Boolean fovIndicator, Throwable ex) {                                                                         //NOSONAR
-        logger.exception(txnCorrelationId, ex);                                                                                                                                            //NOSONAR
-        ErrorData errorData = new ErrorData(Long.valueOf(HttpStatus.SERVICE_UNAVAILABLE.toString()), ARD_API_ERR_503, ex.getMessage());                               //NOSONAR
-        throw new ResourceAccessException(errorData, ex);                                                                                                                          //NOSONAR
+    private void fallbackRevoke(String accountRequestId, String clientRole, String clientId, Boolean fovIndicator, Throwable ex) { //NOSONAR
+        logger.error(ex); //NOSONAR
+        ErrorData errorData = new ErrorData(Long.valueOf(HttpStatus.SERVICE_UNAVAILABLE.toString()), ARD_API_ERR_503, ex.getMessage()); //NOSONAR
+        throw new ResourceAccessException(errorData, ex); //NOSONAR
     }
 
-    private UpdateAccountRequestOutputData fallbackUpdate(UpdateAccountRequestInputData accountInputData, String accountRequestId, String clientRole, String txnCorrelationId, Throwable ex) {//NOSONAR
-        logger.exception(txnCorrelationId, ex);                                                                                                                                            //NOSONAR
-        ErrorData errorData = new ErrorData(Long.valueOf(HttpStatus.SERVICE_UNAVAILABLE.toString()), ARD_API_ERR_503, ex.getMessage());                               //NOSONAR
-        throw new ResourceAccessException(errorData, ex);                                                                                                                          //NOSONAR
+    private UpdateAccountRequestOutputData fallbackUpdate(UpdateAccountRequestInputData accountInputData, String accountRequestId, String clientRole, Throwable ex) {//NOSONAR
+        //        logger.error(ex);                                                                                                                                            //NOSONAR
+        ErrorData errorData = new ErrorData(Long.valueOf(HttpStatus.SERVICE_UNAVAILABLE.toString()), ARD_API_ERR_503, ex.getMessage()); //NOSONAR
+        throw new ResourceAccessException(errorData, ex); //NOSONAR
     }
-
 
 }

@@ -13,8 +13,6 @@ import com.lbg.ob.aisp.accountrequestdata.data.UpdateAccountRequestInputData;
 import com.lbg.ob.aisp.accountrequestdata.data.UpdateAccountRequestOutputData;
 import com.lbg.ob.aisp.accountrequestdata.service.AccountRequestDataService;
 import com.lbg.ob.aisp.accountrequestdata.service.AccountRequestDataServiceImpl;
-import com.lbg.ob.logger.Logger;
-import com.lbg.ob.logger.factory.LoggerFactory;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -53,15 +51,12 @@ import static org.junit.Assert.assertTrue;
 @SpringBootTest(classes = {AccountRequestDataServiceApplication.class})
 @Transactional(propagation = Propagation.NOT_SUPPORTED)
 @EnableWebMvc
-@PrepareForTest({AccountRequestDataController.class, LoggerFactory.class, AccountRequestDataServiceImpl.class, AccountRequestDataService.class, AccountRequestDataServiceApplication.class})
+@PrepareForTest({AccountRequestDataController.class, AccountRequestDataServiceImpl.class, AccountRequestDataService.class, AccountRequestDataServiceApplication.class})
 @PowerMockIgnore({"javax.management.*"})
 public class AccountRequestDataTest<T> {
 
     @Autowired
     AccountRequestDataController accountRequestDataController;
-
-    @Autowired
-    Logger LOGGER;
 
     @Value("${header.xlbginternaluserid}")
     private String xLbgInternalUserId;

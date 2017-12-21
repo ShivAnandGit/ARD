@@ -7,10 +7,12 @@ import com.lbg.ob.aisp.accountrequestdata.exception.ExceptionConstants;
 import com.lbg.ob.aisp.accountrequestdata.exception.InvalidRequestException;
 import com.lbg.ob.aisp.accountrequestdata.exception.RecordNotFoundException;
 import com.lbg.ob.aisp.accountrequestdata.exception.ResourceAccessException;
+import com.lbg.ob.aisp.accountrequestdata.service.EntitlementProxyServiceImpl;
 import com.lbg.ob.aisp.accountrequestdata.util.AccountRequestDataConstant;
-import com.lbg.ob.logger.Logger;
 import com.netflix.hystrix.exception.HystrixRuntimeException;
-import org.springframework.beans.factory.annotation.Autowired;
+
+import org.apache.log4j.LogManager;
+import org.apache.log4j.Logger;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -26,16 +28,14 @@ import static com.lbg.ob.aisp.accountrequestdata.util.AccountRequestDataConstant
 
 @ControllerAdvice
 public class RestExceptionResolver extends ResponseEntityExceptionHandler {
-
-
-    @Autowired
-    private Logger exceptionLogger;
+    
+    private static final Logger exceptionLogger = LogManager.getLogger(EntitlementProxyServiceImpl.class);
 
     @ExceptionHandler(value = { InvalidRequestException.class })
     protected ResponseEntity<ErrorData> handleInvalidRequestException(BaseException ex, WebRequest request) {
         ErrorData errorData = ex.getErrorData();
         errorData.setStatusCode(Long.valueOf(HttpStatus.BAD_REQUEST.toString()));
-        exceptionLogger.exception(request.getHeader(X_LBG_TXN_CORRELATION_ID), (InvalidRequestException)ex);
+        exceptionLogger.error((InvalidRequestException)ex);
         return new ResponseEntity<>(errorData, HttpStatus.BAD_REQUEST);
     }
 
@@ -48,7 +48,7 @@ public class RestExceptionResolver extends ResponseEntityExceptionHandler {
         if(errorData.getCode() == null) {
             errorData.setCode(ARD_API_ERR_503);
         }
-        exceptionLogger.exception(request.getHeader(X_LBG_TXN_CORRELATION_ID), (EntitlementUpdateFailedException)ex);
+        exceptionLogger.error((EntitlementUpdateFailedException)ex);
         return new ResponseEntity<>(errorData, HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
@@ -56,7 +56,7 @@ public class RestExceptionResolver extends ResponseEntityExceptionHandler {
     protected ResponseEntity<ErrorData> handleNotFoundException(BaseException ex, WebRequest request) {
         ErrorData errorData = ex.getErrorData();
         errorData.setStatusCode(Long.valueOf(HttpStatus.NOT_FOUND.toString()));
-        exceptionLogger.exception(request.getHeader(X_LBG_TXN_CORRELATION_ID), (RecordNotFoundException)ex);
+        exceptionLogger.error((RecordNotFoundException)ex);
         return new ResponseEntity<>(errorData, HttpStatus.NOT_FOUND);
     }
 
@@ -74,15 +74,15 @@ public class RestExceptionResolver extends ResponseEntityExceptionHandler {
         if(message.contains(X_LBG_TXN_CORRELATION_ID)) {
             correlationId = ExceptionConstants.TXN_CORRELATION_HEADER_MISSING;
         }
-        exceptionLogger.exception(correlationId, (ServletRequestBindingException)ex);
+        exceptionLogger.error((ServletRequestBindingException)ex);
         return this.handleExceptionInternal(ex, new ErrorData(Long.valueOf(HttpStatus.BAD_REQUEST.toString()), ExceptionConstants.ARD_API_ERR_002, message), new HttpHeaders(), HttpStatus.BAD_REQUEST, request);
     }
 
     @ExceptionHandler(ResourceAccessException.class)
     public ResponseEntity<ErrorData> handleResourceAccessException(ResourceAccessException ex, WebRequest request) {
         ErrorData errorData = ex.getErrorData();
-        exceptionLogger.exception(request.getHeader(X_LBG_TXN_CORRELATION_ID), ex.getCause());
-        exceptionLogger.fatal(request.getHeader(X_LBG_TXN_CORRELATION_ID), (null!=ex.getCause())?ex.getCause().getMessage():null);
+        exceptionLogger.error(ex.getCause());
+        exceptionLogger.fatal((null!=ex.getCause())?ex.getCause().getMessage():null);
         return new ResponseEntity<>(errorData, HttpStatus.SERVICE_UNAVAILABLE);
     }
 
@@ -96,8 +96,8 @@ public class RestExceptionResolver extends ResponseEntityExceptionHandler {
             errorData.setCode(ARD_API_ERR_503);
             errorData.setMessage(AccountRequestDataConstant.TIME_OUT_MSG);
         }
-        exceptionLogger.exception(request.getHeader(X_LBG_TXN_CORRELATION_ID), ex.getCause());
-        exceptionLogger.fatal(request.getHeader(X_LBG_TXN_CORRELATION_ID), ex.getCause().getMessage());
+        exceptionLogger.error(ex.getCause());
+        exceptionLogger.fatal(ex.getCause().getMessage());
         return new ResponseEntity<>(errorData, HttpStatus.SERVICE_UNAVAILABLE);
     }
     

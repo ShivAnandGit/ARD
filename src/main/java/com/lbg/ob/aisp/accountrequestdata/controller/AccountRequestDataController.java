@@ -17,7 +17,9 @@ import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
 
 import com.lbg.ob.aisp.accountrequestdata.service.AccountRequestDataService;
-import com.lbg.ob.logger.Logger;
+
+import org.apache.log4j.LogManager;
+import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -41,10 +43,9 @@ import com.lbg.ob.aisp.accountrequestdata.data.UpdateAccountRequestOutputData;
 public final class AccountRequestDataController {
 
     @Autowired
-    private Logger logger;
-
-    @Autowired
     private AccountRequestDataService<?> accountRequestDataService;
+    
+    private static final Logger logger = LogManager.getLogger(AccountRequestDataController.class);
 
     /**
      * Create an account request
@@ -63,12 +64,12 @@ public final class AccountRequestDataController {
             @Valid @RequestBody final CreateAccountInputRequest createAccountInputRequest, final HttpServletRequest request,
             HttpServletResponse response) {
         return () -> {
-            logger.trace(request);
+            logger.trace("ENTRY --> createAccountRequests");
             if(!StringUtils.isEmpty(interactionId)) {
                 response.setHeader(X_FAPI_INTERACTION_ID, interactionId);
             }
-            AccountRequestOutputResponse accountRequestData = accountRequestDataService.createAccountRequestData(createAccountInputRequest, clientId, financialId, txnCorrelationId);
-            logger.trace(txnCorrelationId, "<-- EXIT");
+            AccountRequestOutputResponse accountRequestData = accountRequestDataService.createAccountRequestData(createAccountInputRequest, clientId, financialId);
+            logger.trace("EXIT --> createAccountRequests");
             return accountRequestData;
         };
     }
@@ -88,9 +89,9 @@ public final class AccountRequestDataController {
             @RequestParam(required = true) final String accountRequestId,
             @RequestParam(required = true) final String clientId) {
         return () -> {
-            logger.trace(request);
-            AccountRequestOutputResponse accountRequestData = accountRequestDataService.findByAccountRequestExternalIdentifierAndProviderClientId(accountRequestId, clientId, txnCorrelationId);
-            logger.trace(txnCorrelationId, "<-- EXIT");
+            logger.trace("ENTRY --> getAccountRequests");
+            AccountRequestOutputResponse accountRequestData = accountRequestDataService.findByAccountRequestExternalIdentifierAndProviderClientId(accountRequestId, clientId);
+            logger.trace("EXIT --> getAccountRequests");
             return accountRequestData;
         };
     }
@@ -112,12 +113,12 @@ public final class AccountRequestDataController {
             final HttpServletRequest request, HttpServletResponse response,
             @PathVariable final String accountRequestId) {
         return () -> {
-            logger.trace(request);
+            logger.trace("ENTRY --> getAccountRequestForAccountId");
             if(!StringUtils.isEmpty(interactionId)) {
                 response.setHeader(X_FAPI_INTERACTION_ID, interactionId);
             }
-            AccountRequestOutputResponse accountRequestData = accountRequestDataService.findByAccountRequestExternalIdentifier(accountRequestId, txnCorrelationId);
-            logger.trace(txnCorrelationId, "<-- EXIT");
+            AccountRequestOutputResponse accountRequestData = accountRequestDataService.findByAccountRequestExternalIdentifier(accountRequestId);
+            logger.trace("EXIT --> getAccountRequestForAccountId");
             return accountRequestData;
         };
     }
@@ -141,12 +142,11 @@ public final class AccountRequestDataController {
             final HttpServletRequest request, HttpServletResponse response,
             @PathVariable final String accountRequestId) throws IOException, URISyntaxException, ExecutionException, InterruptedException {
         return () -> {
-            logger.trace(request);
+            logger.trace("ENTRY --> deleteAccountRequestForAccountId");
             if (!StringUtils.isEmpty(interactionId)) {
                 response.setHeader(X_FAPI_INTERACTION_ID, interactionId);
             }
-            accountRequestDataService.revokeAccountRequestData(accountRequestId, internalUserRole, txnCorrelationId, clientId, fovIndicator);
-            logger.trace(txnCorrelationId, "<-- EXIT");
+            accountRequestDataService.revokeAccountRequestData(accountRequestId, internalUserRole, clientId, fovIndicator);
             return null;
         };
     }
@@ -166,9 +166,9 @@ public final class AccountRequestDataController {
             @PathVariable final String accountRequestId,
             @RequestBody UpdateAccountRequestInputData inputData) {
         return () -> {
-            logger.trace(request);
-            UpdateAccountRequestOutputData updateAccountRequestOutputData = accountRequestDataService.updateAccountRequestData(inputData, accountRequestId, internalUserRole, txnCorrelationId);
-            logger.trace(txnCorrelationId, "<-- EXIT");
+            logger.trace("ENTRY --> updateAccountRequestForRequestId");
+            UpdateAccountRequestOutputData updateAccountRequestOutputData = accountRequestDataService.updateAccountRequestData(inputData, accountRequestId, internalUserRole);
+            logger.trace("EXIT --> updateAccountRequestForRequestId");
             return updateAccountRequestOutputData;
         };
     }

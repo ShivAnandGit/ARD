@@ -12,7 +12,6 @@ import com.lbg.ob.aisp.accountrequestdata.repository.AccountRequestInfoRepositor
 import com.lbg.ob.aisp.accountrequestdata.repository.AccountRequestStatusChangeHistoryRepository;
 import com.lbg.ob.aisp.accountrequestdata.repository.ProviderPermissionsRepository;
 import com.lbg.ob.aisp.accountrequestdata.service.AccountRequestDAOImpl;
-import com.lbg.ob.logger.Logger;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.InjectMocks;
@@ -42,9 +41,6 @@ public class AccountRequestDAOTest {
 
     @Mock
     ProviderPermissionsRepository providerPermissionsRepository;
-
-    @Mock
-    Logger logger;
 
     @InjectMocks
     AccountRequestDAOImpl accountRequestDAO;

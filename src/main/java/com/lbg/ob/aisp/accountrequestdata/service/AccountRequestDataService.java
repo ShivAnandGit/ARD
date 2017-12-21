@@ -19,7 +19,7 @@ public interface AccountRequestDataService<T> {
      * @throws IOException
      * @throws URISyntaxException
      */
-    public AccountRequestOutputResponse createAccountRequestData(CreateAccountInputRequest createAccountInputRequest, String clientId, String fapiFinancialId, String txnCorrelationId)
+    public AccountRequestOutputResponse createAccountRequestData(CreateAccountInputRequest createAccountInputRequest, String clientId, String fapiFinancialId)
             throws IOException, URISyntaxException, InterruptedException;
 
     /**
@@ -29,7 +29,7 @@ public interface AccountRequestDataService<T> {
      * @return AccountRequestOutputData accountRequestOutputData
      * @throws IOException
      */
-    public AccountRequestOutputResponse findByAccountRequestExternalIdentifierAndProviderClientId(String accountRequestId, String clientId, String txnCorrelationId)
+    public AccountRequestOutputResponse findByAccountRequestExternalIdentifierAndProviderClientId(String accountRequestId, String clientId)
             throws IOException, URISyntaxException;
 
     /**
@@ -38,7 +38,7 @@ public interface AccountRequestDataService<T> {
      * @return AccountRequestOutputData accountRequestOutputData
      * @throws IOException
      */
-    public AccountRequestOutputResponse findByAccountRequestExternalIdentifier(String accountRequestId, String txnCorrelationId)
+    public AccountRequestOutputResponse findByAccountRequestExternalIdentifier(String accountRequestId)
             throws IOException, URISyntaxException;
 
     /**
@@ -49,7 +49,7 @@ public interface AccountRequestDataService<T> {
      * @return AccountRequestOutputData accountRequestOutputData
      * @throws IOException, URISyntaxException
      */
-    public UpdateAccountRequestOutputData updateAccountRequestData(UpdateAccountRequestInputData createAccountInputData, String accountRequestId, String clientRole, String txnCorrelationId)
+    public UpdateAccountRequestOutputData updateAccountRequestData(UpdateAccountRequestInputData createAccountInputData, String accountRequestId, String clientRole)
             throws IOException, URISyntaxException;
 
     /**
@@ -62,7 +62,7 @@ public interface AccountRequestDataService<T> {
      * @return AccountRequestOutputData accountRequestOutputData
      * @throws IOException, URISyntaxException
      */
-    public void revokeAccountRequestData(String accountRequestId, String clientRole, String txnCorrelationId, String clientId, Boolean fovIndicator)
+    public void revokeAccountRequestData(String accountRequestId, String clientRole, String clientId, Boolean fovIndicator)
             throws IOException, URISyntaxException, ExecutionException, InterruptedException;
 
 }

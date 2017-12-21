@@ -15,9 +15,10 @@ import com.lbg.ob.aisp.accountrequestdata.service.AccountRequestDataServiceImpl;
 import com.lbg.ob.aisp.accountrequestdata.service.EntitlementProxyService;
 import com.lbg.ob.aisp.accountrequestdata.util.AccountRequestDataConstant;
 import com.lbg.ob.aisp.accountrequestdata.util.StateChangeMachine;
-import com.lbg.ob.logger.Logger;
-import com.lbg.ob.logger.factory.LoggerFactory;
 import com.netflix.hystrix.exception.HystrixTimeoutException;
+
+import org.apache.log4j.LogManager;
+import org.apache.log4j.Logger;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -44,14 +45,14 @@ import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.when;
 
 @RunWith(PowerMockRunner.class)
-@PrepareForTest({ LoggerFactory.class,  RequestContextHolder.class, ServletRequestAttributes.class})
+@PrepareForTest({ RequestContextHolder.class, ServletRequestAttributes.class})
 public class AccountRequestDataServiceTest {
 
     @Mock
-    AccountRequestDAO accountRequestDAO;
-
+    private static final Logger logger = LogManager.getLogger(AccountRequestDataServiceTest.class);
+    
     @Mock
-    Logger LOGGER;
+    AccountRequestDAO accountRequestDAO;
 
     @Mock
     EntitlementProxyService entitlementService;
@@ -88,7 +89,7 @@ public class AccountRequestDataServiceTest {
         when(accountRequestDAO.getAccountRequest(testRequestId)).thenReturn(accountRequest);
         when(accountRequestDAO.updateAccountRequest(accountRequest, InternalUserRoleEnum.CUSTOMER)).thenReturn(t);
         when(stateChangeMachine.getUpdatableStatus(anyString(), anyString())).thenReturn(AccountRequestStatusEnum.AUTHORISED);
-        UpdateAccountRequestOutputData updateAccountRequestOutputData = accountRequestDataService.updateAccountRequestData(accountInputData, testRequestId, testClientRole, txnCorrelationId);
+        UpdateAccountRequestOutputData updateAccountRequestOutputData = accountRequestDataService.updateAccountRequestData(accountInputData, testRequestId, testClientRole);
         assertNotNull(updateAccountRequestOutputData);
 
     }
@@ -98,9 +99,7 @@ public class AccountRequestDataServiceTest {
         UpdateAccountRequestInputData accountInputData = new UpdateAccountRequestInputData();
         accountInputData.setStatus("Authorised");
         String testRequestId = "TestRequestId";
-        String testClientId = "TestClientId";
         String testClientRole = "CUSTOMER";
-        String txnCorrelationId = "correlationId";
 
         AccountRequest accountRequest = new AccountRequest();
         long accountRequestIdentifier = 1234L;
@@ -108,7 +107,7 @@ public class AccountRequestDataServiceTest {
         AccountRequestStatusHistory t = new AccountRequestStatusHistory();
         when(accountRequestDAO.getAccountRequest(testRequestId)).thenReturn(accountRequest);
         when(stateChangeMachine.getUpdatableStatus(anyString(), anyString())).thenReturn(AccountRequestStatusEnum.AUTHORISED);
-        UpdateAccountRequestOutputData updateAccountRequestOutputData = accountRequestDataService.updateAccountRequestData(accountInputData, testRequestId, testClientRole, txnCorrelationId);
+        UpdateAccountRequestOutputData updateAccountRequestOutputData = accountRequestDataService.updateAccountRequestData(accountInputData, testRequestId, testClientRole);
         assertNotNull(updateAccountRequestOutputData);
 
     }
@@ -119,9 +118,7 @@ public class AccountRequestDataServiceTest {
         UpdateAccountRequestInputData accountInputData = new UpdateAccountRequestInputData();
         accountInputData.setStatus("Rejected");
         String testRequestId = "TestRequestId";
-        String testClientId = "TestClientId";
         String testClientRole = "CUSTOMER";
-        String txnCorrelationId = "correlationId";
         AccountRequest accountRequest = new AccountRequest();
         long accountRequestIdentifier = 1234L;
         accountRequest.setAccountRequestIdentifier(accountRequestIdentifier);
@@ -130,7 +127,7 @@ public class AccountRequestDataServiceTest {
         when(accountRequestDAO.getAccountRequest(testRequestId)).thenReturn(accountRequest);
         when(accountRequestDAO.updateAccountRequest(accountRequest, InternalUserRoleEnum.CUSTOMER)).thenReturn(t);
         when(stateChangeMachine.getUpdatableStatus(anyString(), anyString())).thenReturn(AccountRequestStatusEnum.REJECTED);
-        UpdateAccountRequestOutputData updateAccountRequestOutputData = accountRequestDataService.updateAccountRequestData(accountInputData, testRequestId, testClientRole, txnCorrelationId);
+        UpdateAccountRequestOutputData updateAccountRequestOutputData = accountRequestDataService.updateAccountRequestData(accountInputData, testRequestId, testClientRole);
         assertNotNull(updateAccountRequestOutputData);
     }
 
@@ -142,11 +139,9 @@ public class AccountRequestDataServiceTest {
         UpdateAccountRequestInputData accountInputData = new UpdateAccountRequestInputData();
         accountInputData.setStatus("AwaitingAuthorisation");
         String testRequestId = "TestRequestId";
-        String testClientId = "TestClientId";
-        String txnCorrelationId = "correlationId";
         String testClientRole = "CUSTOMER";
         when(accountRequestDAO.getAccountRequest(testRequestId)).thenReturn(accountRequest);
-        UpdateAccountRequestOutputData updateAccountRequestOutputData = accountRequestDataService.updateAccountRequestData(accountInputData, testRequestId, testClientRole, txnCorrelationId);
+        UpdateAccountRequestOutputData updateAccountRequestOutputData = accountRequestDataService.updateAccountRequestData(accountInputData, testRequestId, testClientRole);
     }
 
 
@@ -159,15 +154,12 @@ public class AccountRequestDataServiceTest {
         accountRequest.setAccountRequestStatus(AccountRequestStatusEnum.AUTHORISED);
         accountRequest.setEntitlementId(entitlementId);
         String testRequestId = "testRequestid";
-        String txnCorrelationId = "correlationId";
         String testClientRole = "CUSTOMER";
         AccountRequestStatusHistory t = new AccountRequestStatusHistory();
         when(stateChangeMachine.getUpdatableStatus(AccountRequestDataConstant.AUTHORISED, AccountRequestStatusEnum.REVOKED)).thenReturn(AccountRequestStatusEnum.REVOKED);
-        String correlationId = "correlationId";
-        String internalUserId = "SYSTEM";
         when(accountRequestDAO.getAccountRequest(testRequestId)).thenReturn(accountRequest);
         when(accountRequestDAO.updateAccountRequest(accountRequest, InternalUserRoleEnum.CUSTOMER)).thenReturn(t);
-        accountRequestDataService.revokeAccountRequestData(testRequestId, testClientRole, correlationId, clientId, fovIndicator);
+        accountRequestDataService.revokeAccountRequestData(testRequestId, testClientRole, clientId, fovIndicator);
         assertTrue(true);
     }
 
@@ -183,9 +175,7 @@ public class AccountRequestDataServiceTest {
         when(stateChangeMachine.getUpdatableStatus(AccountRequestDataConstant.AWAITING_AUTHORISATION, AccountRequestStatusEnum.REVOKED)).thenReturn(AccountRequestStatusEnum.REVOKED);
         when(accountRequestDAO.getAccountRequest(testRequestId)).thenReturn(accountRequest);
         when(accountRequestDAO.updateAccountRequest(accountRequest, InternalUserRoleEnum.CUSTOMER)).thenReturn(t);
-        String correlationId = "correlationId";
-        String internalUserId = "SYSTEM";
-        accountRequestDataService.revokeAccountRequestData(testRequestId, testClientRole, correlationId, clientId, fovIndicator);
+        accountRequestDataService.revokeAccountRequestData(testRequestId, testClientRole, clientId, fovIndicator);
         assertTrue(true);
     }
 
@@ -201,26 +191,22 @@ public class AccountRequestDataServiceTest {
         String testClientRole = "CUSTOMER";
         when(stateChangeMachine.getUpdatableStatus(AccountRequestDataConstant.REVOKED, AccountRequestStatusEnum.REVOKED)).thenThrow(new InvalidRequestException(BAD_REQUEST_INVALID_REQUEST, ARD_API_ERR_007));
         when(accountRequestDAO.getAccountRequest(testRequestId)).thenReturn(accountRequest);
-        String correlationId = "correlationId";
-        String internalUserId = "SYSTEM";
-        accountRequestDataService.revokeAccountRequestData(testRequestId, testClientRole, correlationId, clientId, fovIndicator);
+        accountRequestDataService.revokeAccountRequestData(testRequestId, testClientRole, clientId, fovIndicator);
     }
 
     @Test(expected = RecordNotFoundException.class)
     public void shouldThrowRecordNotFoundExceptionIfNoRecordReturnedForGETWithPath() throws IOException {
         String testRequestId = "test";
-        String txnCorrelationId = "correlationId";
         when(accountRequestDAO.findAccountRequest(testRequestId)).thenThrow(new RecordNotFoundException("not found"));
-        accountRequestDataService.findByAccountRequestExternalIdentifier(testRequestId, txnCorrelationId);
+        accountRequestDataService.findByAccountRequestExternalIdentifier(testRequestId);
     }
 
     @Test(expected = RecordNotFoundException.class)
     public void shouldThrowRecordNotFoundExceptionIfNoRecordReturnedForGETWithQuery() throws IOException {
         String testRequestId = "test";
         String clientid = "clientid";
-        String txnCorrelationId = "correlationId";
         when(accountRequestDAO.findAccountRequest(testRequestId, clientid)).thenThrow(new RecordNotFoundException("not found"));
-        accountRequestDataService.findByAccountRequestExternalIdentifierAndProviderClientId(testRequestId, clientid, txnCorrelationId);
+        accountRequestDataService.findByAccountRequestExternalIdentifierAndProviderClientId(testRequestId, clientid);
     }
 
     @Test(expected = RecordNotFoundException.class)
@@ -228,9 +214,8 @@ public class AccountRequestDataServiceTest {
         String testRequestId = "test";
         UpdateAccountRequestInputData accountInputData = new UpdateAccountRequestInputData();
         accountInputData.setStatus("Authorised");
-        String txnCorrelationId = "correlationId";
         when(accountRequestDAO.getAccountRequest(testRequestId)).thenThrow(new RecordNotFoundException("not found"));
-        accountRequestDataService.updateAccountRequestData(accountInputData, testRequestId, "some-role", txnCorrelationId);
+        accountRequestDataService.updateAccountRequestData(accountInputData, testRequestId, "some-role");
     }
 
     @Test(expected = RecordNotFoundException.class)
@@ -239,28 +224,26 @@ public class AccountRequestDataServiceTest {
         UpdateAccountRequestInputData accountInputData = new UpdateAccountRequestInputData();
         accountInputData.setStatus("Authorised");
         when(accountRequestDAO.getAccountRequest(testRequestId)).thenThrow(new RecordNotFoundException("not found"));
-        accountRequestDataService.revokeAccountRequestData(testRequestId, "some-role", "correlation-id", clientId, fovIndicator);
+        accountRequestDataService.revokeAccountRequestData(testRequestId, "some-role", clientId, fovIndicator);
     }
 
     @Test(expected = ResourceAccessException.class)
     public void shouldThrowResourceAccessExceptionForCreateFallback() throws Exception {
         String clientId = "clientid";
         String fapiFinancialId = "fapiid";
-        String txnCorrelationId = "txnid";
         Throwable ex = new HystrixTimeoutException();
         CreateAccountInputRequest createAccountInputRequest = null;
-        Mockito.doNothing().when(LOGGER).logException(anyString(), any(Throwable.class));
-        Whitebox.invokeMethod(accountRequestDataService,"fallbackCreate",createAccountInputRequest, clientId, fapiFinancialId, txnCorrelationId, ex);
+//        Mockito.doNothing().when(LOGGER).logException(anyString(), any(Throwable.class));
+        Whitebox.invokeMethod(accountRequestDataService,"fallbackCreate",createAccountInputRequest, clientId, fapiFinancialId, ex);
     }
 
     @Test(expected = ResourceAccessException.class)
     public void shouldThrowResourceAccessExceptionForFallbackFindWithClientId() throws Exception {
         String clientId = "clientid";
         String accountRequestId = "accountRequestId";
-        String txnCorrelationId = "txnid";
         Throwable ex = new HystrixTimeoutException();
-        Mockito.doNothing().when(LOGGER).logException(anyString(), any(Throwable.class));
-        Whitebox.invokeMethod(accountRequestDataService,"fallbackFindWithClientId", accountRequestId, clientId, txnCorrelationId, ex);
+        Mockito.doNothing().when(logger).error(anyString(), any(Throwable.class));
+        Whitebox.invokeMethod(accountRequestDataService,"fallbackFindWithClientId", accountRequestId, clientId, ex);
     }
 
     @Test(expected = ResourceAccessException.class)
@@ -268,8 +251,8 @@ public class AccountRequestDataServiceTest {
         String accountRequestId = "accountRequestId";
         String txnCorrelationId = "txnid";
         Throwable ex = new HystrixTimeoutException();
-        Mockito.doNothing().when(LOGGER).logException(anyString(), any(Throwable.class));
-        Whitebox.invokeMethod(accountRequestDataService,"fallbackFind", accountRequestId, txnCorrelationId, ex);
+//        Mockito.doNothing().when(LOGGER).logException(anyString(), any(Throwable.class));
+        Whitebox.invokeMethod(accountRequestDataService,"fallbackFind", accountRequestId, ex);
     }
 
     @Test(expected = ResourceAccessException.class)
@@ -277,8 +260,8 @@ public class AccountRequestDataServiceTest {
         String accountRequestId = "accountRequestId";
         String txnCorrelationId = "txnid";
         Throwable ex = new HystrixTimeoutException();
-        Mockito.doNothing().when(LOGGER).logException(anyString(), any(Throwable.class));
-        Whitebox.invokeMethod(accountRequestDataService,"fallbackRevoke", accountRequestId, "clientRole", txnCorrelationId, clientId, false, ex);
+//        Mockito.doNothing().when(LOGGER).logException(anyString(), any(Throwable.class));
+        Whitebox.invokeMethod(accountRequestDataService,"fallbackRevoke", accountRequestId, "clientRole", clientId, false, ex);
     }
 
     @Test(expected = ResourceAccessException.class)
@@ -287,9 +270,9 @@ public class AccountRequestDataServiceTest {
         String txnCorrelationId = "txnid";
         Throwable ex = new HystrixTimeoutException();
 
-        Mockito.doNothing().when(LOGGER).logException(anyString(), any(Throwable.class));
+//        Mockito.doNothing().when(LOGGER).logException(anyString(), any(Throwable.class));
         UpdateAccountRequestInputData accountInputData = null;
-        Whitebox.invokeMethod(accountRequestDataService,"fallbackUpdate", accountInputData, accountRequestId, "clientRole", txnCorrelationId, ex);
+        Whitebox.invokeMethod(accountRequestDataService,"fallbackUpdate", accountInputData, accountRequestId, "clientRole", ex);
     }
 
 }

@@ -1,6 +1,5 @@
 package com.lbg.ob.aisp.accountrequestdata.test;
 
-import com.lbg.ob.logger.Logger;
 import org.mockito.Mockito;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -12,10 +11,10 @@ import org.springframework.context.annotation.Primary;
 @Configuration
 public class TestConfig {
 
-    @Bean
-    @Primary
-    public Logger getLOGGER() {
-        Logger LOGGER = Mockito.mock(Logger.class);
-        return LOGGER;
-    }
+    //    @Bean
+    //    @Primary
+    //    public Logger getLOGGER() {
+    //        Logger LOGGER = Mockito.mock(Logger.class);
+    //        return LOGGER;
+    //    }
 }

@@ -11,7 +11,9 @@ import com.lbg.ob.aisp.accountrequestdata.exception.RecordNotFoundException;
 import com.lbg.ob.aisp.accountrequestdata.repository.AccountRequestInfoRepository;
 import com.lbg.ob.aisp.accountrequestdata.repository.AccountRequestStatusChangeHistoryRepository;
 import com.lbg.ob.aisp.accountrequestdata.repository.ProviderPermissionsRepository;
-import com.lbg.ob.logger.Logger;
+
+import org.apache.log4j.LogManager;
+import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -27,9 +29,6 @@ import java.util.List;
 public class AccountRequestDAOImpl implements AccountRequestDAO {
 
     @Autowired
-    private Logger logger;
-
-    @Autowired
     private AccountRequestInfoRepository accountRequestInfoRepository;
 
     @Autowired
@@ -38,61 +37,52 @@ public class AccountRequestDAOImpl implements AccountRequestDAO {
     @Autowired
     private AccountRequestStatusChangeHistoryRepository accountRequestInfoHistoryRepository;
 
+    private static final Logger logger = LogManager.getLogger(EntitlementProxyServiceImpl.class);
+
     @Transactional(rollbackOn = {InterruptedException.class})
     @Override
     public AccountRequestOutputResponse createAccountRequest(AccountRequest accountRequestInfo) throws IOException, InterruptedException {
-        logger.trace("ENTRY -->");
         AccountRequestOutputResponse accountRequestOutputResponse = null;
         AccountRequest savedAccountRequestInfo = accountRequestInfoRepository.save(accountRequestInfo);
         saveAccountRequestStatusHistory(savedAccountRequestInfo, InternalUserRoleEnum.CUSTOMER);
         accountRequestOutputResponse = new AccountRequestOutputResponse(savedAccountRequestInfo.getAccountRequestExternalIdentifier(), savedAccountRequestInfo.getAccountRequestStatus(), savedAccountRequestInfo.getCreatedDateTime(), savedAccountRequestInfo.getAccountRequestJsonString());
         List<ProviderPermission> refPermissions = getRefPermissionsWithMetadata(accountRequestOutputResponse.getAccountRequestOutputData().getPermissions());
         accountRequestOutputResponse.getAccountRequestOutputData().setPermissions(refPermissions);
-        logger.trace("<-- EXIT");
         return accountRequestOutputResponse;
     }
 
     @Override
     public AccountRequestOutputResponse findAccountRequest(String accountRequestId, String clientId) throws IOException {
-        logger.trace("ENTRY -->");
         String status = AccountRequestStatusEnum.AWAITINGAUTHORISATION.getValue();
         AccountRequest savedAccountRequestInfo = accountRequestInfoRepository.findByAccountRequestExternalIdentifierAndProviderClientIdAndAccountRequestStatus(accountRequestId, clientId, status);
-        if(savedAccountRequestInfo == null) {
+        if (savedAccountRequestInfo == null) {
             throw new RecordNotFoundException(ExceptionConstants.NOT_FOUND, ExceptionConstants.ARD_API_ERR_005);
         }
         AccountRequestOutputResponse accountRequestOutputResponse = new AccountRequestOutputResponse(savedAccountRequestInfo.getAccountRequestExternalIdentifier(), savedAccountRequestInfo.getAccountRequestStatus(), savedAccountRequestInfo.getCreatedDateTime(), savedAccountRequestInfo.getAccountRequestJsonString());
         List<ProviderPermission> refPermissions = getRefPermissionsWithMetadata(accountRequestOutputResponse.getAccountRequestOutputData().getPermissions());
         accountRequestOutputResponse.getAccountRequestOutputData().setPermissions(refPermissions);
-        logger.trace("<-- EXIT");
         return accountRequestOutputResponse;
     }
 
     @Override
     public AccountRequestOutputResponse findAccountRequest(String accountRequestId) throws IOException {
-        logger.trace("ENTRY -->");
         AccountRequest savedAccountRequestInfo = getAccountRequest(accountRequestId);
         AccountRequestOutputResponse accountRequestOutputResponse = new AccountRequestOutputResponse(savedAccountRequestInfo.getAccountRequestExternalIdentifier(), savedAccountRequestInfo.getAccountRequestStatus(), savedAccountRequestInfo.getCreatedDateTime(), savedAccountRequestInfo.getAccountRequestJsonString());
         List<ProviderPermission> refPermissions = getRefPermissionsWithMetadata(accountRequestOutputResponse.getAccountRequestOutputData().getPermissions());
         accountRequestOutputResponse.getAccountRequestOutputData().setPermissions(refPermissions);
-        logger.trace("<-- EXIT");
         return accountRequestOutputResponse;
     }
-
-
 
     @Transactional(rollbackOn = {InterruptedException.class})
     @Override
     public AccountRequestStatusHistory updateAccountRequest(AccountRequest accountRequestInfo, InternalUserRoleEnum role) {
-        logger.trace("ENTRY -->");
         AccountRequest savedAccountRequestInfo = accountRequestInfoRepository.save(accountRequestInfo);
-        logger.trace("<-- EXIT");
         return saveAccountRequestStatusHistory(savedAccountRequestInfo, role);
     }
 
     @Transactional(rollbackOn = {InterruptedException.class})
     @Override
     public void revokeAccountRequest(String clientRole, AccountRequest accountRequestInfo, AccountRequestStatusEnum updateableStatus) {
-        logger.trace("ENTRY -->");
         //update the status in ACCT_REQUEST
         accountRequestInfo.setAccountRequestStatus(updateableStatus);
         AccountRequest savedAccountRequestInfo = accountRequestInfoRepository.save(accountRequestInfo);
@@ -100,20 +90,16 @@ public class AccountRequestDAOImpl implements AccountRequestDAO {
         //update the history
         InternalUserRoleEnum role = InternalUserRoleEnum.valueOf(clientRole.toUpperCase());
         saveAccountRequestStatusHistory(savedAccountRequestInfo, role);
-        logger.trace("<-- EXIT");
     }
 
     @Override
     public AccountRequest getAccountRequest(String accountRequestId) {
-        logger.trace("ENTRY -->");
         AccountRequest accountRequestInfo = accountRequestInfoRepository.findByAccountRequestExternalIdentifier(accountRequestId);
-        if(accountRequestInfo == null) {
+        if (accountRequestInfo == null) {
             throw new RecordNotFoundException(ExceptionConstants.NOT_FOUND, ExceptionConstants.ARD_API_ERR_005);
         }
-        logger.trace("<-- EXIT");
         return accountRequestInfo;
     }
-
 
     private AccountRequestStatusHistory saveAccountRequestStatusHistory(AccountRequest savedAccountRequestInfo, InternalUserRoleEnum role) {
         logger.debug("Saving the accountRequestInfoHistory");

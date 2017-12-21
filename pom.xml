@@ -19,6 +19,15 @@
 		<wlpConfig>src/main/wlp</wlpConfig>
 		<wlpServerName>ard</wlpServerName>
 		<artifact.version>${project.version}</artifact.version>
+		<!-- propertied set by maven plugins or system -->
+		<git.commit.user.name>NOTE_SPECIFIED</git.commit.user.name>
+		<git.commit.user.email>NOTE_SPECIFIED</git.commit.user.email>
+		<git.commit.time>NOTE_SPECIFIED</git.commit.time>
+		<git.remote.origin.url>NOTE_SPECIFIED</git.remote.origin.url>
+		<git.commit.id>NOTE_SPECIFIED</git.commit.id>
+		<git.tags>NOTE_SPECIFIED</git.tags>
+		<git.branch>NOTE_SPECIFIED</git.branch>
+		<env.BUILD_NUMBER>NOT_SPECIFIED</env.BUILD_NUMBER>
 	</properties>
 	<profiles>
 		<profile>
@@ -58,11 +67,11 @@
 	</distributionManagement>
 
 	<dependencies>
-	<dependency>
-		<groupId>com.lbg.ob.core</groupId>
-		<artifactId>service-info</artifactId>
-		<version>1.0.0-rc.2</version>
-	</dependency>
+		<dependency>
+			<groupId>com.lbg.ob.core</groupId>
+			<artifactId>service-info</artifactId>
+			<version>1.0.0-rc.5</version>
+		</dependency>
 		<dependency>
 			<groupId>com.lbg.ob.core</groupId>
 			<artifactId>security-annotation</artifactId>
@@ -140,7 +149,7 @@
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-tomcat</artifactId>
-			<scope>provided</scope>
+			<!--<scope>provided</scope> -->
 		</dependency>
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
@@ -204,25 +213,16 @@
 			<version>1.7.0</version>
 			<scope>test</scope>
 		</dependency>
+		<!-- logging -->
 		<dependency>
 			<groupId>com.lbg.ob.core</groupId>
-			<artifactId>common-logger</artifactId>
-			<version>1.0.8-rc.39</version>
+			<artifactId>java-logger</artifactId>
+			<version>1.0.1-rc.15</version>
 		</dependency>
 		<dependency>
 			<groupId>commons-io</groupId>
 			<artifactId>commons-io</artifactId>
 			<version>2.5</version>
-		</dependency>
-		<dependency>
-			<groupId>org.apache.logging.log4j</groupId>
-			<artifactId>log4j-api</artifactId>
-			<version>2.8.2</version>
-		</dependency>
-		<dependency>
-			<groupId>org.apache.logging.log4j</groupId>
-			<artifactId>log4j-core</artifactId>
-			<version>2.8.2</version>
 		</dependency>
 		<dependency>
 			<groupId>org.powermock</groupId>
@@ -257,10 +257,6 @@
 			<artifactId>spring-cloud-starter-hystrix</artifactId>
 			<version>${spring.hystrix.version}</version>
 		</dependency>
-<!-- 		<dependency>
-			<groupId>org.springframework.boot</groupId>
-			<artifactId>spring-boot-starter-actuator</artifactId>
-		</dependency> -->
 		<dependency>
 			<groupId>net.jadler</groupId>
 			<artifactId>jadler-core</artifactId>
@@ -376,7 +372,8 @@
 								<filter>src/test/resources/dev.liberty.properties</filter>
 							</filters>
 							<nonFilteredFileExtensions>
-								<nonFilteredFileExtension>jar</nonFilteredFileExtension>    
+								<nonFilteredFileExtension>jar</nonFilteredFileExtension>
+								    
 							</nonFilteredFileExtensions>
 							<resources>
 								<resource>
@@ -496,6 +493,55 @@
 					<target>${java-version}</target>
 				</configuration>
 			</plugin>
+
+			<!-- Logging Plugins -->
+			<plugin>
+				<groupId>pl.project13.maven</groupId>
+				<artifactId>git-commit-id-plugin</artifactId>
+				<version>2.1.11</version>
+			</plugin>
+			<plugin>
+				<groupId>org.springframework.boot</groupId>
+				<artifactId>spring-boot-maven-plugin</artifactId>
+				<version>1.5.7.RELEASE</version>
+				<executions>
+					<execution>
+						<goals>
+							<goal>build-info</goal>
+						</goals>
+						<configuration>
+							<additionalProperties>
+								<git.commit.user.name>${git.commit.user.name}</git.commit.user.name>
+								<git.commit.user.email>${git.commit.user.email}</git.commit.user.email>
+								<git.commit.time>${git.commit.time}</git.commit.time>
+								<git.remote.origin.url>${git.remote.origin.url}</git.remote.origin.url>
+								<git.commit.id>${git.commit.id}</git.commit.id>
+								<git.tags>${git.tags}</git.tags>
+								<git.branch>${git.branch}</git.branch>
+								<ci.number>${env.BUILD_NUMBER}</ci.number>
+								<layer>enterprise</layer>
+							</additionalProperties>
+						</configuration>
+					</execution>
+				</executions>
+			</plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-surefire-plugin</artifactId>
+				<version>2.20.1</version>
+				<configuration>
+					<systemPropertyVariables>
+						<applicationLogDir>${project.build.directory}/logs</applicationLogDir>
+						<logFilePrefix>log</logFilePrefix>
+						<consoleLogLevel>INFO</consoleLogLevel>
+						<fileLogLevel>INFO</fileLogLevel>
+						<applicationLogLevel>INFO</applicationLogLevel>
+						<rootLogLevel>WARN</rootLogLevel>
+						<logImmediateFlush>true</logImmediateFlush> <!-- only set to true to ensure unit tests immediately see logs -->
+					</systemPropertyVariables>
+				</configuration>
+			</plugin>
+
 		</plugins>
 	</build>
 	<repositories>
