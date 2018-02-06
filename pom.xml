@@ -61,12 +61,12 @@
 		<dependency>
 			<groupId>com.lbg.ob.core</groupId>
 			<artifactId>service-info</artifactId>
-			<version>1.0.0-rc.6</version>
+			<version>[1.0.0-rc.6,)</version>
 		</dependency>
 		<dependency>
 			<groupId>com.lbg.ob.core</groupId>
 			<artifactId>security-annotation</artifactId>
-			<version>1.0.0-rc.2</version>
+			<version>[1.0.0-rc.2,)</version>
 		</dependency>
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
@@ -194,7 +194,7 @@
 		<dependency>
 			<groupId>com.lbg.ob.core</groupId>
 			<artifactId>java-logger</artifactId>
-			<version>1.0.1-rc.16</version>
+			<version>[1.0.1-rc.16,)</version>
 		</dependency>
 		<dependency>
 			<groupId>commons-io</groupId>
