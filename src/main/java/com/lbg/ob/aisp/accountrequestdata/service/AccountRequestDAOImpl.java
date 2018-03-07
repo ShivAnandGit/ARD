@@ -53,8 +53,7 @@ public class AccountRequestDAOImpl implements AccountRequestDAO {
 
     @Override
     public AccountRequestOutputResponse findAccountRequest(String accountRequestId, String clientId) throws IOException {
-        String status = AccountRequestStatusEnum.AWAITINGAUTHORISATION.getValue();
-        AccountRequest savedAccountRequestInfo = accountRequestInfoRepository.findByAccountRequestExternalIdentifierAndProviderClientIdAndAccountRequestStatus(accountRequestId, clientId, status);
+        AccountRequest savedAccountRequestInfo = accountRequestInfoRepository.findByAccountRequestExternalIdentifierAndProviderClientIdAndAccountRequestStatus(accountRequestId, clientId);
         if (savedAccountRequestInfo == null) {
             throw new RecordNotFoundException(ExceptionConstants.NOT_FOUND, ExceptionConstants.ARD_API_ERR_005);
         }

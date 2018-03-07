@@ -106,7 +106,7 @@ public class AccountRequestDAOTest {
         String accountRequestExternalIdentifier = accountRequestInfo.getAccountRequestExternalIdentifier();
         String status = AccountRequestStatusEnum.AWAITINGAUTHORISATION.getValue();
         String clientId = "client";
-        when(accountRequestInfoRepository.findByAccountRequestExternalIdentifierAndProviderClientIdAndAccountRequestStatus(accountRequestExternalIdentifier, clientId, status)).thenReturn(accountRequestInfo);
+        when(accountRequestInfoRepository.findByAccountRequestExternalIdentifierAndProviderClientIdAndAccountRequestStatus(accountRequestExternalIdentifier, clientId)).thenReturn(accountRequestInfo);
         when(providerPermissionsRepository.findByCode(anyString())).thenReturn(new ArrayList<>());
         AccountRequestOutputResponse accountRequest = accountRequestDAO.findAccountRequest(accountRequestExternalIdentifier, clientId);
         assertEquals(accountRequestExternalIdentifier, accountRequest.getAccountRequestOutputData().getAccountRequestExternalIdentifier());
@@ -116,9 +116,8 @@ public class AccountRequestDAOTest {
     public void shouldThrowExceptionWhenRecordNotFoundWithRequestWithIdAndClient() throws IOException {
         AccountRequest accountRequestInfo = new AccountRequest(new CreateAccountInputData(), "", "", json);
         String accountRequestExternalIdentifier = accountRequestInfo.getAccountRequestExternalIdentifier();
-        String status = AccountRequestStatusEnum.AWAITINGAUTHORISATION.getValue();
         String clientId = "client";
-        when(accountRequestInfoRepository.findByAccountRequestExternalIdentifierAndProviderClientIdAndAccountRequestStatus(accountRequestExternalIdentifier, clientId, status)).thenReturn(null);
+        when(accountRequestInfoRepository.findByAccountRequestExternalIdentifierAndProviderClientIdAndAccountRequestStatus(accountRequestExternalIdentifier, clientId)).thenReturn(null);
         AccountRequestOutputResponse accountRequest = accountRequestDAO.findAccountRequest(accountRequestExternalIdentifier, clientId);
     }
 
