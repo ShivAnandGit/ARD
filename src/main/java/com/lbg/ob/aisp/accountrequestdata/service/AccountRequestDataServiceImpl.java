@@ -126,7 +126,8 @@ public class AccountRequestDataServiceImpl<T> implements AccountRequestDataServi
         logger.trace( "ENTRY --> updateAccountRequestData");
         AccountRequest accountRequestInfo = accountRequestDAO.getAccountRequest(accountRequestId);
         String possibleStatus = accountInputData.getStatus();
-        if (!(AccountRequestDataConstant.AUTHORISED.equalsIgnoreCase(possibleStatus) || AccountRequestDataConstant.REJECTED.equalsIgnoreCase(possibleStatus))) {
+        if (!(AccountRequestDataConstant.AUTHORISED.equalsIgnoreCase(possibleStatus) || AccountRequestDataConstant.REJECTED.equalsIgnoreCase(possibleStatus)
+        		||AccountRequestDataConstant.REVOKED.equalsIgnoreCase(possibleStatus))) {
             throw new InvalidRequestException(BAD_REQUEST_INVALID_REQUEST, ARD_API_ERR_007);
         }
         AccountRequestStatusEnum accountRequestStatusEnum = stateChangeMachine.getUpdatableStatus(accountRequestInfo.getAccountRequestStatus(), possibleStatus);

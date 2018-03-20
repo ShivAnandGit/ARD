@@ -61,7 +61,7 @@
 		<dependency>
 			<groupId>com.lbg.ob.core</groupId>
 			<artifactId>service-info</artifactId>
-			<version>[1.0.0-rc.6,)</version>
+			<version>1.0.0-rc.6</version>
 		</dependency>
 		<dependency>
 			<groupId>com.lbg.ob.core</groupId>
@@ -194,7 +194,7 @@
 		<dependency>
 			<groupId>com.lbg.ob.core</groupId>
 			<artifactId>java-logger</artifactId>
-			<version>[1.0.1-rc.16,)</version>
+			<version>1.0.1-rc.16</version>
 		</dependency>
 		<dependency>
 			<groupId>commons-io</groupId>
@@ -496,7 +496,7 @@
 								<git.commit.id>${git.commit.id}</git.commit.id>
 								<git.tags>${git.tags}</git.tags>
 								<git.branch>${git.branch}</git.branch>
-								<ci.number>${env.BUILD_NUMBER}</ci.number>
+								<!-- <ci.number>${env.BUILD_NUMBER}</ci.number> -->
 								<layer>enterprise</layer>
 							</additionalProperties>
 						</configuration>
