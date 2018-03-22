@@ -130,6 +130,25 @@ public class AccountRequestDataServiceTest {
         UpdateAccountRequestOutputData updateAccountRequestOutputData = accountRequestDataService.updateAccountRequestData(accountInputData, testRequestId, testClientRole);
         assertNotNull(updateAccountRequestOutputData);
     }
+    
+    @Test
+    public void shouldUpdateAccountRequestDataForRevokedRequest() throws IOException, URISyntaxException, InvalidRequestException {
+
+        UpdateAccountRequestInputData accountInputData = new UpdateAccountRequestInputData();
+        accountInputData.setStatus("Revoked");
+        String testRequestId = "TestRequestId";
+        String testClientRole = "CUSTOMER";
+        AccountRequest accountRequest = new AccountRequest();
+        long accountRequestIdentifier = 1234L;
+        accountRequest.setAccountRequestIdentifier(accountRequestIdentifier);
+        AccountRequestStatusHistory t = new AccountRequestStatusHistory();
+        t.setStatusUpdatedDateTime();
+        when(accountRequestDAO.getAccountRequest(testRequestId)).thenReturn(accountRequest);
+        when(accountRequestDAO.updateAccountRequest(accountRequest, InternalUserRoleEnum.CUSTOMER)).thenReturn(t);
+        when(stateChangeMachine.getUpdatableStatus(anyString(), anyString())).thenReturn(AccountRequestStatusEnum.REVOKED);
+        UpdateAccountRequestOutputData updateAccountRequestOutputData = accountRequestDataService.updateAccountRequestData(accountInputData, testRequestId, testClientRole);
+        assertNotNull(updateAccountRequestOutputData);
+    }
 
     @Test(expected = InvalidRequestException.class)
     public void throwsExceptionIfTheStatusIsntAuthorisedOrRejected() throws IOException, URISyntaxException, InvalidRequestException {
