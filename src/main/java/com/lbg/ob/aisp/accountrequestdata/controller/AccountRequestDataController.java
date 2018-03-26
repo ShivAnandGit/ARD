@@ -155,7 +155,7 @@ public final class AccountRequestDataController {
      * AISP can Update a previously created account request (Authorised, Rejected).
      * @return Callable<UpdateAccountRequestOutputData> updatedRequestOuput
      */
-    @IsAllowed(role = {"CUSTOMER"})
+    @IsAllowed(role = {"CUSTOMER", "BRANCH_COLLEAGUE", "SUPER_USER", "SYSTEM"})
     @RequestMapping(value = "/accounts-requests/{accountRequestId}/status", method = RequestMethod.PUT, produces = MediaType.APPLICATION_JSON_VALUE)
     @ResponseStatus(HttpStatus.OK)
     public Callable<UpdateAccountRequestOutputData> updateAccountRequestForRequestId(
