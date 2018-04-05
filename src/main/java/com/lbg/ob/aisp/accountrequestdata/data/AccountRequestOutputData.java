@@ -19,9 +19,11 @@ public final class AccountRequestOutputData {
 
     private String accountRequestExternalIdentifier;
     private String status;
+    private String entitlementAccessCode;
     private List<ProviderPermission> permissions;
     private String creationDateTime;
     private Map<String, Object> metadata = new HashMap<>();
+    
 
     public AccountRequestOutputData() {
         /*
@@ -83,4 +85,14 @@ public final class AccountRequestOutputData {
     public void setCreationDateTime(String creationDateTime) {
         this.creationDateTime = creationDateTime;
     }
+    
+    @JsonInclude(JsonInclude.Include.NON_NULL)
+    @JsonProperty("EntitlementAccessCode")
+	public String getEntitlementAccessCode() {
+		return entitlementAccessCode;
+	}
+
+	public void setEntitlementAccessCode(String entitlementAccessCode) {
+		this.entitlementAccessCode = entitlementAccessCode;
+	}
 }

@@ -3,9 +3,9 @@ spring:
     default: development
     active: development
   datasource:
-    url: jdbc:oracle:thin:@dev-p1-db-02.sandbox.local:1521/CON1D.sandbox.lloydsbanking.com
-    username: ${datasourceUser}
-    password: ${datasourcePassword}
+    url: jdbc:oracle:thin:@10.112.159.93:40000/xe
+    username: ACCOUNTREQUEST
+    password: password
     driver-class-name: oracle.jdbc.OracleDriver
     initialSize: 3 
     maxActive: 5
@@ -23,6 +23,7 @@ spring:
 
 
 ---
+entitlementRevokeUrl: http://j2-ob-cnf-entitlement-api-master.lbg.eu-gb.mybluemix.net/entitlement-service/v1.0/entitlements/status/revoke
 
 spring:
   profiles: development

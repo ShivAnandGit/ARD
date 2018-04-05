@@ -81,6 +81,8 @@ public class AccountRequestDataServiceTest {
         String testClientId = "TestClientId";
         String testClientRole = "CUSTOMER";
         String txnCorrelationId = "correlationId";
+        String entitlementAccessCode = "1234-rqws";
+        accountInputData.setEntitlementAccessCode(entitlementAccessCode);
         long accountRequestIdentifier = 1234L;
         AccountRequest accountRequest = new AccountRequest();
         accountRequest.setAccountRequestIdentifier(accountRequestIdentifier);
@@ -100,6 +102,25 @@ public class AccountRequestDataServiceTest {
         accountInputData.setStatus("Authorised");
         String testRequestId = "TestRequestId";
         String testClientRole = "CUSTOMER";
+
+        AccountRequest accountRequest = new AccountRequest();
+        long accountRequestIdentifier = 1234L;
+        accountRequest.setAccountRequestIdentifier(accountRequestIdentifier);
+        AccountRequestStatusHistory t = new AccountRequestStatusHistory();
+        when(accountRequestDAO.getAccountRequest(testRequestId)).thenReturn(accountRequest);
+        when(stateChangeMachine.getUpdatableStatus(anyString(), anyString())).thenReturn(AccountRequestStatusEnum.AUTHORISED);
+        UpdateAccountRequestOutputData updateAccountRequestOutputData = accountRequestDataService.updateAccountRequestData(accountInputData, testRequestId, testClientRole);
+        assertNotNull(updateAccountRequestOutputData);
+
+    }
+    
+    @Test(expected = InvalidRequestException.class)
+    public void shouldThrowExceptionWhenUpdateForAuthorisedWithoutEntitlementAccessCode() throws IOException, URISyntaxException, InvalidRequestException {
+        UpdateAccountRequestInputData accountInputData = new UpdateAccountRequestInputData();
+        accountInputData.setStatus("Authorised");
+        String testRequestId = "TestRequestId";
+        String testClientRole = "CUSTOMER";
+        accountInputData.setEntitlementId(1234L);
 
         AccountRequest accountRequest = new AccountRequest();
         long accountRequestIdentifier = 1234L;

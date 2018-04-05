@@ -54,6 +54,9 @@ public final class AccountRequest {
     @Column(name = "ENTITLEMENT_ID")
 
     private Long entitlementId;
+    
+    @Column(name = "ENT_ACCESS_CODE")
+    private String entitlementAccessCode;
 
     @Transient
     private List<String> permissions;
@@ -193,5 +196,13 @@ public final class AccountRequest {
     public void setEntitlementId(Long entitlementId) {
         this.entitlementId = entitlementId;
     }
+
+	public String getEntitlementAccessCode() {
+		return entitlementAccessCode;
+	}
+
+	public void setEntitlementAccessCode(String entitlementAccessCode) {
+		this.entitlementAccessCode = entitlementAccessCode;
+	}
 
 }

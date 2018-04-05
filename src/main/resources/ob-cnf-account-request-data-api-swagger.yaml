@@ -106,7 +106,7 @@ paths:
             - CUSTOMER
       responses:
         200:
-          description: Account Request resource successfully retrieved
+          description: Account Request resource successfully retrieved. If EntitlementAccessCode is not null, then it is returned as part of response otherwise NOT. Effectively this means that EntitlementAccessCode is returned only in case of reauth journey 
           schema:
             $ref: '#/definitions/AccountRequestResponse'
           headers:
@@ -329,6 +329,10 @@ definitions:
       EntitlementId:
         type: integer
         description: the entitlement id that will be passed in by the entitlement API as a reference to the entitlement against a request to authorise the account request.
+      EntitlementAccessCode:
+        type: string
+        description: the entitlementAccessCode that will be passed in by the entitlement API as a reference to the entitlement against a request to authorise the account request. This is mandatory field
+        $ref: '#/definitions/EntitlementAccessCode'
     required:
       - Status
   UpdatedAccountRequestStatusOutputData:
@@ -412,6 +416,8 @@ definitions:
         $ref: '#/definitions/AccountRequestId'
       Status:
         $ref: '#/definitions/Status'
+      EntitlementAccessCode:
+        $ref: '#/definitions/EntitlementAccessCode'
       Permissions:
         $ref: '#/definitions/Permissions'
       CreationDateTime:
@@ -428,6 +434,13 @@ definitions:
   AccountRequestId:
     title: AccountRequestId
     description: Unique identification as assigned to identify the account request resource
+    type: string
+    minLength: 1
+    maxLength: 40
+    
+  EntitlementAccessCode:
+    title: entitlementAccessCode
+    description: EntitlementAccessCode as set by the Entitlement API in the update call, along with entitlementId
     type: string
     minLength: 1
     maxLength: 40

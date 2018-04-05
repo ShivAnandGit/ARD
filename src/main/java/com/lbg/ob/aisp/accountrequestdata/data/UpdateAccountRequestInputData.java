@@ -13,6 +13,8 @@ public final class UpdateAccountRequestInputData implements Serializable {
     private String status;
 
     private Long entitlementId;
+    
+    private String entitlementAccessCode;
 
     @JsonProperty("Status")
     public String getStatus() {
@@ -31,4 +33,13 @@ public final class UpdateAccountRequestInputData implements Serializable {
     public void setEntitlementId(Long entitlementId) {
         this.entitlementId = entitlementId;
     }
+    
+    @JsonProperty("EntitlementAccessCode")
+	public String getEntitlementAccessCode() {
+		return entitlementAccessCode;
+	}
+
+	public void setEntitlementAccessCode(String entitlementAccessCode) {
+		this.entitlementAccessCode = entitlementAccessCode;
+	}
 }

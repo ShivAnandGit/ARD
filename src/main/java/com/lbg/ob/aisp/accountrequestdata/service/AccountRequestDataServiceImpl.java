@@ -19,6 +19,7 @@ import com.lbg.ob.aisp.accountrequestdata.util.StateChangeMachine;
 import com.lbg.ob.aisp.accountrequestdata.util.Util;
 import com.netflix.hystrix.contrib.javanica.annotation.HystrixCommand;
 
+import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -135,10 +136,10 @@ public class AccountRequestDataServiceImpl<T> implements AccountRequestDataServi
         accountRequestInfo.setAccountRequestStatus(accountRequestStatusEnum);
         if (accountRequestStatusEnum.equals(AccountRequestStatusEnum.AUTHORISED)) {
             Long entitlementId = accountInputData.getEntitlementId();
-            if (entitlementId == null || entitlementId == 0) {
-                throw new InvalidRequestException("Request can't be authorised without an Entitlement Id", "ARD_API_ERR_999");
-            }
+            String entitlementAccessCode = accountInputData.getEntitlementAccessCode();
+            checkMandatoryVariablesPresent(entitlementId, entitlementAccessCode);
             accountRequestInfo.setEntitlementId(entitlementId);
+            accountRequestInfo.setEntitlementAccessCode(entitlementAccessCode);
         }
         //update the history
         InternalUserRoleEnum role = InternalUserRoleEnum.valueOf(clientRole.toUpperCase());
@@ -152,6 +153,7 @@ public class AccountRequestDataServiceImpl<T> implements AccountRequestDataServi
         logger.trace("updateAccountRequestData <-- EXIT");
         return updateAccountRequestOutputData;
     }
+
 
     @HystrixCommand(commandKey = "database", fallbackMethod = "fallbackRevoke", ignoreExceptions = {RecordNotFoundException.class, EntitlementUpdateFailedException.class, InvalidRequestException.class})
     @Override
@@ -199,5 +201,11 @@ public class AccountRequestDataServiceImpl<T> implements AccountRequestDataServi
         ErrorData errorData = new ErrorData(Long.valueOf(HttpStatus.SERVICE_UNAVAILABLE.toString()), ARD_API_ERR_503, ex.getMessage()); //NOSONAR
         throw new ResourceAccessException(errorData, ex); //NOSONAR
     }
+    
+	private void checkMandatoryVariablesPresent(Long entitlementId, String entitlementAccessCode) {
+		if (entitlementId == null || entitlementId == 0 || StringUtils.isEmpty(entitlementAccessCode)) {
+		    throw new InvalidRequestException("Request can't be authorised without an Entitlement Id or EntitlementAccessCode", "ARD_API_ERR_999");
+		}
+	}
 
 }

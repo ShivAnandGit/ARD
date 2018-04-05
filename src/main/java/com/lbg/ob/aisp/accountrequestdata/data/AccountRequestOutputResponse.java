@@ -24,13 +24,14 @@ public final class AccountRequestOutputResponse {
         //DEFAULT CONSTRUCTOR NEEDED FOR JACKSON UNMARSHALLING
     }
 
-    public AccountRequestOutputResponse(String accountRequestExternalIdentifier, String accountRequestStatus, Timestamp createdDateTime, String accountRequestJsonString) throws IOException {
+    public AccountRequestOutputResponse(String accountRequestExternalIdentifier, String accountRequestStatus, String entitlementAccessCode, Timestamp createdDateTime, String accountRequestJsonString) throws IOException {
         ObjectMapper mapper = new ObjectMapper();
         AccountRequestOutputResponse accountRequestOutputResponse = mapper.readValue(accountRequestJsonString, AccountRequestOutputResponse.class);
         AccountRequestOutputData outputData = accountRequestOutputResponse.getAccountRequestOutputData();
         outputData.setCreationDateTime(Util.formatDateAsISO8601(createdDateTime.toLocalDateTime()));
         outputData.setAccountRequestExternalIdentifier(accountRequestExternalIdentifier);
         outputData.setStatus(accountRequestStatus);
+        outputData.setEntitlementAccessCode(entitlementAccessCode);
         this.setAccountRequestOutputData(outputData);
         this.metadata = accountRequestOutputResponse.metadata;
     }
