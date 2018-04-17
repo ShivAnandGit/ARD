@@ -22,6 +22,7 @@ public final class AccountRequestOutputData {
     private String entitlementAccessCode;
     private List<ProviderPermission> permissions;
     private String creationDateTime;
+    private String statusUpdateDateTime;
     private Map<String, Object> metadata = new HashMap<>();
     
 
@@ -95,4 +96,16 @@ public final class AccountRequestOutputData {
 	public void setEntitlementAccessCode(String entitlementAccessCode) {
 		this.entitlementAccessCode = entitlementAccessCode;
 	}
+
+	@JsonInclude(JsonInclude.Include.NON_NULL)
+	@JsonProperty("StatusUpdateDateTime")
+	public String getStatusUpdateDateTime() {
+		return statusUpdateDateTime;
+	}
+
+	public void setStatusUpdateDateTime(String statusUpdateDateTime) {
+		this.statusUpdateDateTime = statusUpdateDateTime;
+	}
+	
+	
 }
