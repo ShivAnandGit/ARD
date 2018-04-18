@@ -92,7 +92,9 @@ public class AccountRequestDataTest<T> {
                 "}, " +
                 "\"Risk\": {}" +
                 "}','AwaitingAuthorisation','2017-12-31 23:59:59','clientid', 'fapi-financial-id-1')";
-        jdbcTemplate.execute(insertQuery);
+        String insertHistoryQuery = "Insert into ACCT_REQUEST_STATUS_HIST (ACCT_REQUEST_STATUS_HIST_ID,ACCT_REQUEST_ID,STATUS_UPDATED_DATE_TIME,ACCOUNT_REQUEST_STATUS,STATUS_UPDATED_BY_ROLE) "
+        		+ "values (10,520,to_timestamp('17-APR-18 05.43.34.970000000 PM','DD-MON-RR HH.MI.SSXFF AM'),'Authorised','CUSTOMER')";
+        jdbcTemplate.execute(insertHistoryQuery);
 
         String insertQuery2 = "Insert into ACCT_REQUEST(ACCT_REQUEST_ID, ACCOUNT_REQUEST_EXTERNAL_ID, ACCOUNT_REQUEST_JSON_STRING,ACCOUNT_REQUEST_STATUS,CREATED_DATE_TIME,PROVIDER_CLIENT_ID, FAPI_FINANCIAL_ID) values(521,'adf1','{" +
                 "\"Data\": {" +
@@ -105,7 +107,10 @@ public class AccountRequestDataTest<T> {
                 "}, " +
                 "\"Risk\": {}" +
                 "}','AwaitingAuthorisation','2017-12-31 23:59:59','clientid', 'fapi-financial-id-1')";
+        String insertHistoryQuery2 = "Insert into ACCT_REQUEST_STATUS_HIST (ACCT_REQUEST_STATUS_HIST_ID,ACCT_REQUEST_ID,STATUS_UPDATED_DATE_TIME,ACCOUNT_REQUEST_STATUS,STATUS_UPDATED_BY_ROLE) "
+        		+ "values (11,521,to_timestamp('17-APR-18 05.43.34.970000000 PM','DD-MON-RR HH.MI.SSXFF AM'),'Authorised','CUSTOMER')";
         jdbcTemplate.execute(insertQuery2);
+        jdbcTemplate.execute(insertHistoryQuery2);
 
         String insertQuery3 = "Insert into ACCT_REQUEST(ACCT_REQUEST_ID, ACCOUNT_REQUEST_EXTERNAL_ID, ACCOUNT_REQUEST_JSON_STRING,ACCOUNT_REQUEST_STATUS,CREATED_DATE_TIME,PROVIDER_CLIENT_ID, FAPI_FINANCIAL_ID) values(522,'adf2','{" +
                 "\"Data\": {" +
@@ -119,6 +124,10 @@ public class AccountRequestDataTest<T> {
                 "\"Risk\": {}" +
                 "}','AwaitingAuthorisation','2017-12-31 23:59:59','clientid', 'fapi-financial-id-1')";
         jdbcTemplate.execute(insertQuery3);
+        
+        String insertHistoryQuery3 = "Insert into ACCT_REQUEST_STATUS_HIST (ACCT_REQUEST_STATUS_HIST_ID,ACCT_REQUEST_ID,STATUS_UPDATED_DATE_TIME,ACCOUNT_REQUEST_STATUS,STATUS_UPDATED_BY_ROLE) "
+        		+ "values (12,522,to_timestamp('17-APR-18 05.43.34.970000000 PM','DD-MON-RR HH.MI.SSXFF AM'),'Authorised','CUSTOMER')";
+        jdbcTemplate.execute(insertHistoryQuery3);
         setupDone = true;
     }
 
@@ -168,6 +177,7 @@ public class AccountRequestDataTest<T> {
         permission.setDescription("");
         AccountRequestStatusHistory accountRequestStatusHistory = new AccountRequestStatusHistory();
         accountRequestStatusHistory.setAccountRequestStatusChangeHistoryId(1L);
+        accountRequestStatusHistory.setAccountRequestInfoId(2L);
         ServicerSchemeNameEnum.BICFI.getValue();
         ServicerSchemeNameEnum.UKSORTCODE.getValue();
         assertNotNull(accountRequestDataController.getAccountRequestForAccountId("123", "adadsaas","client-id-1","fapi-financial-id-1", "interaction-id-1", false, request, response, "adf").call());
