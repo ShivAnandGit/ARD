@@ -94,6 +94,7 @@ public class AccountRequestDataTest<T> {
                 "}','AwaitingAuthorisation','2017-12-31 23:59:59','clientid', 'fapi-financial-id-1')";
         String insertHistoryQuery = "Insert into ACCT_REQUEST_STATUS_HIST (ACCT_REQUEST_STATUS_HIST_ID,ACCT_REQUEST_ID,STATUS_UPDATED_DATE_TIME,ACCOUNT_REQUEST_STATUS,STATUS_UPDATED_BY_ROLE) "
         		+ "values (10,520,to_timestamp('17-APR-18 05.43.34.970000000 PM','DD-MON-RR HH.MI.SSXFF AM'),'Authorised','CUSTOMER')";
+        jdbcTemplate.execute(insertQuery);
         jdbcTemplate.execute(insertHistoryQuery);
 
         String insertQuery2 = "Insert into ACCT_REQUEST(ACCT_REQUEST_ID, ACCOUNT_REQUEST_EXTERNAL_ID, ACCOUNT_REQUEST_JSON_STRING,ACCOUNT_REQUEST_STATUS,CREATED_DATE_TIME,PROVIDER_CLIENT_ID, FAPI_FINANCIAL_ID) values(521,'adf1','{" +
