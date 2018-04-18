@@ -6,5 +6,5 @@ import com.lbg.ob.aisp.accountrequestdata.data.AccountRequestStatusHistory;
 
 public interface AccountRequestStatusChangeHistoryRepository extends JpaRepository<AccountRequestStatusHistory, Long> {
 
-	AccountRequestStatusHistory findFirstByAccountRequestInfoIdOrderByStatusUpdatedDateTimeDesc(Long accountRequestInfoId);
+    AccountRequestStatusHistory findFirstByAccountRequestInfoIdOrderByStatusUpdatedDateTimeDesc(Long accountRequestInfoId);
 }

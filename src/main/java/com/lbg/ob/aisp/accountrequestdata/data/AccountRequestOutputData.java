@@ -93,18 +93,18 @@ public final class AccountRequestOutputData {
 		return entitlementAccessCode;
 	}
 
-	public void setEntitlementAccessCode(String entitlementAccessCode) {
-		this.entitlementAccessCode = entitlementAccessCode;
+    public void setEntitlementAccessCode(String entitlementAccessCode) {
+        this.entitlementAccessCode = entitlementAccessCode;
 	}
 
 	@JsonInclude(JsonInclude.Include.NON_NULL)
 	@JsonProperty("StatusUpdateDateTime")
 	public String getStatusUpdateDateTime() {
-		return statusUpdateDateTime;
+        return statusUpdateDateTime;
 	}
 
 	public void setStatusUpdateDateTime(String statusUpdateDateTime) {
-		this.statusUpdateDateTime = statusUpdateDateTime;
+        this.statusUpdateDateTime = statusUpdateDateTime;
 	}
 	
 	
