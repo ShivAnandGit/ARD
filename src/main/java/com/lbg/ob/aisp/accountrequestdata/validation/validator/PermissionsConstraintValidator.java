@@ -101,16 +101,6 @@ public final class PermissionsConstraintValidator implements ConstraintValidator
         }
     }
 
-   /* private void validateCombosNotAllowed(List<String> values) {
-        for(List<String> combo: combinationsNotAllowed) {
-            //checking if the not allowed combos have atleast 1 value that aren't there in the list of values.
-            Optional<String> first = combo.stream().filter(permission -> !values.contains(permission)).findFirst();
-            if(!first.isPresent()) {
-                throw new InvalidRequestException(PERMISSIONS_ERROR_MESSAGE, ExceptionConstants.ARD_API_ERR_007);
-            }
-        }
-    }
-*/
     private void validateAllowedValues(List<String> values) {
         //checking if the list of allowedValues contains the permission in the permissions list
         Optional<String> first = values.stream().filter(val -> !allowedValues.contains(val)).findFirst();
