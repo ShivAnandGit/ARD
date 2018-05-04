@@ -1,5 +1,5 @@
 {
-	"journey": "ob-cnf",
+	"journey": "ob-aisp",
 	"mavengoals": {
 		"unit": "clean test",
 		"sonar": "clean test cobertura:cobertura org.sonarsource.scanner.maven:sonar-maven-plugin:3.3.0.603:sonar",
