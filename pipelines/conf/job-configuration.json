@@ -23,7 +23,7 @@
 	},
 	"bdd": {
 		"invocation": "sleep 550; ./node_modules/.bin/wdio tests/acceptance/wdio/conf/api.conf.js --env Test --ff ARD*",
-		"git_repo": "ssh://gerrit.sandbox.extranet.group:29418/ob-cnf-ft2-bdd",
+		"git_repo": "git@github.lbg.eu-gb.bluemix.net:ob-aisp/ob-aisp-ard-enterprise-bdd.git",
 		"git_credentials": "ob-codeuser",
 		"default_branch": "master",
 		"passthreshold": "95"

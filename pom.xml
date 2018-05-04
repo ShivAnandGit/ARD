@@ -39,7 +39,7 @@
 
 
 	<scm>
-		<url>https://gerrit.sandbox.extranet.group/ob-cnf-account-request-data-api</url>
+		<url>https://github.lbg.eu-gb.bluemix.net/ob-aisp/account-request-data-api</url>
 	</scm>
 
 	<distributionManagement>
