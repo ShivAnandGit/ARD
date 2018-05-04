@@ -70,12 +70,13 @@ public class PermissionsConstraintValidatorTest {
         }
     }
 
-    @Test (expected = InvalidRequestException.class)
-    public void shouldThrowExceptionWhenInvalidPermissionComboSpecified() throws Throwable {
+    @Test
+    public void shouldPassWhenValidPermissionComboSpecified() throws Throwable {
         List<String> permissions = Arrays.asList(PermissionsConstraintValidator.READ_ACCOUNTS_BASIC, PermissionsConstraintValidator.READ_ACCOUNTS_DETAIL);
         data.setPermissions(permissions);
         try {
             Set<ConstraintViolation<CreateAccountInputRequest>> validate = validator.validate(createAccountInput);
+            assertEquals(0, validate.size());
         } catch (ValidationException ex) {
             //InvalidRequestException triggers ValidationException, so catching ValidationException and throwing the cause
             throw ex.getCause();
