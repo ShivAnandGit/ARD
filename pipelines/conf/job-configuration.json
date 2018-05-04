@@ -41,7 +41,7 @@
 		"master": {
 			"memory": "1024M",
 			"bluemix": {
-				"org": "POC27_PSD2_AAF",
+				"org": "POC45_PSD2AISP",
 				"env": "DEV"
 			},
 			"tokens": {
@@ -69,7 +69,7 @@
 		"ci": {
 			"memory": "1024M",
 			"bluemix": {
-				"org": "POC27_PSD2_AAF",
+				"org": "POC45_PSD2AISP",
 				"env": "DEV"
 			},
 			"tokens": {
