@@ -1,27 +1,28 @@
 def runTest(String targetBranch, context) {
-	String  gitBddRepo = context.config.bdd.git_repo
-	String  gitBddCreds = context.config.bdd.git_credentials?: 'ob-codeuser'
-	def gitBddBranch = this.findCorrespondingBDDBranch()
+    def gitBddRepo = context.config.bdd.git_repo
+    String label = context.config.builder.label
+    String  gitBddCreds = context.config.bdd.git_credentials?: 'ob-codeuser'
+    def gitBddBranch = this.findCorrespondingBDDBranch()
 
-	node() {
-		try{
-			git branch: gitBddBranch, url: gitBddRepo, credentialsId: gitBddCreds
-		}catch(error){
-			echo "FAILED: Cannot find a matching  bdd branch to test against"
-			throw error
-		}
-		unstash "pipelines-${context.application}-${targetBranch}"
-		this.runTestHandler(targetBranch, context)
-	}
+
+    node(label) {
+        try{
+            git branch: gitBddBranch, url: gitBddRepo, credentialsId: gitBddCreds
+        }catch(error){
+            echo "FAILED: Cannot find a matching  bdd branch to test against"
+            throw error
+        }
+        unstash "pipelines-${context.application}-${targetBranch}"
+        this.runTestHandler(targetBranch, context)
+    }
 }
 def runTestHandler(String targetBranch, context) {
-def app = appName(context,targetBranch)
-def zapQualityGate = context.config.zap.sonarQuality_gate ?: 'invalid-gate'
-def zapResultDir = context.config.zap.resultdir ?: "invalid-path"
-def sonarServerID = context.config.sonar.server_id ?: 'invalid-sonarServer'
-String  invokeBDD = context.config.bdd.invocation ?: 'fail'
-String  scenarioPassThreshold = context.config.bdd.passthreshold ?: '100'
-//String  scenarioPassThreshold = context.config.passthresholds.bdd.percent_scenarios ?: '100'
+    def app = appName(context,targetBranch)
+    def zapQualityGate = context.config.zap.sonarQuality_gate ?: 'invalid-gate'
+    def zapResultDir = context.config.zap.resultdir ?: "invalid-path"
+    def sonarServerID = context.config.sonar.server_id ?: 'invalid-sonarServer'
+    String  invokeBDD = context.config.bdd.invocation ?: 'fail'
+    String  scenarioPassThreshold = context.config.bdd.passthresholds?: '90'
 
 def sonarJavaOptions = [
        '-Dsonar.projectKey': app + '-zap' ,
@@ -125,14 +126,18 @@ def publishSplunk(String targetBranch, String epoch, context, handler){
 	}
 }
 
-String findCorrespondingBDDBranch(){
-	def bddBranch
-	if(env.BRANCH_NAME.startsWith('patchset')){
-		bddBranch =  gerritHandler.findTargetBranch(this.findTargetCommit())
-	} else{
-		bddBranch = "${env.BRANCH_NAME}"
-	}
-	return bddBranch
+String findCorrespondingBDDBranch() {
+    def bddBranch
+    if (env.BRANCH_NAME.startsWith('patchset')) {
+        bddBranch = gerritHandler.findTargetBranch(this.findTargetCommit())
+    } else if (env.BRANCH_NAME.startsWith('PR-') && env.BRANCH_NAME.endsWith('head')) {
+        bddBranch = "${env.CHANGE_BRANCH}"
+    } else if (env.BRANCH_NAME.startsWith('PR-')) {
+        bddBranch = "${env.CHANGE_TARGET}"
+    } else {
+        bddBranch = "${env.BRANCH_NAME}"
+    }
+    return bddBranch
 }
 
 String findTargetCommit(){
