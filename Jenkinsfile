@@ -27,4 +27,4 @@ BuildHandlers handlers = new ConfigurableBuildHandlers(	builder,
 							staticAnalyses, 
 							integrationTests) as BuildHandlers
 
-invokeBuildPipelineHawk('ob-cnf-account-request-data-api', handlers, configuration, notify, timeout)
+invokeBuildPipelineHawk('ob-aisp-account-request-data-api', handlers, configuration, notify, timeout)
