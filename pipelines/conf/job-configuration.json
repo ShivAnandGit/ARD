@@ -22,7 +22,7 @@
 		"settings": "pipelines/conf/settings.xml"
 	},
 	"bdd": {
-		"invocation": "sleep 550; ./node_modules/.bin/wdio tests/acceptance/wdio/conf/api.conf.js --env Test --ff ARD*",
+		"invocation": "sleep 5; ./node_modules/.bin/wdio tests/acceptance/wdio/conf/api.conf.js --env Test --ff ARD*",
 		"git_repo": "git@github.lbg.eu-gb.bluemix.net:ob-aisp/ob-aisp-ard-enterprise-bdd.git",
 		"git_credentials": "ob-codeuser",
 		"default_branch": "master",
@@ -35,7 +35,8 @@
 	"bluemix": {
 		"domain": "lbg.eu-gb.bluemix.net",
 		"api": "api.lbg.eu-gb.bluemix.net",
-		"credentials": "bluemix-global-deployer"
+		"credentials": "bluemix-global-deployer",
+		"timeout":"500"
 	},
 	"environments": {
 		"master": {
