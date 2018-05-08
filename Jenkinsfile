@@ -1,4 +1,4 @@
-@Library('workflowlib-sandbox@v3.4.0')
+@Library('workflowlib-sandbox@v4.5.2')
 import com.lbg.workflow.sandbox.*
 
 @Library('workflowlib-global@v0.2.1')
