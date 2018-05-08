@@ -1,11 +1,11 @@
 def runTest(String targetBranch, context) {
     def gitBddRepo = context.config.bdd.git_repo
-    String label = context.config.builder.label
+//    String label = context.config.builder.label
     String  gitBddCreds = context.config.bdd.git_credentials?: 'ob-codeuser'
     def gitBddBranch = this.findCorrespondingBDDBranch()
 
 
-    node(label) {
+    node() {
         try{
             git branch: gitBddBranch, url: gitBddRepo, credentialsId: gitBddCreds
         }catch(error){
