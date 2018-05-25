@@ -1,4 +1,4 @@
-@Library('workflowlib-sandbox@v3.4.0')
+@Library('workflowlib-sandbox@v4.5.2')
 import com.lbg.workflow.sandbox.*
 
 @Library('workflowlib-global@v0.2.1')
@@ -27,4 +27,4 @@ BuildHandlers handlers = new ConfigurableBuildHandlers(	builder,
 							staticAnalyses, 
 							integrationTests) as BuildHandlers
 
-invokeBuildPipelineHawk('ob-cnf-account-request-data-api', handlers, configuration, notify, timeout)
+invokeBuildPipelineHawk('ob-aisp-account-request-data-api', handlers, configuration, notify, timeout)

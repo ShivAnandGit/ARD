@@ -20,7 +20,7 @@ stage('Initialize'){
 	node(){
 		deleteDir()
 		checkout scm
-		context = new BuildContext('ob-cnf-account-request-data-api', readFile('pipelines/cron/veracode/job-configuration.json'))
+		context = new BuildContext('ob-aisp-account-request-data-api', readFile('pipelines/cron/veracode/job-configuration.json'))
 		epoch = sh(returnStdout: true, script: 'date +%d%m%Y%H%M').trim()
 
 		deployer = load('pipelines/tests/veracode.groovy')
@@ -30,7 +30,7 @@ stage('Initialize'){
 }
 milestone(label:'initialized')
 
-lock(inversePrecedence: true, quantity: 1, resource: "ob-cnf-account-request-data-api-${targetBranch}"){
+lock(inversePrecedence: true, quantity: 1, resource: "ob-aisp-account-request-data-api-${targetBranch}"){
 
 
 	stage('package'){

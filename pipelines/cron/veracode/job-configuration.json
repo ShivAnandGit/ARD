@@ -29,7 +29,7 @@
       "id": "317391"
     },
   "splunk": {
-      "reportdir": "/apps/splunkreports/ob-cnf-account-request-data-api"
+      "reportdir": "/apps/splunkreports/ob-aisp-account-request-data-api"
     },
   "passthresholds": {
     "bdd": {
