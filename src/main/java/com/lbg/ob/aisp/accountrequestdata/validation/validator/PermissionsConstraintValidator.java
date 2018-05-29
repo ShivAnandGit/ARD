@@ -78,7 +78,7 @@ public final class PermissionsConstraintValidator implements ConstraintValidator
         //check for allowed values
         validateAllowedValues(values);
         //If any of the not allowed combinations are there in the list of permissions, then throw exception
-        validateCombosNotAllowed(values);
+//        validateCombosNotAllowed(values); Removing validation as per PSD2-26237
 
         //Check for combinations that are required
         validateCombosRequired(values);
@@ -97,16 +97,6 @@ public final class PermissionsConstraintValidator implements ConstraintValidator
                 } else {
                     break;
                 }
-            }
-        }
-    }
-
-    private void validateCombosNotAllowed(List<String> values) {
-        for(List<String> combo: combinationsNotAllowed) {
-            //checking if the not allowed combos have atleast 1 value that aren't there in the list of values.
-            Optional<String> first = combo.stream().filter(permission -> !values.contains(permission)).findFirst();
-            if(!first.isPresent()) {
-                throw new InvalidRequestException(PERMISSIONS_ERROR_MESSAGE, ExceptionConstants.ARD_API_ERR_007);
             }
         }
     }

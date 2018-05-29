@@ -1,5 +1,5 @@
 {
-	"journey": "ob-cnf",
+	"journey": "ob-aisp",
 	"mavengoals": {
 		"unit": "clean test",
 		"sonar": "clean test cobertura:cobertura org.sonarsource.scanner.maven:sonar-maven-plugin:3.3.0.603:sonar",
@@ -22,8 +22,8 @@
 		"settings": "pipelines/conf/settings.xml"
 	},
 	"bdd": {
-		"invocation": "sleep 550; ./node_modules/.bin/wdio tests/acceptance/wdio/conf/api.conf.js --env Test --ff ARD*",
-		"git_repo": "ssh://gerrit.sandbox.extranet.group:29418/ob-cnf-ft2-bdd",
+		"invocation": "sleep 5; ./node_modules/.bin/wdio tests/acceptance/wdio/conf/api.conf.js --env Test --ff ARD*",
+		"git_repo": "git@github.lbg.eu-gb.bluemix.net:ob-aisp/ob-aisp-ard-enterprise-bdd.git",
 		"git_credentials": "ob-codeuser",
 		"default_branch": "master",
 		"passthreshold": "95"
@@ -35,13 +35,14 @@
 	"bluemix": {
 		"domain": "lbg.eu-gb.bluemix.net",
 		"api": "api.lbg.eu-gb.bluemix.net",
-		"credentials": "bluemix-global-deployer"
+		"credentials": "bluemix-global-deployer",
+		"timeout":"500"
 	},
 	"environments": {
 		"master": {
 			"memory": "1024M",
 			"bluemix": {
-				"org": "POC27_PSD2_AAF",
+				"org": "POC45_PSD2AISP",
 				"env": "DEV"
 			},
 			"tokens": {
@@ -69,7 +70,7 @@
 		"ci": {
 			"memory": "1024M",
 			"bluemix": {
-				"org": "POC27_PSD2_AAF",
+				"org": "POC45_PSD2AISP",
 				"env": "DEV"
 			},
 			"tokens": {
