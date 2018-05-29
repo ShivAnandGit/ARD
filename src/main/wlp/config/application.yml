@@ -44,7 +44,7 @@ header:
 
 # context Path
 server:
-      contextPath: /account-request-data/v1.0
+      contextPath: /account-request-data/v1.1
 
 # API Documentation
 documentation:
