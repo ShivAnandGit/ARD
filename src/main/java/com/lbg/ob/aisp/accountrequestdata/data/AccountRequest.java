@@ -197,8 +197,8 @@ public final class AccountRequest {
         this.entitlementId = entitlementId;
     }
 
-	public String getEntitlementAccessCode() {
-		return entitlementAccessCode;
+    public String getEntitlementAccessCode() {
+        return entitlementAccessCode;
 	}
 
 	public void setEntitlementAccessCode(String entitlementAccessCode) {

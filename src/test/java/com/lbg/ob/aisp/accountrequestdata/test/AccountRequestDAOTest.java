@@ -93,9 +93,12 @@ public class AccountRequestDAOTest {
     @Test
     public void shouldFindAccountRequestWithExternalId() throws IOException {
         AccountRequest accountRequestInfo = new AccountRequest(new CreateAccountInputData(), "", "", json);
+        AccountRequestStatusHistory statusHistory = new AccountRequestStatusHistory();
+        statusHistory.setAccountRequestInfoId(accountRequestInfo.getAccountRequestIdentifier());
         String accountRequestExternalIdentifier = accountRequestInfo.getAccountRequestExternalIdentifier();
         when(accountRequestInfoRepository.findByAccountRequestExternalIdentifier(accountRequestExternalIdentifier)).thenReturn(accountRequestInfo);
         when(providerPermissionsRepository.findByCode(anyString())).thenReturn(new ArrayList<>());
+        when(accountRequestInfoHistoryRepository.findFirstByAccountRequestInfoIdOrderByStatusUpdatedDateTimeDesc(accountRequestInfo.getAccountRequestIdentifier())).thenReturn(statusHistory);
         AccountRequestOutputResponse accountRequest = accountRequestDAO.findAccountRequest(accountRequestExternalIdentifier);
         assertEquals(accountRequestExternalIdentifier, accountRequest.getAccountRequestOutputData().getAccountRequestExternalIdentifier());
     }
@@ -103,11 +106,14 @@ public class AccountRequestDAOTest {
     @Test
     public void shouldFindAccountRequestWithIdAndClient() throws IOException {
         AccountRequest accountRequestInfo = new AccountRequest(new CreateAccountInputData(), "", "", json);
+        AccountRequestStatusHistory statusHistory = new AccountRequestStatusHistory();
+        statusHistory.setAccountRequestInfoId(accountRequestInfo.getAccountRequestIdentifier());
         String accountRequestExternalIdentifier = accountRequestInfo.getAccountRequestExternalIdentifier();
         String status = AccountRequestStatusEnum.AWAITINGAUTHORISATION.getValue();
         String clientId = "client";
         when(accountRequestInfoRepository.findByAccountRequestExternalIdentifierAndProviderClientIdAndAccountRequestStatus(accountRequestExternalIdentifier, clientId)).thenReturn(accountRequestInfo);
         when(providerPermissionsRepository.findByCode(anyString())).thenReturn(new ArrayList<>());
+        when(accountRequestInfoHistoryRepository.findFirstByAccountRequestInfoIdOrderByStatusUpdatedDateTimeDesc(accountRequestInfo.getAccountRequestIdentifier())).thenReturn(statusHistory);
         AccountRequestOutputResponse accountRequest = accountRequestDAO.findAccountRequest(accountRequestExternalIdentifier, clientId);
         assertEquals(accountRequestExternalIdentifier, accountRequest.getAccountRequestOutputData().getAccountRequestExternalIdentifier());
     }
