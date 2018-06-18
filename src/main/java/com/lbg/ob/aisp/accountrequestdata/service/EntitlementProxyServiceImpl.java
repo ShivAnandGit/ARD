@@ -1,16 +1,17 @@
 package com.lbg.ob.aisp.accountrequestdata.service;
 
-import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.lbg.ob.aisp.accountrequestdata.data.AccountRequestStatusEnum;
-import com.lbg.ob.aisp.accountrequestdata.data.EntitlementOutputData;
-import com.lbg.ob.aisp.accountrequestdata.data.EntitlementStatusUpdateInputData;
-import com.lbg.ob.aisp.accountrequestdata.exception.EntitlementUpdateFailedException;
-import com.lbg.ob.aisp.accountrequestdata.exception.ResourceAccessException;
-import com.lbg.ob.aisp.accountrequestdata.exception.handler.ErrorData;
-import com.lbg.ob.interceptor.RestTemplateInterceptor;
-import com.netflix.hystrix.contrib.javanica.annotation.DefaultProperties;
-import com.netflix.hystrix.contrib.javanica.annotation.HystrixCommand;
+import static com.lbg.ob.aisp.accountrequestdata.exception.ExceptionConstants.ARD_API_ERR_503;
+import static com.lbg.ob.aisp.accountrequestdata.util.AccountRequestDataConstant.X_LBG_FOV_INDICATOR;
+import static com.lbg.ob.aisp.accountrequestdata.util.AccountRequestDataConstant.X_LBG_INTERNAL_USER_ID;
+import static com.lbg.ob.aisp.accountrequestdata.util.AccountRequestDataConstant.X_LBG_INTERNAL_USER_ROLE;
+
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.StringWriter;
+import java.nio.charset.StandardCharsets;
+import java.util.Map;
+import java.util.concurrent.ExecutionException;
+
 import org.apache.commons.io.IOUtils;
 import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
@@ -26,23 +27,17 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.concurrent.ListenableFuture;
 import org.springframework.web.client.AsyncRestTemplate;
 import org.springframework.web.client.ResponseErrorHandler;
-import org.springframework.web.context.request.RequestContextHolder;
-import org.springframework.web.context.request.ServletRequestAttributes;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.StringWriter;
-import java.nio.charset.StandardCharsets;
-import java.util.Collections;
-import java.util.Map;
-import java.util.concurrent.ExecutionException;
-
-import javax.servlet.http.HttpServletRequest;
-
-import static com.lbg.ob.aisp.accountrequestdata.exception.ExceptionConstants.ARD_API_ERR_503;
-import static com.lbg.ob.aisp.accountrequestdata.util.AccountRequestDataConstant.X_LBG_FOV_INDICATOR;
-import static com.lbg.ob.aisp.accountrequestdata.util.AccountRequestDataConstant.X_LBG_INTERNAL_USER_ID;
-import static com.lbg.ob.aisp.accountrequestdata.util.AccountRequestDataConstant.X_LBG_INTERNAL_USER_ROLE;
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.lbg.ob.aisp.accountrequestdata.data.AccountRequestStatusEnum;
+import com.lbg.ob.aisp.accountrequestdata.data.EntitlementOutputData;
+import com.lbg.ob.aisp.accountrequestdata.data.EntitlementStatusUpdateInputData;
+import com.lbg.ob.aisp.accountrequestdata.exception.EntitlementUpdateFailedException;
+import com.lbg.ob.aisp.accountrequestdata.exception.ResourceAccessException;
+import com.lbg.ob.aisp.accountrequestdata.exception.handler.ErrorData;
+import com.netflix.hystrix.contrib.javanica.annotation.DefaultProperties;
+import com.netflix.hystrix.contrib.javanica.annotation.HystrixCommand;
 
 @Service
 @DefaultProperties(defaultFallback = "fallback")
