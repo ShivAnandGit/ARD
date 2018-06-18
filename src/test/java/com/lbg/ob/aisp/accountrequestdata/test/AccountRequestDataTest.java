@@ -27,6 +27,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.http.HttpHeaders;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.transaction.annotation.Propagation;
@@ -219,7 +220,7 @@ public class AccountRequestDataTest<T> {
         HttpServletRequest request = Mockito.mock(HttpServletRequest.class);
         HttpServletResponse response = Mockito.mock(HttpServletResponse.class);
         UpdateAccountRequestInputData inputData = new UpdateAccountRequestInputData();
-        accountRequestDataController.deleteAccountRequestForAccountId("CUSTOMER", "adf", "clientid", "financial-id-1", "interaction-id-1", false,request, response, "adf");
+        accountRequestDataController.deleteAccountRequestForAccountId("CUSTOMER", "adf", "clientid", "financial-id-1", "interaction-id-1", false,new HttpHeaders(),request, response, "adf");
         //no exception we can assume everything went as expected
         assertTrue(true);
     }
@@ -229,7 +230,7 @@ public class AccountRequestDataTest<T> {
         HttpServletRequest request = Mockito.mock(HttpServletRequest.class);
         HttpServletResponse response = Mockito.mock(HttpServletResponse.class);
         UpdateAccountRequestInputData inputData = new UpdateAccountRequestInputData();
-        accountRequestDataController.deleteAccountRequestForAccountId("CUSTOMER", "adf", "clientid", "financial-id-1", null, false, request, response, "adf1");
+        accountRequestDataController.deleteAccountRequestForAccountId("CUSTOMER", "adf", "clientid", "financial-id-1", null, false, new HttpHeaders(),request, response, "adf1");
         assertTrue(true);
     }
 

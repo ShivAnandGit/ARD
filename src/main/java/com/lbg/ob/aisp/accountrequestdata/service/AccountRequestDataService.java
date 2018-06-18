@@ -4,6 +4,8 @@ import java.io.IOException;
 import java.net.URISyntaxException;
 import java.util.concurrent.ExecutionException;
 
+import org.springframework.http.HttpHeaders;
+
 import com.lbg.ob.aisp.accountrequestdata.data.AccountRequestOutputResponse;
 import com.lbg.ob.aisp.accountrequestdata.data.CreateAccountInputRequest;
 import com.lbg.ob.aisp.accountrequestdata.data.UpdateAccountRequestInputData;
@@ -62,7 +64,7 @@ public interface AccountRequestDataService<T> {
      * @return AccountRequestOutputData accountRequestOutputData
      * @throws IOException, URISyntaxException
      */
-    public void revokeAccountRequestData(String accountRequestId, String clientRole, String clientId, Boolean fovIndicator)
+    public void revokeAccountRequestData(String accountRequestId, String clientRole, String clientId, Boolean fovIndicator,HttpHeaders headers)
             throws IOException, URISyntaxException, ExecutionException, InterruptedException;
 
 }

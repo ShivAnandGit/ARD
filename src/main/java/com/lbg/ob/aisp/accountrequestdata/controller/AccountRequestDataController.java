@@ -9,6 +9,8 @@ import static com.lbg.ob.aisp.accountrequestdata.util.AccountRequestDataConstant
 
 import java.io.IOException;
 import java.net.URISyntaxException;
+import java.util.Map;
+import java.util.TreeMap;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
 
@@ -21,6 +23,7 @@ import com.lbg.ob.aisp.accountrequestdata.service.AccountRequestDataService;
 import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.util.StringUtils;
@@ -139,6 +142,7 @@ public final class AccountRequestDataController {
             @RequestHeader(value = X_FAPI_FINANCIAL_ID) final String financialId,
             @RequestHeader(value = X_FAPI_INTERACTION_ID, required = false) final String interactionId,
             @RequestHeader(value = X_LBG_FOV_INDICATOR, required = false) final Boolean fovIndicator,
+            @RequestHeader HttpHeaders headers,
             final HttpServletRequest request, HttpServletResponse response,
             @PathVariable final String accountRequestId) throws IOException, URISyntaxException, ExecutionException, InterruptedException {
         return () -> {
@@ -146,7 +150,7 @@ public final class AccountRequestDataController {
             if (!StringUtils.isEmpty(interactionId)) {
                 response.setHeader(X_FAPI_INTERACTION_ID, interactionId);
             }
-            accountRequestDataService.revokeAccountRequestData(accountRequestId, internalUserRole, clientId, fovIndicator);
+            accountRequestDataService.revokeAccountRequestData(accountRequestId, internalUserRole, clientId, fovIndicator,headers);
             return null;
         };
     }

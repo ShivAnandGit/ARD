@@ -23,6 +23,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
@@ -157,7 +158,7 @@ public class AccountRequestDataServiceImpl<T> implements AccountRequestDataServi
 
     @HystrixCommand(commandKey = "database", fallbackMethod = "fallbackRevoke", ignoreExceptions = {RecordNotFoundException.class, EntitlementUpdateFailedException.class, InvalidRequestException.class})
     @Override
-    public void revokeAccountRequestData(String accountRequestId, String clientRole, String clientId, Boolean fovIndicator)
+    public void revokeAccountRequestData(String accountRequestId, String clientRole, String clientId, Boolean fovIndicator, HttpHeaders headers)
             throws IOException, URISyntaxException, ExecutionException, InterruptedException {
         logger.trace( "ENTRY --> revokeAccountRequestData");
         AccountRequest accountRequestInfo = accountRequestDAO.getAccountRequest(accountRequestId);
@@ -166,7 +167,7 @@ public class AccountRequestDataServiceImpl<T> implements AccountRequestDataServi
         //call the entitlement API to revoke the entitlement, if the status was authorised
         if (accountRequestStatus.equals(AccountRequestDataConstant.AUTHORISED)) {
             Long entitlementId = accountRequestInfo.getEntitlementId();
-            entitlementService.revokeEntitlement(entitlementId, InternalUserRoleEnum.SYSTEM.toString(), clientRole, clientId, fovIndicator);
+            entitlementService.revokeEntitlement(entitlementId, InternalUserRoleEnum.SYSTEM.toString(), clientRole, clientId, fovIndicator,headers);
         }
         accountRequestDAO.revokeAccountRequest(clientRole, accountRequestInfo, updateableStatus);
         logger.trace("revokeAccountRequestData <-- EXIT");

@@ -8,6 +8,7 @@ import com.lbg.ob.aisp.accountrequestdata.data.EntitlementStatusUpdateInputData;
 import com.lbg.ob.aisp.accountrequestdata.exception.EntitlementUpdateFailedException;
 import com.lbg.ob.aisp.accountrequestdata.exception.ResourceAccessException;
 import com.lbg.ob.aisp.accountrequestdata.exception.handler.ErrorData;
+import com.lbg.ob.interceptor.RestTemplateInterceptor;
 import com.netflix.hystrix.contrib.javanica.annotation.DefaultProperties;
 import com.netflix.hystrix.contrib.javanica.annotation.HystrixCommand;
 import org.apache.commons.io.IOUtils;
@@ -25,13 +26,18 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.concurrent.ListenableFuture;
 import org.springframework.web.client.AsyncRestTemplate;
 import org.springframework.web.client.ResponseErrorHandler;
+import org.springframework.web.context.request.RequestContextHolder;
+import org.springframework.web.context.request.ServletRequestAttributes;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.StringWriter;
 import java.nio.charset.StandardCharsets;
+import java.util.Collections;
 import java.util.Map;
 import java.util.concurrent.ExecutionException;
+
+import javax.servlet.http.HttpServletRequest;
 
 import static com.lbg.ob.aisp.accountrequestdata.exception.ExceptionConstants.ARD_API_ERR_503;
 import static com.lbg.ob.aisp.accountrequestdata.util.AccountRequestDataConstant.X_LBG_FOV_INDICATOR;
@@ -53,7 +59,7 @@ public class EntitlementProxyServiceImpl implements EntitlementProxyService {
 
     @Override
     @HystrixCommand(commandKey = "entitlementService", ignoreExceptions = {EntitlementUpdateFailedException.class})
-    public void revokeEntitlement(Long entitlementId, String internalUserId, String internalUserRole, String clientId, Boolean fovIndicator)
+    public void revokeEntitlement(Long entitlementId, String internalUserId, String internalUserRole, String clientId, Boolean fovIndicator, HttpHeaders headers)
             throws ExecutionException, InterruptedException {
         logger.trace("ENTRY --> revokeEntitlement");
         AsyncRestTemplate restTemplate = new AsyncRestTemplate();
@@ -82,7 +88,7 @@ public class EntitlementProxyServiceImpl implements EntitlementProxyService {
                 }
             }
         });
-        HttpHeaders requestHeaders = getHttpHeaders(internalUserId, internalUserRole, clientId, fovIndicator);
+        HttpHeaders requestHeaders = getHttpHeaders(internalUserId, internalUserRole, clientId, fovIndicator, headers);
         EntitlementStatusUpdateInputData entitlementStatusUpdateInputData = new EntitlementStatusUpdateInputData(entitlementId);
         HttpEntity<EntitlementStatusUpdateInputData> httpEntity = new HttpEntity<>(entitlementStatusUpdateInputData, requestHeaders);
         ListenableFuture<ResponseEntity<EntitlementOutputData[]>> future = restTemplate.exchange(requestURL, HttpMethod.PUT, httpEntity, EntitlementOutputData[].class);
@@ -97,9 +103,9 @@ public class EntitlementProxyServiceImpl implements EntitlementProxyService {
         logger.trace("revokeEntitlement <-- EXIT");
     }
 
-    private HttpHeaders getHttpHeaders(String internalUserId, String internalUserRole, String clientId, Boolean fovIndicator) {
+    private HttpHeaders getHttpHeaders(String internalUserId, String internalUserRole, String clientId, Boolean fovIndicator, HttpHeaders headers) {
         logger.debug("creating http headers");
-        HttpHeaders requestHeaders = new HttpHeaders();
+        HttpHeaders requestHeaders = headers;
         requestHeaders.setContentType(MediaType.APPLICATION_JSON);
         requestHeaders.add(X_LBG_INTERNAL_USER_ID, internalUserId);
         requestHeaders.add(X_LBG_INTERNAL_USER_ROLE, internalUserRole);
