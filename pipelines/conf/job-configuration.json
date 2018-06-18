@@ -22,7 +22,7 @@
 		"settings": "pipelines/conf/settings.xml"
 	},
 	"bdd": {
-		"invocation": "sleep 5; ./node_modules/.bin/wdio tests/acceptance/wdio/conf/api.conf.js --env Test --ff ARD*",
+		"invocation": "sleep 120; ./node_modules/.bin/wdio tests/acceptance/wdio/conf/api.conf.js --env Test --ff ARD*",
 		"git_repo": "git@github.lbg.eu-gb.bluemix.net:ob-aisp/ob-aisp-ard-enterprise-bdd.git",
 		"git_credentials": "ob-codeuser",
 		"default_branch": "master",
@@ -40,7 +40,7 @@
 	},
 	"environments": {
 		"master": {
-			"memory": "1024M",
+			"memory": "2048M",
 			"bluemix": {
 				"org": "POC45_PSD2AISP",
 				"env": "DEV"

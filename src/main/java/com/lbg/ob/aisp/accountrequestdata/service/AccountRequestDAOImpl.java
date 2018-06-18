@@ -45,7 +45,7 @@ public class AccountRequestDAOImpl implements AccountRequestDAO {
         AccountRequestOutputResponse accountRequestOutputResponse = null;
         AccountRequest savedAccountRequestInfo = accountRequestInfoRepository.save(accountRequestInfo);
         saveAccountRequestStatusHistory(savedAccountRequestInfo, InternalUserRoleEnum.CUSTOMER);
-        accountRequestOutputResponse = new AccountRequestOutputResponse(savedAccountRequestInfo.getAccountRequestExternalIdentifier(), savedAccountRequestInfo.getAccountRequestStatus(), savedAccountRequestInfo.getEntitlementAccessCode(), savedAccountRequestInfo.getCreatedDateTime(), savedAccountRequestInfo.getAccountRequestJsonString());
+        accountRequestOutputResponse = new AccountRequestOutputResponse(savedAccountRequestInfo.getAccountRequestExternalIdentifier(), savedAccountRequestInfo.getAccountRequestStatus(), savedAccountRequestInfo.getEntitlementAccessCode(), savedAccountRequestInfo.getCreatedDateTime(), null, savedAccountRequestInfo.getAccountRequestJsonString());
         List<ProviderPermission> refPermissions = getRefPermissionsWithMetadata(accountRequestOutputResponse.getAccountRequestOutputData().getPermissions());
         accountRequestOutputResponse.getAccountRequestOutputData().setPermissions(refPermissions);
         return accountRequestOutputResponse;
@@ -57,10 +57,14 @@ public class AccountRequestDAOImpl implements AccountRequestDAO {
         if (savedAccountRequestInfo == null) {
             throw new RecordNotFoundException(ExceptionConstants.NOT_FOUND, ExceptionConstants.ARD_API_ERR_005);
         }
+        AccountRequestStatusHistory savedAccountRequestHistory= accountRequestInfoHistoryRepository.findFirstByAccountRequestInfoIdOrderByStatusUpdatedDateTimeDesc(savedAccountRequestInfo.getAccountRequestIdentifier());
+        
         AccountRequestOutputResponse accountRequestOutputResponse = new AccountRequestOutputResponse(savedAccountRequestInfo.getAccountRequestExternalIdentifier(), 
         		                                                    savedAccountRequestInfo.getAccountRequestStatus(),
         		                                                    savedAccountRequestInfo.getEntitlementAccessCode(),
-        		                                                    savedAccountRequestInfo.getCreatedDateTime(), savedAccountRequestInfo.getAccountRequestJsonString());
+        		                                                    savedAccountRequestInfo.getCreatedDateTime(), 
+        		                                                    savedAccountRequestHistory.getStatusUpdatedDateTime(),
+        		                                                    savedAccountRequestInfo.getAccountRequestJsonString());
         List<ProviderPermission> refPermissions = getRefPermissionsWithMetadata(accountRequestOutputResponse.getAccountRequestOutputData().getPermissions());
         accountRequestOutputResponse.getAccountRequestOutputData().setPermissions(refPermissions);
         return accountRequestOutputResponse;
@@ -69,7 +73,13 @@ public class AccountRequestDAOImpl implements AccountRequestDAO {
     @Override
     public AccountRequestOutputResponse findAccountRequest(String accountRequestId) throws IOException {
         AccountRequest savedAccountRequestInfo = getAccountRequest(accountRequestId);
-        AccountRequestOutputResponse accountRequestOutputResponse = new AccountRequestOutputResponse(savedAccountRequestInfo.getAccountRequestExternalIdentifier(), savedAccountRequestInfo.getAccountRequestStatus(), savedAccountRequestInfo.getEntitlementAccessCode(), savedAccountRequestInfo.getCreatedDateTime(), savedAccountRequestInfo.getAccountRequestJsonString());
+        AccountRequestStatusHistory savedAccountRequestHistory= accountRequestInfoHistoryRepository.findFirstByAccountRequestInfoIdOrderByStatusUpdatedDateTimeDesc(savedAccountRequestInfo.getAccountRequestIdentifier());
+        AccountRequestOutputResponse accountRequestOutputResponse = new AccountRequestOutputResponse(savedAccountRequestInfo.getAccountRequestExternalIdentifier(), 
+        															savedAccountRequestInfo.getAccountRequestStatus(), 
+        															savedAccountRequestInfo.getEntitlementAccessCode(), 
+        															savedAccountRequestInfo.getCreatedDateTime(),
+        															savedAccountRequestHistory.getStatusUpdatedDateTime(),
+        															savedAccountRequestInfo.getAccountRequestJsonString());
         List<ProviderPermission> refPermissions = getRefPermissionsWithMetadata(accountRequestOutputResponse.getAccountRequestOutputData().getPermissions());
         accountRequestOutputResponse.getAccountRequestOutputData().setPermissions(refPermissions);
         return accountRequestOutputResponse;

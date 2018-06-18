@@ -19,7 +19,7 @@ def integrationTests = ['pipelines/tests/bdd.groovy',
 						'pipelines/tests/reserved.groovy' ]
 
 String notify = 'LloydsOpenBankingConsentandFraud@sapient.com,lloydscjtdevops@sapient.com'
-Integer timeout = 30
+Integer timeout = 60
 def configuration = "pipelines/conf/job-configuration.json"
 BuildHandlers handlers = new ConfigurableBuildHandlers(	builder, 
 							deployer, 
