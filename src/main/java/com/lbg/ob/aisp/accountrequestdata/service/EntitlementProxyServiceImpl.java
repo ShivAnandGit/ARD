@@ -86,8 +86,6 @@ public class EntitlementProxyServiceImpl implements EntitlementProxyService {
         HttpHeaders requestHeaders = getHttpHeaders(internalUserId, internalUserRole, clientId, fovIndicator, headers);
         EntitlementStatusUpdateInputData entitlementStatusUpdateInputData = new EntitlementStatusUpdateInputData(entitlementId);
         HttpEntity<EntitlementStatusUpdateInputData> httpEntity = new HttpEntity<>(entitlementStatusUpdateInputData, requestHeaders);
-        System.out.println("Headers::"+headers);
-        System.out.println("requestHeaders::"+requestHeaders);
         ListenableFuture<ResponseEntity<EntitlementOutputData[]>> future = restTemplate.exchange(requestURL, HttpMethod.PUT, httpEntity, EntitlementOutputData[].class);
         //waits for the result
         ResponseEntity<EntitlementOutputData[]> entities = future.get();
