@@ -78,7 +78,7 @@ public class EntitlementServiceTest {
         
         entitlementService.setRequestURL("http://localhost:"+port()+"/entitlements/status/revoke");
         
-        entitlementService.revokeEntitlement(entitlementId, userId, internalUserRole, clientId, fovIndicator,headers);
+        entitlementService.revokeEntitlement(entitlementId, userId, internalUserRole, clientId, fovIndicator,headers.toSingleValueMap());
         assertTrue(true);
     }
 
@@ -102,7 +102,7 @@ public class EntitlementServiceTest {
                 .withHeader("Content-Type", "application/json;charset=UTF-8")
                 .withStatus(404);
         entitlementService.setRequestURL("http://localhost:"+port()+"/entitlements/status/revoke");
-        entitlementService.revokeEntitlement(entitlementId, userId, internalUserRole, clientId, fovIndicator,headers);
+        entitlementService.revokeEntitlement(entitlementId, userId, internalUserRole, clientId, fovIndicator,headers.toSingleValueMap());
     }
 
     @Test(expected = EntitlementUpdateFailedException.class)
@@ -125,7 +125,7 @@ public class EntitlementServiceTest {
                 .withHeader("Content-Type", "application/json;charset=UTF-8")
                 .withStatus(200);
         entitlementService.setRequestURL("http://localhost:"+port()+"/entitlements/status/revoke");
-        entitlementService.revokeEntitlement(entitlementId, userId, internalUserRole, clientId, fovIndicator,headers);
+        entitlementService.revokeEntitlement(entitlementId, userId, internalUserRole, clientId, fovIndicator,headers.toSingleValueMap());
     }
 
 
@@ -151,7 +151,7 @@ public class EntitlementServiceTest {
                 .withHeader("Content-Type", "application/json;charset=UTF-8")
                 .withStatus(404);
         entitlementService.setRequestURL("http://localhost:"+port()+"/entitlements/status/revoke");
-        entitlementService.revokeEntitlement(entitlementId, userId, internalUserRole, correlationId, fovIndicator,headers);
+        entitlementService.revokeEntitlement(entitlementId, userId, internalUserRole, correlationId, fovIndicator,headers.toSingleValueMap());
     }
 
     @Test(expected = ResourceAccessException.class)

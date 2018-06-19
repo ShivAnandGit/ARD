@@ -2,6 +2,7 @@ package com.lbg.ob.aisp.accountrequestdata.service;
 
 import java.io.IOException;
 import java.net.URISyntaxException;
+import java.util.Map;
 import java.util.concurrent.ExecutionException;
 
 import org.springframework.http.HttpHeaders;
@@ -64,7 +65,9 @@ public interface AccountRequestDataService<T> {
      * @return AccountRequestOutputData accountRequestOutputData
      * @throws IOException, URISyntaxException
      */
-    public void revokeAccountRequestData(String accountRequestId, String clientRole, String clientId, Boolean fovIndicator,HttpHeaders headers)
+    public void revokeAccountRequestData(String accountRequestId, String clientRole, String clientId, Boolean fovIndicator,Map<String, String> headers)
             throws IOException, URISyntaxException, ExecutionException, InterruptedException;
+
+
 
 }

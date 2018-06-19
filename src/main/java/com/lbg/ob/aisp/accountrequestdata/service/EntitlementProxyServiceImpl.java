@@ -54,7 +54,7 @@ public class EntitlementProxyServiceImpl implements EntitlementProxyService {
 
     @Override
     @HystrixCommand(commandKey = "entitlementService", ignoreExceptions = {EntitlementUpdateFailedException.class})
-    public void revokeEntitlement(Long entitlementId, String internalUserId, String internalUserRole, String clientId, Boolean fovIndicator, HttpHeaders headers)
+    public void revokeEntitlement(Long entitlementId, String internalUserId, String internalUserRole, String clientId, Boolean fovIndicator, Map<String,String> headers)
             throws ExecutionException, InterruptedException {
         logger.trace("ENTRY --> revokeEntitlement");
         AsyncRestTemplate restTemplate = new AsyncRestTemplate();
@@ -86,6 +86,8 @@ public class EntitlementProxyServiceImpl implements EntitlementProxyService {
         HttpHeaders requestHeaders = getHttpHeaders(internalUserId, internalUserRole, clientId, fovIndicator, headers);
         EntitlementStatusUpdateInputData entitlementStatusUpdateInputData = new EntitlementStatusUpdateInputData(entitlementId);
         HttpEntity<EntitlementStatusUpdateInputData> httpEntity = new HttpEntity<>(entitlementStatusUpdateInputData, requestHeaders);
+        System.out.println("Headers::"+headers);
+        System.out.println("requestHeaders::"+requestHeaders);
         ListenableFuture<ResponseEntity<EntitlementOutputData[]>> future = restTemplate.exchange(requestURL, HttpMethod.PUT, httpEntity, EntitlementOutputData[].class);
         //waits for the result
         ResponseEntity<EntitlementOutputData[]> entities = future.get();
@@ -98,16 +100,17 @@ public class EntitlementProxyServiceImpl implements EntitlementProxyService {
         logger.trace("revokeEntitlement <-- EXIT");
     }
 
-    private HttpHeaders getHttpHeaders(String internalUserId, String internalUserRole, String clientId, Boolean fovIndicator, HttpHeaders headers) {
+    private HttpHeaders getHttpHeaders(String internalUserId, String internalUserRole, String clientId, Boolean fovIndicator, Map<String,String> headers) {
         logger.debug("creating http headers");
-        HttpHeaders requestHeaders = headers;
+        HttpHeaders requestHeaders = new HttpHeaders();
+        requestHeaders.setAll(headers);
         requestHeaders.setContentType(MediaType.APPLICATION_JSON);
-        requestHeaders.add(X_LBG_INTERNAL_USER_ID, internalUserId);
-        requestHeaders.add(X_LBG_INTERNAL_USER_ROLE, internalUserRole);
-        requestHeaders.add(X_LBG_UPDATED_BY_USER_ID, clientId);
-        requestHeaders.add(X_LBG_TXN_CORRELATION_ID, "String");
+        requestHeaders.set(X_LBG_INTERNAL_USER_ID, internalUserId);
+        requestHeaders.set(X_LBG_INTERNAL_USER_ROLE, internalUserRole);
+        requestHeaders.set(X_LBG_UPDATED_BY_USER_ID, clientId);
+        requestHeaders.set(X_LBG_TXN_CORRELATION_ID, "String");
         String fov = (fovIndicator == null) ? null : fovIndicator.toString();
-        requestHeaders.add(X_LBG_FOV_INDICATOR, fov);
+        requestHeaders.set(X_LBG_FOV_INDICATOR, fov);
         return requestHeaders;
     }
 

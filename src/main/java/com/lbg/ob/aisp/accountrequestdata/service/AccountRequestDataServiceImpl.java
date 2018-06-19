@@ -29,6 +29,7 @@ import org.springframework.stereotype.Service;
 
 import java.io.IOException;
 import java.net.URISyntaxException;
+import java.util.Map;
 import java.util.concurrent.ExecutionException;
 
 import static com.lbg.ob.aisp.accountrequestdata.exception.ExceptionConstants.ARD_API_ERR_007;
@@ -158,7 +159,7 @@ public class AccountRequestDataServiceImpl<T> implements AccountRequestDataServi
 
     @HystrixCommand(commandKey = "database", fallbackMethod = "fallbackRevoke", ignoreExceptions = {RecordNotFoundException.class, EntitlementUpdateFailedException.class, InvalidRequestException.class})
     @Override
-    public void revokeAccountRequestData(String accountRequestId, String clientRole, String clientId, Boolean fovIndicator, HttpHeaders headers)
+    public void revokeAccountRequestData(String accountRequestId, String clientRole, String clientId, Boolean fovIndicator, Map<String,String> headers)
             throws IOException, URISyntaxException, ExecutionException, InterruptedException {
         logger.trace( "ENTRY --> revokeAccountRequestData");
         AccountRequest accountRequestInfo = accountRequestDAO.getAccountRequest(accountRequestId);
@@ -191,7 +192,7 @@ public class AccountRequestDataServiceImpl<T> implements AccountRequestDataServi
         throw new ResourceAccessException(errorData, ex); //NOSONAR
     }
 
-    private void fallbackRevoke(String accountRequestId, String clientRole, String clientId, Boolean fovIndicator, Throwable ex) { //NOSONAR
+    private void fallbackRevoke(String accountRequestId, String clientRole, String clientId, Boolean fovIndicator, Map<String,String> headerMap,Throwable ex) { //NOSONAR
         logger.error(ex); //NOSONAR
         ErrorData errorData = new ErrorData(Long.valueOf(HttpStatus.SERVICE_UNAVAILABLE.toString()), ARD_API_ERR_503, ex.getMessage()); //NOSONAR
         throw new ResourceAccessException(errorData, ex); //NOSONAR

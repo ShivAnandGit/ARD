@@ -304,9 +304,11 @@ public class AccountRequestDataServiceTest {
     public void shouldThrowResourceAccessExceptionForFallbackRevoke() throws Exception {
         String accountRequestId = "accountRequestId";
         String txnCorrelationId = "txnid";
+        HttpHeaders httpheaders = new HttpHeaders();
+        		
         Throwable ex = new HystrixTimeoutException();
 //        Mockito.doNothing().when(LOGGER).logException(anyString(), any(Throwable.class));
-        Whitebox.invokeMethod(accountRequestDataService,"fallbackRevoke", accountRequestId, "clientRole", clientId, false, ex);
+        Whitebox.invokeMethod(accountRequestDataService,"fallbackRevoke", accountRequestId, "clientRole", clientId, false, httpheaders.toSingleValueMap(),ex);
     }
 
     @Test(expected = ResourceAccessException.class)

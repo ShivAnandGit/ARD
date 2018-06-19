@@ -9,6 +9,8 @@ import static com.lbg.ob.aisp.accountrequestdata.util.AccountRequestDataConstant
 
 import java.io.IOException;
 import java.net.URISyntaxException;
+import java.util.Map;
+import java.util.TreeMap;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
 
@@ -147,7 +149,10 @@ public final class AccountRequestDataController {
             if (!StringUtils.isEmpty(interactionId)) {
                 response.setHeader(X_FAPI_INTERACTION_ID, interactionId);
             }
-            accountRequestDataService.revokeAccountRequestData(accountRequestId, internalUserRole, clientId, fovIndicator,headers);
+            Map<String, String> headersMap=headers.toSingleValueMap();
+            Map<String, String> headersTreeMap = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
+            headersTreeMap.putAll(headersMap);
+            accountRequestDataService.revokeAccountRequestData(accountRequestId, internalUserRole, clientId, fovIndicator,headersTreeMap);
             return null;
         };
     }
