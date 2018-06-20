@@ -3,17 +3,10 @@ spring:
     default: development
     active: development
   datasource:
-    #url: jdbc:oracle:thin:@10.112.159.86:40000/xe
-    #username: ACCOUNTREQUEST
-    #password: password
-    #driver-class-name: oracle.jdbc.OracleDriver
-    url: jdbc:h2:mem:testdb;DB_CLOSE_DELAY=-1
-    user: sa
-    password:
-  jpa:
-    database: H2
-    hibernate.ddl-auto: update
-  #h2.console.enabled: true
+    url: jdbc:oracle:thin:@10.112.159.93:40000/xe
+    username: ACCOUNTREQUEST
+    password: password
+    driver-class-name: oracle.jdbc.OracleDriver
     initialSize: 3 
     maxActive: 5
     maxIdle: 1
@@ -85,7 +78,7 @@ hystrix:
       execution:
         isolation:
           thread:
-            timeoutInMilliseconds: 800000
+            timeoutInMilliseconds: 8000
           strategy: THREAD
       fallback:
         enabled: true
@@ -98,7 +91,7 @@ hystrix:
       execution:
         isolation:
           thread:
-            timeoutInMilliseconds: 500000
+            timeoutInMilliseconds: 5000
             interruptOnTimeout: true
       fallback:
         enabled: true
