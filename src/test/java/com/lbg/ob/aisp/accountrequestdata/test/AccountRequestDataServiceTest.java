@@ -29,6 +29,7 @@ import org.mockito.MockitoAnnotations;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
 import org.powermock.reflect.Whitebox;
+import org.springframework.http.HttpHeaders;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
 
@@ -195,11 +196,12 @@ public class AccountRequestDataServiceTest {
         accountRequest.setEntitlementId(entitlementId);
         String testRequestId = "testRequestid";
         String testClientRole = "CUSTOMER";
+        HttpHeaders headers = new HttpHeaders();
         AccountRequestStatusHistory t = new AccountRequestStatusHistory();
         when(stateChangeMachine.getUpdatableStatus(AccountRequestDataConstant.AUTHORISED, AccountRequestStatusEnum.REVOKED)).thenReturn(AccountRequestStatusEnum.REVOKED);
         when(accountRequestDAO.getAccountRequest(testRequestId)).thenReturn(accountRequest);
         when(accountRequestDAO.updateAccountRequest(accountRequest, InternalUserRoleEnum.CUSTOMER)).thenReturn(t);
-        accountRequestDataService.revokeAccountRequestData(testRequestId, testClientRole, clientId, fovIndicator);
+        accountRequestDataService.revokeAccountRequestData(testRequestId, testClientRole, clientId, fovIndicator,headers);
         assertTrue(true);
     }
 
@@ -211,11 +213,12 @@ public class AccountRequestDataServiceTest {
         accountRequest.setAccountRequestStatus(AccountRequestStatusEnum.AWAITINGAUTHORISATION);
         String testRequestId = "testRequestid";
         String testClientRole = "CUSTOMER";
+        HttpHeaders headers = new HttpHeaders();
         AccountRequestStatusHistory t = new AccountRequestStatusHistory();
         when(stateChangeMachine.getUpdatableStatus(AccountRequestDataConstant.AWAITING_AUTHORISATION, AccountRequestStatusEnum.REVOKED)).thenReturn(AccountRequestStatusEnum.REVOKED);
         when(accountRequestDAO.getAccountRequest(testRequestId)).thenReturn(accountRequest);
         when(accountRequestDAO.updateAccountRequest(accountRequest, InternalUserRoleEnum.CUSTOMER)).thenReturn(t);
-        accountRequestDataService.revokeAccountRequestData(testRequestId, testClientRole, clientId, fovIndicator);
+        accountRequestDataService.revokeAccountRequestData(testRequestId, testClientRole, clientId, fovIndicator, headers);
         assertTrue(true);
     }
 
@@ -229,9 +232,10 @@ public class AccountRequestDataServiceTest {
         accountRequest.setEntitlementId(entitlementId);
         String testRequestId = "testRequestid";
         String testClientRole = "CUSTOMER";
+        HttpHeaders headers = new HttpHeaders();
         when(stateChangeMachine.getUpdatableStatus(AccountRequestDataConstant.REVOKED, AccountRequestStatusEnum.REVOKED)).thenThrow(new InvalidRequestException(BAD_REQUEST_INVALID_REQUEST, ARD_API_ERR_007));
         when(accountRequestDAO.getAccountRequest(testRequestId)).thenReturn(accountRequest);
-        accountRequestDataService.revokeAccountRequestData(testRequestId, testClientRole, clientId, fovIndicator);
+        accountRequestDataService.revokeAccountRequestData(testRequestId, testClientRole, clientId, fovIndicator, headers);
     }
 
     @Test(expected = RecordNotFoundException.class)
@@ -263,8 +267,9 @@ public class AccountRequestDataServiceTest {
         String testRequestId = "test";
         UpdateAccountRequestInputData accountInputData = new UpdateAccountRequestInputData();
         accountInputData.setStatus("Authorised");
+        HttpHeaders headers = new HttpHeaders();
         when(accountRequestDAO.getAccountRequest(testRequestId)).thenThrow(new RecordNotFoundException("not found"));
-        accountRequestDataService.revokeAccountRequestData(testRequestId, "some-role", clientId, fovIndicator);
+        accountRequestDataService.revokeAccountRequestData(testRequestId, "some-role", clientId, fovIndicator, headers);
     }
 
     @Test(expected = ResourceAccessException.class)
@@ -299,9 +304,11 @@ public class AccountRequestDataServiceTest {
     public void shouldThrowResourceAccessExceptionForFallbackRevoke() throws Exception {
         String accountRequestId = "accountRequestId";
         String txnCorrelationId = "txnid";
+        HttpHeaders httpheaders = new HttpHeaders();
+        		
         Throwable ex = new HystrixTimeoutException();
 //        Mockito.doNothing().when(LOGGER).logException(anyString(), any(Throwable.class));
-        Whitebox.invokeMethod(accountRequestDataService,"fallbackRevoke", accountRequestId, "clientRole", clientId, false, ex);
+        Whitebox.invokeMethod(accountRequestDataService,"fallbackRevoke", accountRequestId, "clientRole", clientId, false, httpheaders.toSingleValueMap(),ex);
     }
 
     @Test(expected = ResourceAccessException.class)

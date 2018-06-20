@@ -16,6 +16,7 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 import org.powermock.reflect.Whitebox;
+import org.springframework.http.HttpHeaders;
 import org.springframework.web.client.AsyncRestTemplate;
 
 import java.util.concurrent.ExecutionException;
@@ -60,6 +61,7 @@ public class EntitlementServiceTest {
     public void shouldReturnSuccessWhenEntitlementIsRevokedSuccessfully() throws Exception {
         String internalUserRole = "some-role";
         String userId = "SYSTEM";
+        HttpHeaders headers = new HttpHeaders();
         long entitlementId = 23L;
         onRequest()
                 .havingMethodEqualTo("PUT")
@@ -73,8 +75,10 @@ public class EntitlementServiceTest {
                 .withBody(successJson())
                 .withHeader("Content-Type", "application/json;charset=UTF-8")
                 .withStatus(200);
+        
         entitlementService.setRequestURL("http://localhost:"+port()+"/entitlements/status/revoke");
-        entitlementService.revokeEntitlement(entitlementId, userId, internalUserRole, clientId, fovIndicator);
+        
+        entitlementService.revokeEntitlement(entitlementId, userId, internalUserRole, clientId, fovIndicator,headers.toSingleValueMap());
         assertTrue(true);
     }
 
@@ -83,6 +87,7 @@ public class EntitlementServiceTest {
         String internalUserRole = "some-role";
         String userId = "SYSTEM";
         long entitlementId = 23L;
+        HttpHeaders headers = new HttpHeaders();
 
         onRequest()
                 .havingMethodEqualTo("PUT")
@@ -97,7 +102,7 @@ public class EntitlementServiceTest {
                 .withHeader("Content-Type", "application/json;charset=UTF-8")
                 .withStatus(404);
         entitlementService.setRequestURL("http://localhost:"+port()+"/entitlements/status/revoke");
-        entitlementService.revokeEntitlement(entitlementId, userId, internalUserRole, clientId, fovIndicator);
+        entitlementService.revokeEntitlement(entitlementId, userId, internalUserRole, clientId, fovIndicator,headers.toSingleValueMap());
     }
 
     @Test(expected = EntitlementUpdateFailedException.class)
@@ -105,6 +110,7 @@ public class EntitlementServiceTest {
         String correlationId = "corelation-id";
         String internalUserRole = "some-role";
         String userId = "SYSTEM";
+        HttpHeaders headers = new HttpHeaders();
         long entitlementId = 23L;
         onRequest()
                 .havingMethodEqualTo("PUT")
@@ -119,7 +125,7 @@ public class EntitlementServiceTest {
                 .withHeader("Content-Type", "application/json;charset=UTF-8")
                 .withStatus(200);
         entitlementService.setRequestURL("http://localhost:"+port()+"/entitlements/status/revoke");
-        entitlementService.revokeEntitlement(entitlementId, userId, internalUserRole, clientId, fovIndicator);
+        entitlementService.revokeEntitlement(entitlementId, userId, internalUserRole, clientId, fovIndicator,headers.toSingleValueMap());
     }
 
 
@@ -128,6 +134,7 @@ public class EntitlementServiceTest {
         String correlationId = "corelation-id";
         String internalUserRole = "some-role";
         String userId = "SYSTEM";
+        HttpHeaders headers = new HttpHeaders();
         long entitlementId = 23L;
 
         onRequest()
@@ -144,7 +151,7 @@ public class EntitlementServiceTest {
                 .withHeader("Content-Type", "application/json;charset=UTF-8")
                 .withStatus(404);
         entitlementService.setRequestURL("http://localhost:"+port()+"/entitlements/status/revoke");
-        entitlementService.revokeEntitlement(entitlementId, userId, internalUserRole, correlationId, fovIndicator);
+        entitlementService.revokeEntitlement(entitlementId, userId, internalUserRole, correlationId, fovIndicator,headers.toSingleValueMap());
     }
 
     @Test(expected = ResourceAccessException.class)

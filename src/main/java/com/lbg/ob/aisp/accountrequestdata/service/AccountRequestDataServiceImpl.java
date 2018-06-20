@@ -1,5 +1,21 @@
 package com.lbg.ob.aisp.accountrequestdata.service;
 
+import static com.lbg.ob.aisp.accountrequestdata.exception.ExceptionConstants.ARD_API_ERR_007;
+import static com.lbg.ob.aisp.accountrequestdata.exception.ExceptionConstants.ARD_API_ERR_503;
+import static com.lbg.ob.aisp.accountrequestdata.exception.ExceptionConstants.BAD_REQUEST_INVALID_REQUEST;
+
+import java.io.IOException;
+import java.net.URISyntaxException;
+import java.util.Map;
+import java.util.concurrent.ExecutionException;
+
+import org.apache.commons.lang3.StringUtils;
+import org.apache.log4j.LogManager;
+import org.apache.log4j.Logger;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.stereotype.Service;
+
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.lbg.ob.aisp.accountrequestdata.data.AccountRequest;
 import com.lbg.ob.aisp.accountrequestdata.data.AccountRequestOutputResponse;
@@ -18,21 +34,6 @@ import com.lbg.ob.aisp.accountrequestdata.util.AccountRequestDataConstant;
 import com.lbg.ob.aisp.accountrequestdata.util.StateChangeMachine;
 import com.lbg.ob.aisp.accountrequestdata.util.Util;
 import com.netflix.hystrix.contrib.javanica.annotation.HystrixCommand;
-
-import org.apache.commons.lang3.StringUtils;
-import org.apache.log4j.LogManager;
-import org.apache.log4j.Logger;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
-import org.springframework.stereotype.Service;
-
-import java.io.IOException;
-import java.net.URISyntaxException;
-import java.util.concurrent.ExecutionException;
-
-import static com.lbg.ob.aisp.accountrequestdata.exception.ExceptionConstants.ARD_API_ERR_007;
-import static com.lbg.ob.aisp.accountrequestdata.exception.ExceptionConstants.ARD_API_ERR_503;
-import static com.lbg.ob.aisp.accountrequestdata.exception.ExceptionConstants.BAD_REQUEST_INVALID_REQUEST;
 
 /**
  * Class AccountRequestDataServiceImpl.All Service Class will implement this interface.
@@ -157,7 +158,7 @@ public class AccountRequestDataServiceImpl<T> implements AccountRequestDataServi
 
     @HystrixCommand(commandKey = "database", fallbackMethod = "fallbackRevoke", ignoreExceptions = {RecordNotFoundException.class, EntitlementUpdateFailedException.class, InvalidRequestException.class})
     @Override
-    public void revokeAccountRequestData(String accountRequestId, String clientRole, String clientId, Boolean fovIndicator)
+    public void revokeAccountRequestData(String accountRequestId, String clientRole, String clientId, Boolean fovIndicator, Map<String,String> headers)
             throws IOException, URISyntaxException, ExecutionException, InterruptedException {
         logger.trace( "ENTRY --> revokeAccountRequestData");
         AccountRequest accountRequestInfo = accountRequestDAO.getAccountRequest(accountRequestId);
@@ -166,7 +167,7 @@ public class AccountRequestDataServiceImpl<T> implements AccountRequestDataServi
         //call the entitlement API to revoke the entitlement, if the status was authorised
         if (accountRequestStatus.equals(AccountRequestDataConstant.AUTHORISED)) {
             Long entitlementId = accountRequestInfo.getEntitlementId();
-            entitlementService.revokeEntitlement(entitlementId, InternalUserRoleEnum.SYSTEM.toString(), clientRole, clientId, fovIndicator);
+            entitlementService.revokeEntitlement(entitlementId, InternalUserRoleEnum.SYSTEM.toString(), clientRole, clientId, fovIndicator,headers);
         }
         accountRequestDAO.revokeAccountRequest(clientRole, accountRequestInfo, updateableStatus);
         logger.trace("revokeAccountRequestData <-- EXIT");
@@ -190,7 +191,7 @@ public class AccountRequestDataServiceImpl<T> implements AccountRequestDataServi
         throw new ResourceAccessException(errorData, ex); //NOSONAR
     }
 
-    private void fallbackRevoke(String accountRequestId, String clientRole, String clientId, Boolean fovIndicator, Throwable ex) { //NOSONAR
+    private void fallbackRevoke(String accountRequestId, String clientRole, String clientId, Boolean fovIndicator, Map<String,String> headerMap,Throwable ex) { //NOSONAR
         logger.error(ex); //NOSONAR
         ErrorData errorData = new ErrorData(Long.valueOf(HttpStatus.SERVICE_UNAVAILABLE.toString()), ARD_API_ERR_503, ex.getMessage()); //NOSONAR
         throw new ResourceAccessException(errorData, ex); //NOSONAR

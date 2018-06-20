@@ -3,12 +3,14 @@ package com.lbg.ob.aisp.accountrequestdata.controller;
 import static com.lbg.ob.aisp.accountrequestdata.util.AccountRequestDataConstant.X_FAPI_FINANCIAL_ID;
 import static com.lbg.ob.aisp.accountrequestdata.util.AccountRequestDataConstant.X_FAPI_INTERACTION_ID;
 import static com.lbg.ob.aisp.accountrequestdata.util.AccountRequestDataConstant.X_LBG_CLIENT_ID;
+import static com.lbg.ob.aisp.accountrequestdata.util.AccountRequestDataConstant.X_LBG_FOV_INDICATOR;
 import static com.lbg.ob.aisp.accountrequestdata.util.AccountRequestDataConstant.X_LBG_INTERNAL_USER_ROLE;
 import static com.lbg.ob.aisp.accountrequestdata.util.AccountRequestDataConstant.X_LBG_TXN_CORRELATION_ID;
-import static com.lbg.ob.aisp.accountrequestdata.util.AccountRequestDataConstant.X_LBG_FOV_INDICATOR;
 
 import java.io.IOException;
 import java.net.URISyntaxException;
+import java.util.Map;
+import java.util.TreeMap;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
 
@@ -16,11 +18,10 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
 
-import com.lbg.ob.aisp.accountrequestdata.service.AccountRequestDataService;
-
 import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.util.StringUtils;
@@ -38,6 +39,7 @@ import com.lbg.ob.aisp.accountrequestdata.data.AccountRequestOutputResponse;
 import com.lbg.ob.aisp.accountrequestdata.data.CreateAccountInputRequest;
 import com.lbg.ob.aisp.accountrequestdata.data.UpdateAccountRequestInputData;
 import com.lbg.ob.aisp.accountrequestdata.data.UpdateAccountRequestOutputData;
+import com.lbg.ob.aisp.accountrequestdata.service.AccountRequestDataService;
 
 @RestController
 public final class AccountRequestDataController {
@@ -139,6 +141,7 @@ public final class AccountRequestDataController {
             @RequestHeader(value = X_FAPI_FINANCIAL_ID) final String financialId,
             @RequestHeader(value = X_FAPI_INTERACTION_ID, required = false) final String interactionId,
             @RequestHeader(value = X_LBG_FOV_INDICATOR, required = false) final Boolean fovIndicator,
+            @RequestHeader HttpHeaders headers,
             final HttpServletRequest request, HttpServletResponse response,
             @PathVariable final String accountRequestId) throws IOException, URISyntaxException, ExecutionException, InterruptedException {
         return () -> {
@@ -146,7 +149,10 @@ public final class AccountRequestDataController {
             if (!StringUtils.isEmpty(interactionId)) {
                 response.setHeader(X_FAPI_INTERACTION_ID, interactionId);
             }
-            accountRequestDataService.revokeAccountRequestData(accountRequestId, internalUserRole, clientId, fovIndicator);
+            Map<String, String> headersMap=headers.toSingleValueMap();
+            Map<String, String> headersTreeMap = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
+            headersTreeMap.putAll(headersMap);
+            accountRequestDataService.revokeAccountRequestData(accountRequestId, internalUserRole, clientId, fovIndicator,headersTreeMap);
             return null;
         };
     }

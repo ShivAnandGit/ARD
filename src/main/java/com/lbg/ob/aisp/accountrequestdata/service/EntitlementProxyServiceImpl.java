@@ -1,15 +1,17 @@
 package com.lbg.ob.aisp.accountrequestdata.service;
 
-import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.lbg.ob.aisp.accountrequestdata.data.AccountRequestStatusEnum;
-import com.lbg.ob.aisp.accountrequestdata.data.EntitlementOutputData;
-import com.lbg.ob.aisp.accountrequestdata.data.EntitlementStatusUpdateInputData;
-import com.lbg.ob.aisp.accountrequestdata.exception.EntitlementUpdateFailedException;
-import com.lbg.ob.aisp.accountrequestdata.exception.ResourceAccessException;
-import com.lbg.ob.aisp.accountrequestdata.exception.handler.ErrorData;
-import com.netflix.hystrix.contrib.javanica.annotation.DefaultProperties;
-import com.netflix.hystrix.contrib.javanica.annotation.HystrixCommand;
+import static com.lbg.ob.aisp.accountrequestdata.exception.ExceptionConstants.ARD_API_ERR_503;
+import static com.lbg.ob.aisp.accountrequestdata.util.AccountRequestDataConstant.X_LBG_FOV_INDICATOR;
+import static com.lbg.ob.aisp.accountrequestdata.util.AccountRequestDataConstant.X_LBG_INTERNAL_USER_ID;
+import static com.lbg.ob.aisp.accountrequestdata.util.AccountRequestDataConstant.X_LBG_INTERNAL_USER_ROLE;
+
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.StringWriter;
+import java.nio.charset.StandardCharsets;
+import java.util.Map;
+import java.util.concurrent.ExecutionException;
+
 import org.apache.commons.io.IOUtils;
 import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
@@ -26,17 +28,16 @@ import org.springframework.util.concurrent.ListenableFuture;
 import org.springframework.web.client.AsyncRestTemplate;
 import org.springframework.web.client.ResponseErrorHandler;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.StringWriter;
-import java.nio.charset.StandardCharsets;
-import java.util.Map;
-import java.util.concurrent.ExecutionException;
-
-import static com.lbg.ob.aisp.accountrequestdata.exception.ExceptionConstants.ARD_API_ERR_503;
-import static com.lbg.ob.aisp.accountrequestdata.util.AccountRequestDataConstant.X_LBG_FOV_INDICATOR;
-import static com.lbg.ob.aisp.accountrequestdata.util.AccountRequestDataConstant.X_LBG_INTERNAL_USER_ID;
-import static com.lbg.ob.aisp.accountrequestdata.util.AccountRequestDataConstant.X_LBG_INTERNAL_USER_ROLE;
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.lbg.ob.aisp.accountrequestdata.data.AccountRequestStatusEnum;
+import com.lbg.ob.aisp.accountrequestdata.data.EntitlementOutputData;
+import com.lbg.ob.aisp.accountrequestdata.data.EntitlementStatusUpdateInputData;
+import com.lbg.ob.aisp.accountrequestdata.exception.EntitlementUpdateFailedException;
+import com.lbg.ob.aisp.accountrequestdata.exception.ResourceAccessException;
+import com.lbg.ob.aisp.accountrequestdata.exception.handler.ErrorData;
+import com.netflix.hystrix.contrib.javanica.annotation.DefaultProperties;
+import com.netflix.hystrix.contrib.javanica.annotation.HystrixCommand;
 
 @Service
 @DefaultProperties(defaultFallback = "fallback")
@@ -53,7 +54,7 @@ public class EntitlementProxyServiceImpl implements EntitlementProxyService {
 
     @Override
     @HystrixCommand(commandKey = "entitlementService", ignoreExceptions = {EntitlementUpdateFailedException.class})
-    public void revokeEntitlement(Long entitlementId, String internalUserId, String internalUserRole, String clientId, Boolean fovIndicator)
+    public void revokeEntitlement(Long entitlementId, String internalUserId, String internalUserRole, String clientId, Boolean fovIndicator, Map<String,String> headers)
             throws ExecutionException, InterruptedException {
         logger.trace("ENTRY --> revokeEntitlement");
         AsyncRestTemplate restTemplate = new AsyncRestTemplate();
@@ -82,7 +83,7 @@ public class EntitlementProxyServiceImpl implements EntitlementProxyService {
                 }
             }
         });
-        HttpHeaders requestHeaders = getHttpHeaders(internalUserId, internalUserRole, clientId, fovIndicator);
+        HttpHeaders requestHeaders = getHttpHeaders(internalUserId, internalUserRole, clientId, fovIndicator, headers);
         EntitlementStatusUpdateInputData entitlementStatusUpdateInputData = new EntitlementStatusUpdateInputData(entitlementId);
         HttpEntity<EntitlementStatusUpdateInputData> httpEntity = new HttpEntity<>(entitlementStatusUpdateInputData, requestHeaders);
         ListenableFuture<ResponseEntity<EntitlementOutputData[]>> future = restTemplate.exchange(requestURL, HttpMethod.PUT, httpEntity, EntitlementOutputData[].class);
@@ -97,16 +98,17 @@ public class EntitlementProxyServiceImpl implements EntitlementProxyService {
         logger.trace("revokeEntitlement <-- EXIT");
     }
 
-    private HttpHeaders getHttpHeaders(String internalUserId, String internalUserRole, String clientId, Boolean fovIndicator) {
+    private HttpHeaders getHttpHeaders(String internalUserId, String internalUserRole, String clientId, Boolean fovIndicator, Map<String,String> headers) {
         logger.debug("creating http headers");
         HttpHeaders requestHeaders = new HttpHeaders();
+        requestHeaders.setAll(headers);
         requestHeaders.setContentType(MediaType.APPLICATION_JSON);
-        requestHeaders.add(X_LBG_INTERNAL_USER_ID, internalUserId);
-        requestHeaders.add(X_LBG_INTERNAL_USER_ROLE, internalUserRole);
-        requestHeaders.add(X_LBG_UPDATED_BY_USER_ID, clientId);
-        requestHeaders.add(X_LBG_TXN_CORRELATION_ID, "String");
+        requestHeaders.set(X_LBG_INTERNAL_USER_ID, internalUserId);
+        requestHeaders.set(X_LBG_INTERNAL_USER_ROLE, internalUserRole);
+        requestHeaders.set(X_LBG_UPDATED_BY_USER_ID, clientId);
+        requestHeaders.set(X_LBG_TXN_CORRELATION_ID, "String");
         String fov = (fovIndicator == null) ? null : fovIndicator.toString();
-        requestHeaders.add(X_LBG_FOV_INDICATOR, fov);
+        requestHeaders.set(X_LBG_FOV_INDICATOR, fov);
         return requestHeaders;
     }
 
