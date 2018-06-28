@@ -5,6 +5,7 @@ import java.net.URISyntaxException;
 import java.util.Map;
 import java.util.concurrent.ExecutionException;
 
+import com.core.lbg.security.annotation.exception.ForbiddenException;
 import com.lbg.ob.aisp.accountrequestdata.data.AccountRequestOutputResponse;
 import com.lbg.ob.aisp.accountrequestdata.data.CreateAccountInputRequest;
 import com.lbg.ob.aisp.accountrequestdata.data.UpdateAccountRequestInputData;
@@ -62,9 +63,10 @@ public interface AccountRequestDataService<T> {
      * @param fovIndicator
      * @return AccountRequestOutputData accountRequestOutputData
      * @throws IOException, URISyntaxException
+     * @throws ForbiddenException 
      */
     public void revokeAccountRequestData(String accountRequestId, String clientRole, String clientId, Boolean fovIndicator,Map<String, String> headers)
-            throws IOException, URISyntaxException, ExecutionException, InterruptedException;
+            throws IOException, URISyntaxException, ExecutionException, InterruptedException, ForbiddenException;
 
 
 
