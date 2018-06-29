@@ -54,13 +54,12 @@ public final class AccountRequest {
     @Column(name = "ENTITLEMENT_ID")
 
     private Long entitlementId;
-    
+
     @Column(name = "ENT_ACCESS_CODE")
     private String entitlementAccessCode;
 
     @Transient
     private List<String> permissions;
-
 
     @Transient
     private String permissionsExpirationDateTime;
@@ -72,10 +71,11 @@ public final class AccountRequest {
     private String transactionToDateTime;
 
     public AccountRequest() {
-        //DEFAULT CONSTRUCTOR
+        // DEFAULT CONSTRUCTOR
     }
 
-    public AccountRequest(CreateAccountInputData createAccountInputData, String clientId, String fapiFinancialId, String json) throws UnsupportedEncodingException {
+    public AccountRequest(CreateAccountInputData createAccountInputData, String clientId, String fapiFinancialId,
+            String json) throws UnsupportedEncodingException {
         this.setAccountRequestExternalIdentifier(Util.createUniqueAccountRequestId());
         this.setDefaultAccountRequestStatus();
         this.setPermissions(createAccountInputData.getPermissions());
@@ -84,7 +84,6 @@ public final class AccountRequest {
         this.setAccountRequestJsonString(json);
         this.setFapiFinancialId(fapiFinancialId);
     }
-
 
     private void setDefaultAccountRequestStatus() {
         this.accountRequestStatus = AccountRequestStatusEnum.AWAITINGAUTHORISATION.getValue();
@@ -171,7 +170,6 @@ public final class AccountRequest {
         this.transactionToDateTime = transactionToDateTime;
     }
 
-
     @JsonIgnore
     public String getAccountRequestJsonString() {
         return accountRequestJsonString;
@@ -199,10 +197,10 @@ public final class AccountRequest {
 
     public String getEntitlementAccessCode() {
         return entitlementAccessCode;
-	}
+    }
 
-	public void setEntitlementAccessCode(String entitlementAccessCode) {
-		this.entitlementAccessCode = entitlementAccessCode;
-	}
+    public void setEntitlementAccessCode(String entitlementAccessCode) {
+        this.entitlementAccessCode = entitlementAccessCode;
+    }
 
 }

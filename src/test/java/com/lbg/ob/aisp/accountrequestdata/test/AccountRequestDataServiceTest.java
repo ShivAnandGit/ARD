@@ -1,5 +1,6 @@
 package com.lbg.ob.aisp.accountrequestdata.test;
 
+import com.core.lbg.security.annotation.exception.ForbiddenException;
 import com.lbg.ob.aisp.accountrequestdata.data.AccountRequest;
 import com.lbg.ob.aisp.accountrequestdata.data.AccountRequestStatusEnum;
 import com.lbg.ob.aisp.accountrequestdata.data.AccountRequestStatusHistory;
@@ -187,13 +188,14 @@ public class AccountRequestDataServiceTest {
 
 
     @Test
-    public void shouldUpdateAccountRequestAsRevokedForValidRequestAuthorised() throws IOException, URISyntaxException, ExecutionException, InterruptedException {
+    public void shouldUpdateAccountRequestAsRevokedForValidRequestAuthorised() throws IOException, URISyntaxException, ExecutionException, InterruptedException, ForbiddenException {
         AccountRequest accountRequest = new AccountRequest();
         long accountRequestIdentifier = 1234L;
         long entitlementId = 1122L;
         accountRequest.setAccountRequestIdentifier(accountRequestIdentifier);
         accountRequest.setAccountRequestStatus(AccountRequestStatusEnum.AUTHORISED);
         accountRequest.setEntitlementId(entitlementId);
+        accountRequest.setProviderClientId(clientId);
         String testRequestId = "testRequestid";
         String testClientRole = "CUSTOMER";
         HttpHeaders headers = new HttpHeaders();
@@ -206,11 +208,30 @@ public class AccountRequestDataServiceTest {
     }
 
     @Test
-    public void shouldUpdateAccountRequestAsRevokedForValidRequestAwaitingAuth() throws IOException, URISyntaxException, ExecutionException, InterruptedException {
+    public void shouldUpdateAccountRequestAsRevokedForValidRequestAwaitingAuth() throws IOException, URISyntaxException, ExecutionException, InterruptedException, ForbiddenException {
         AccountRequest accountRequest = new AccountRequest();
         long accountRequestIdentifier = 1234L;
         accountRequest.setAccountRequestIdentifier(accountRequestIdentifier);
         accountRequest.setAccountRequestStatus(AccountRequestStatusEnum.AWAITINGAUTHORISATION);
+        accountRequest.setProviderClientId(clientId);
+        String testRequestId = "testRequestid";
+        String testClientRole = "CUSTOMER";
+        HttpHeaders headers = new HttpHeaders();
+        AccountRequestStatusHistory t = new AccountRequestStatusHistory();
+        when(stateChangeMachine.getUpdatableStatus(AccountRequestDataConstant.AWAITING_AUTHORISATION, AccountRequestStatusEnum.REVOKED)).thenReturn(AccountRequestStatusEnum.REVOKED);
+        when(accountRequestDAO.getAccountRequest(testRequestId)).thenReturn(accountRequest);
+        when(accountRequestDAO.updateAccountRequest(accountRequest, InternalUserRoleEnum.CUSTOMER)).thenReturn(t);
+        accountRequestDataService.revokeAccountRequestData(testRequestId, testClientRole, clientId, fovIndicator, headers);
+        assertTrue(true);
+    }
+    
+    @Test(expected=ForbiddenException.class)
+    public void shouldThrowForbiddenExceptionWhenExistingAndIncomingClientIdNotSame() throws IOException, URISyntaxException, ExecutionException, InterruptedException, ForbiddenException {
+        AccountRequest accountRequest = new AccountRequest();
+        long accountRequestIdentifier = 1234L;
+        accountRequest.setAccountRequestIdentifier(accountRequestIdentifier);
+        accountRequest.setAccountRequestStatus(AccountRequestStatusEnum.AWAITINGAUTHORISATION);
+        accountRequest.setProviderClientId("xyz");
         String testRequestId = "testRequestid";
         String testClientRole = "CUSTOMER";
         HttpHeaders headers = new HttpHeaders();
@@ -223,13 +244,14 @@ public class AccountRequestDataServiceTest {
     }
 
     @Test(expected = InvalidRequestException.class)
-    public void shouldThrowExceptionWhenRevokeRequestForAlreadyRevokedARD() throws IOException, URISyntaxException, ExecutionException, InterruptedException {
+    public void shouldThrowExceptionWhenRevokeRequestForAlreadyRevokedARD() throws IOException, URISyntaxException, ExecutionException, InterruptedException, ForbiddenException {
         AccountRequest accountRequest = new AccountRequest();
         long accountRequestIdentifier = 1234L;
         long entitlementId = 1122L;
         accountRequest.setAccountRequestIdentifier(accountRequestIdentifier);
         accountRequest.setAccountRequestStatus(AccountRequestStatusEnum.REVOKED);
         accountRequest.setEntitlementId(entitlementId);
+        accountRequest.setProviderClientId(clientId);
         String testRequestId = "testRequestid";
         String testClientRole = "CUSTOMER";
         HttpHeaders headers = new HttpHeaders();
@@ -263,7 +285,7 @@ public class AccountRequestDataServiceTest {
     }
 
     @Test(expected = RecordNotFoundException.class)
-    public void shouldThrowRecordNotFoundExceptionIfNoRecordReturnedForDeleteRequest() throws IOException, URISyntaxException, ExecutionException, InterruptedException {
+    public void shouldThrowRecordNotFoundExceptionIfNoRecordReturnedForDeleteRequest() throws IOException, URISyntaxException, ExecutionException, InterruptedException, ForbiddenException {
         String testRequestId = "test";
         UpdateAccountRequestInputData accountInputData = new UpdateAccountRequestInputData();
         accountInputData.setStatus("Authorised");

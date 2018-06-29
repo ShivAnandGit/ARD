@@ -16,6 +16,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
+import com.core.lbg.security.annotation.exception.ForbiddenException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.lbg.ob.aisp.accountrequestdata.data.AccountRequest;
 import com.lbg.ob.aisp.accountrequestdata.data.AccountRequestOutputResponse;
@@ -159,9 +160,12 @@ public class AccountRequestDataServiceImpl<T> implements AccountRequestDataServi
     @HystrixCommand(commandKey = "database", fallbackMethod = "fallbackRevoke", ignoreExceptions = {RecordNotFoundException.class, EntitlementUpdateFailedException.class, InvalidRequestException.class})
     @Override
     public void revokeAccountRequestData(String accountRequestId, String clientRole, String clientId, Boolean fovIndicator, Map<String,String> headers)
-            throws IOException, URISyntaxException, ExecutionException, InterruptedException {
+            throws IOException, URISyntaxException, ExecutionException, InterruptedException, ForbiddenException {
         logger.trace( "ENTRY --> revokeAccountRequestData");
         AccountRequest accountRequestInfo = accountRequestDAO.getAccountRequest(accountRequestId);
+        if(!accountRequestInfo.getProviderClientId().equalsIgnoreCase(clientId)){
+				throw new ForbiddenException(Integer.valueOf(403), "COMMON_ERROR_FORBIDDEN_403", "Forbidden");
+        }
         String accountRequestStatus = accountRequestInfo.getAccountRequestStatus();
         AccountRequestStatusEnum updateableStatus = stateChangeMachine.getUpdatableStatus(accountRequestStatus, AccountRequestStatusEnum.REVOKED);
         //call the entitlement API to revoke the entitlement, if the status was authorised
