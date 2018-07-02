@@ -157,7 +157,7 @@ public class AccountRequestDataServiceImpl<T> implements AccountRequestDataServi
     }
 
 
-    @HystrixCommand(commandKey = "database", fallbackMethod = "fallbackRevoke", ignoreExceptions = {RecordNotFoundException.class, EntitlementUpdateFailedException.class, InvalidRequestException.class})
+    @HystrixCommand(commandKey = "database", fallbackMethod = "fallbackRevoke", ignoreExceptions = {RecordNotFoundException.class, EntitlementUpdateFailedException.class, InvalidRequestException.class, ForbiddenException.class})
     @Override
     public void revokeAccountRequestData(String accountRequestId, String clientRole, String clientId, Boolean fovIndicator, Map<String,String> headers)
             throws IOException, URISyntaxException, ExecutionException, InterruptedException, ForbiddenException {
