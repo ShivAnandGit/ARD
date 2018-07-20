@@ -1,0 +1,4 @@
+@Library('workflowlib-sandbox@v4.8')
+import com.lbg.workflow.sandbox.*
+
+veracodeUpload('ob-aisp-account-request-data-api', 'pipelines/conf/job-configuration.json', 'pipelines/build/package.groovy')

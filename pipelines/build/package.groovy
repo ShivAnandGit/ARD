@@ -1,8 +1,3 @@
-/*
- * Author: Abhay Chrungoo <abhay@ziraffe.io>
- * Contributing HOWTO: TODO
- */
-
 def pack(String targetBranch, String targetEnv, context) {
 	node() {
 		checkout scm
@@ -10,28 +5,36 @@ def pack(String targetBranch, String targetEnv, context) {
 	}
 }
 
-def packHandler(String targetBranch, String targetEnv, context) {
+// This is for veracode - function has to be called runTest in current implementation
+def runTest(String targetBranch, context) {
+  pack(targetBranch, 'veracode', context)
+}
 
+def packHandler(String targetBranch, String targetEnv, context) {
 	def mavenSettings  = context.config.maven.settings ?: 'pipelines/conf/settings.xml'
 	def mavenPom = context.config.maven.pom ?: 'pom.xml'
 	String application = context.application
 	def mavenGoals = context.config.mavengoals.package?: "-U clean package"
-        String targetCommit =  sh(returnStdout: true, script: 'git rev-parse --short HEAD').trim()
-        String prereleaseID = this.getReleaseIdentifier(targetBranch, targetEnv, targetCommit);
+    String targetCommit = sh(returnStdout: true, script: 'git rev-parse --short HEAD').trim()
+    String prereleaseID = this.getReleaseIdentifier(targetBranch, targetEnv, targetCommit);
 	String buildMetadata = ''
 
 	try {
-		dir('target'){deleteDir()}
-  	 	withEnv([
+        dir('target'){deleteDir()}
+        withEnv([
                                 "prereleaseID=${prereleaseID}",
                                 "application=${application}",
                                 "buildMetadata=${buildMetadata}",
-				"mavenGoals=${mavenGoals}"
+                                "mavenGoals=${mavenGoals}"
                         ]){ sh 'pipelines/scripts/maven_package.sh'}
 
 		dir('target'){
-			archiveArtifacts '*.zip'
-			stash name: "artifact-${context.application}-${targetBranch}", includes: '*.zip'
+			if (targetEnv == 'veracode'){
+				stash name: "artifacts", includes: "*.war"
+			} else {
+				archiveArtifacts '*.zip'
+				stash name: "artifact-${context.application}-${targetBranch}", includes: '*.zip'
+			}
 		}
 	} catch (error) {
 		echo "Caught: ${error}"
