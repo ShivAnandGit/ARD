@@ -23,8 +23,9 @@
 	},
 	"veracode": {
 		"credentials": "ob-veracode-api-user2",
-		"id": "317391"
-	  },
+		"id": "317391",
+		"notificationList": "LloydsOpenBankingConsentandFraud@sapient.com,lloydscjtdevops@sapient.com"
+	},
 	"bdd": {
 		"invocation": "sleep 120; ./node_modules/.bin/wdio tests/acceptance/wdio/conf/api.conf.js --env Test --ff ARD*",
 		"git_repo": "git@github.lbg.eu-gb.bluemix.net:ob-aisp/ob-aisp-ard-enterprise-bdd.git",
