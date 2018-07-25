@@ -90,7 +90,7 @@ public final class AccountRequestOutputData {
     @JsonInclude(JsonInclude.Include.NON_NULL)
     @JsonProperty("EntitlementAccessCode")
 	public String getEntitlementAccessCode() {
-		return entitlementAccessCode;
+    	return entitlementAccessCode;
 	}
 
     public void setEntitlementAccessCode(String entitlementAccessCode) {

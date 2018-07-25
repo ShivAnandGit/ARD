@@ -39,18 +39,19 @@ public final class Util {
         String formatDateTime = zonedDateTime.format(DateTimeFormatter.ISO_OFFSET_DATE_TIME);
         return formatDateTime;
     }
+
     public static String formatDate(LocalDateTime localDateTime, String exprationDateTime) {
         if (localDateTime == null) {
             throw new IllegalArgumentException();
         }
         String formatDateTime;
-        if(exprationDateTime != null) {
-        	formatDateTime = localDateTime.atZone(ZonedDateTime.parse(exprationDateTime).getZone()).toString();
+        if (exprationDateTime != null) {
+            formatDateTime = localDateTime.atZone(ZonedDateTime.parse(exprationDateTime).getZone()).toString();
         } else {
-        	ZonedDateTime zonedDateTime = localDateTime.atZone(ZoneId.of(TIMEZONE));
+            ZonedDateTime zonedDateTime = localDateTime.atZone(ZoneId.of(TIMEZONE));
             formatDateTime = zonedDateTime.format(DateTimeFormatter.ISO_OFFSET_DATE_TIME);
         }
-        
+
         return formatDateTime;
     }
 }
