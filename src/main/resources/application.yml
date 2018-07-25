@@ -5,7 +5,7 @@ spring:
   datasource:
     url: jdbc:oracle:thin:@10.112.159.93:40000/xe
     username: ACCOUNTREQUEST
-    password: password
+    password: ACCOUNT123
     driver-class-name: oracle.jdbc.OracleDriver
     initialSize: 3 
     maxActive: 5
@@ -30,7 +30,7 @@ spring:
 
 # context Path
 server:
-    port: 8080
+    port: 8081
 
 ---
 

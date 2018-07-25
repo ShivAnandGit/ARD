@@ -16,6 +16,7 @@ import javax.validation.ConstraintViolation;
 import javax.validation.ValidationException;
 import javax.validation.Validator;
 import java.time.LocalDateTime;
+import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Arrays;
 import java.util.List;
@@ -47,7 +48,7 @@ public class MetadataConstraintValidatorTest {
     public void shouldValidateValidDateFormats() {
         List<String> permissions = Arrays.asList(PermissionsConstraintValidator.READ_TRANSACTIONS_BASIC, PermissionsConstraintValidator.READ_TRANSACTIONS_DEBITS);
         data.setPermissions(permissions);
-        data.set("ExpirationDateTime", LocalDateTime.now().plusDays(1).format(DateTimeFormatter.ISO_DATE_TIME));
+        data.set("ExpirationDateTime", ZonedDateTime.now().plusDays(1).format(DateTimeFormatter.ISO_DATE_TIME));
         data.set("TransactionFromDateTime", "2017-06-01T09:24:30.975Z");
         data.set("TransactionToDateTime", "2017-06-01T09:24:30.975Z");
         Set<ConstraintViolation<CreateAccountInputRequest>> validate = validator.validate(createAccountInput);

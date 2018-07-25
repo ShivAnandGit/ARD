@@ -7,6 +7,8 @@ import com.lbg.ob.aisp.accountrequestdata.validation.MetadataConstraint;
 import javax.validation.ConstraintValidator;
 import javax.validation.ConstraintValidatorContext;
 import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
 import java.util.Map;
@@ -28,8 +30,8 @@ public class MetadataConstraintValidator implements ConstraintValidator<Metadata
     @Override
     public boolean isValid(Map<String, Object> metadataMap, ConstraintValidatorContext constraintValidatorContext) {
         if(metadataMap.containsKey(EXPIRATION_DATE_TIME)) {
-            LocalDateTime expirationDateTime = parseAndGetDate(EXPIRATION_DATE_TIME, metadataMap);
-            if(!expirationDateTime.isAfter(LocalDateTime.now())) {
+        	ZonedDateTime expirationDateTime = parseAndGetDateTimeAtZone(EXPIRATION_DATE_TIME, metadataMap);
+            if(!expirationDateTime.isAfter(getCurrentDateTimeAtZone(ZonedDateTime.now()))) {
                 throw new InvalidRequestException("ExpirationDateTime is a date in past", ExceptionConstants.ARD_API_ERR_010);
             }
         }
@@ -48,6 +50,24 @@ public class MetadataConstraintValidator implements ConstraintValidator<Metadata
             return localDateTime;
         } catch (DateTimeParseException e) {
             throw new InvalidRequestException(key + " isn't in a valid date format", ExceptionConstants.ARD_API_ERR_009 , e);
+        }
+    }
+    
+    private ZonedDateTime parseAndGetDateTimeAtZone(String key, Map<String, Object> metadataMap) {
+    	try {
+    		ZonedDateTime zonedDateTime = ZonedDateTime.parse((String)metadataMap.get(key), DateTimeFormatter.ISO_DATE_TIME).toInstant().atZone(ZoneId.systemDefault());
+    		return zonedDateTime;
+        } catch (DateTimeParseException e) {
+            throw new InvalidRequestException(key + " isn't in a valid date format", ExceptionConstants.ARD_API_ERR_009 , e);
+        }
+    }
+    
+    private ZonedDateTime getCurrentDateTimeAtZone(ZonedDateTime dateTime) {
+    	try {
+    		ZonedDateTime currentDateTime = ZonedDateTime.parse(dateTime.toString(), DateTimeFormatter.ISO_DATE_TIME);
+            return currentDateTime;
+        } catch (DateTimeParseException e) {
+            throw new InvalidRequestException("LocalDateTime isn't in a valid date format", ExceptionConstants.ARD_API_ERR_009 , e);
         }
     }
 }
