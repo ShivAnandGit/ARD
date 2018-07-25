@@ -59,7 +59,7 @@
 	</dataSource>
 
 	<library id="OracleLib">
-		<fileset dir="${server.config.dir}/lib" includes="ojdbc7-12.1.0.1.jar" />
+		<fileset dir="${server.config.dir}/lib" includes="ojdbc8-12.2.0.1.jar" />
 	</library>
 	<application name="${app-name}" context-root="${context-root}"
 		location="${app-location}" type="war" />
