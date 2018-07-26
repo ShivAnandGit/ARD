@@ -67,7 +67,7 @@ public class AccountRequestDataServiceImpl<T> implements AccountRequestDataServi
     @Override
     public AccountRequestOutputResponse createAccountRequestData(CreateAccountInputRequest createAccountInputRequest, String clientId, String fapiFinancialId)
             throws IOException, URISyntaxException, InterruptedException {
-        logger.trace( "ENTRY --> createAccountRequestData");
+        logger.trace("ENTRY --> createAccountRequestData");
         String json = getJsonRequest(createAccountInputRequest);
         AccountRequest accountRequestInfo = new AccountRequest(createAccountInputRequest.getCreateAccountInputData(), clientId, fapiFinancialId, json);
         AccountRequestOutputResponse accountRequestOutputResponse = accountRequestDAO.createAccountRequest(accountRequestInfo);
@@ -91,7 +91,7 @@ public class AccountRequestDataServiceImpl<T> implements AccountRequestDataServi
      */
     @HystrixCommand(commandKey = "database", fallbackMethod = "fallbackFindWithClientId", ignoreExceptions = {RecordNotFoundException.class})
     public AccountRequestOutputResponse findByAccountRequestExternalIdentifierAndProviderClientId(String accountRequestId, String clientId) throws IOException {
-        logger.trace( "ENTRY --> findByAccountRequestExternalIdentifierAndProviderClientId");
+        logger.trace("ENTRY --> findByAccountRequestExternalIdentifierAndProviderClientId");
         AccountRequestOutputResponse accountRequestOutputResponse = accountRequestDAO.findAccountRequest(accountRequestId, clientId);
         logger.trace("findByAccountRequestExternalIdentifierAndProviderClientId <-- EXIT");
         return accountRequestOutputResponse;
@@ -107,7 +107,7 @@ public class AccountRequestDataServiceImpl<T> implements AccountRequestDataServi
 
     @HystrixCommand(commandKey = "database", fallbackMethod = "fallbackFind", ignoreExceptions = {RecordNotFoundException.class})
     public AccountRequestOutputResponse findByAccountRequestExternalIdentifier(String accountRequestId) throws IOException {
-        logger.trace( "ENTRY --> findByAccountRequestExternalIdentifier");
+        logger.trace("ENTRY --> findByAccountRequestExternalIdentifier");
         AccountRequestOutputResponse accountRequestOutputResponse = accountRequestDAO.findAccountRequest(accountRequestId);
         logger.trace("findByAccountRequestExternalIdentifier <-- EXIT");
         return accountRequestOutputResponse;
@@ -126,11 +126,10 @@ public class AccountRequestDataServiceImpl<T> implements AccountRequestDataServi
     @Override
     public UpdateAccountRequestOutputData updateAccountRequestData(UpdateAccountRequestInputData accountInputData, String accountRequestId, String clientRole)
             throws IOException, URISyntaxException {
-        logger.trace( "ENTRY --> updateAccountRequestData");
+        logger.trace("ENTRY --> updateAccountRequestData");
         AccountRequest accountRequestInfo = accountRequestDAO.getAccountRequest(accountRequestId);
         String possibleStatus = accountInputData.getStatus();
-        if (!(AccountRequestDataConstant.AUTHORISED.equalsIgnoreCase(possibleStatus) || AccountRequestDataConstant.REJECTED.equalsIgnoreCase(possibleStatus)
-        		||AccountRequestDataConstant.REVOKED.equalsIgnoreCase(possibleStatus))) {
+        if (!(AccountRequestDataConstant.AUTHORISED.equalsIgnoreCase(possibleStatus) || AccountRequestDataConstant.REJECTED.equalsIgnoreCase(possibleStatus) || AccountRequestDataConstant.REVOKED.equalsIgnoreCase(possibleStatus))) {
             throw new InvalidRequestException(BAD_REQUEST_INVALID_REQUEST, ARD_API_ERR_007);
         }
         AccountRequestStatusEnum accountRequestStatusEnum = stateChangeMachine.getUpdatableStatus(accountRequestInfo.getAccountRequestStatus(), possibleStatus);
@@ -156,22 +155,21 @@ public class AccountRequestDataServiceImpl<T> implements AccountRequestDataServi
         return updateAccountRequestOutputData;
     }
 
-
     @HystrixCommand(commandKey = "database", fallbackMethod = "fallbackRevoke", ignoreExceptions = {RecordNotFoundException.class, EntitlementUpdateFailedException.class, InvalidRequestException.class, ForbiddenException.class})
     @Override
-    public void revokeAccountRequestData(String accountRequestId, String clientRole, String clientId, Boolean fovIndicator, Map<String,String> headers)
+    public void revokeAccountRequestData(String accountRequestId, String clientRole, String clientId, Boolean fovIndicator, Map<String, String> headers)
             throws IOException, URISyntaxException, ExecutionException, InterruptedException, ForbiddenException {
-        logger.trace( "ENTRY --> revokeAccountRequestData");
+        logger.trace("ENTRY --> revokeAccountRequestData");
         AccountRequest accountRequestInfo = accountRequestDAO.getAccountRequest(accountRequestId);
-        if(!accountRequestInfo.getProviderClientId().equalsIgnoreCase(clientId)){
-				throw new ForbiddenException(Integer.valueOf(403), "COMMON_ERROR_FORBIDDEN_403", "Forbidden");
+        if (!accountRequestInfo.getProviderClientId().equalsIgnoreCase(clientId)) {
+            throw new ForbiddenException(Integer.valueOf(403), "COMMON_ERROR_FORBIDDEN_403", "Forbidden");
         }
         String accountRequestStatus = accountRequestInfo.getAccountRequestStatus();
         AccountRequestStatusEnum updateableStatus = stateChangeMachine.getUpdatableStatus(accountRequestStatus, AccountRequestStatusEnum.REVOKED);
         //call the entitlement API to revoke the entitlement, if the status was authorised
         if (accountRequestStatus.equals(AccountRequestDataConstant.AUTHORISED)) {
             Long entitlementId = accountRequestInfo.getEntitlementId();
-            entitlementService.revokeEntitlement(entitlementId, InternalUserRoleEnum.SYSTEM.toString(), clientRole, clientId, fovIndicator,headers);
+            entitlementService.revokeEntitlement(entitlementId, InternalUserRoleEnum.SYSTEM.toString(), clientRole, clientId, fovIndicator, headers);
         }
         accountRequestDAO.revokeAccountRequest(clientRole, accountRequestInfo, updateableStatus);
         logger.trace("revokeAccountRequestData <-- EXIT");
@@ -195,7 +193,7 @@ public class AccountRequestDataServiceImpl<T> implements AccountRequestDataServi
         throw new ResourceAccessException(errorData, ex); //NOSONAR
     }
 
-    private void fallbackRevoke(String accountRequestId, String clientRole, String clientId, Boolean fovIndicator, Map<String,String> headerMap,Throwable ex) { //NOSONAR
+    private void fallbackRevoke(String accountRequestId, String clientRole, String clientId, Boolean fovIndicator, Map<String, String> headerMap, Throwable ex) { //NOSONAR
         logger.error(ex); //NOSONAR
         ErrorData errorData = new ErrorData(Long.valueOf(HttpStatus.SERVICE_UNAVAILABLE.toString()), ARD_API_ERR_503, ex.getMessage()); //NOSONAR
         throw new ResourceAccessException(errorData, ex); //NOSONAR
@@ -206,11 +204,11 @@ public class AccountRequestDataServiceImpl<T> implements AccountRequestDataServi
         ErrorData errorData = new ErrorData(Long.valueOf(HttpStatus.SERVICE_UNAVAILABLE.toString()), ARD_API_ERR_503, ex.getMessage()); //NOSONAR
         throw new ResourceAccessException(errorData, ex); //NOSONAR
     }
-    
-	private void checkMandatoryVariablesPresent(Long entitlementId, String entitlementAccessCode) {
-		if (entitlementId == null || entitlementId == 0 || StringUtils.isEmpty(entitlementAccessCode)) {
-		    throw new InvalidRequestException("Request can't be authorised without an Entitlement Id or EntitlementAccessCode", "ARD_API_ERR_999");
-		}
-	}
+
+    private void checkMandatoryVariablesPresent(Long entitlementId, String entitlementAccessCode) {
+        if (entitlementId == null || entitlementId == 0 || StringUtils.isEmpty(entitlementAccessCode)) {
+            throw new InvalidRequestException("Request can't be authorised without an Entitlement Id or EntitlementAccessCode", "ARD_API_ERR_999");
+        }
+    }
 
 }

@@ -19,6 +19,9 @@ public final class AccountRequestOutputResponse {
     private AccountRequestOutputData accountRequestOutputData;
 
     private Map<String, Object> metadata =  new HashMap<>();
+    
+    public static final String EXPIRATION_DATE_TIME = "ExpirationDateTime";
+
 
     public AccountRequestOutputResponse(){
         //DEFAULT CONSTRUCTOR NEEDED FOR JACKSON UNMARSHALLING
@@ -28,7 +31,7 @@ public final class AccountRequestOutputResponse {
     	ObjectMapper mapper = new ObjectMapper();
     	AccountRequestOutputResponse accountRequestOutputResponse = mapper.readValue(accountRequestJsonString, AccountRequestOutputResponse.class);
     	AccountRequestOutputData outputData = accountRequestOutputResponse.getAccountRequestOutputData();
-    	outputData.setCreationDateTime(Util.formatDateAsISO8601(createdDateTime.toLocalDateTime()));
+    	outputData.setCreationDateTime(Util.formatDate(createdDateTime.toLocalDateTime(), (String)outputData.any().get(EXPIRATION_DATE_TIME)));
     	if(statusUpdateDateTime!=null){
     		outputData.setStatusUpdateDateTime(Util.formatDateAsISO8601(statusUpdateDateTime.toLocalDateTime()));
     	}
