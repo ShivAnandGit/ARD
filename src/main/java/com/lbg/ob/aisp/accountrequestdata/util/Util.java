@@ -46,9 +46,9 @@ public final class Util {
         }
         String formatDateTime;
         if (exprationDateTime != null) {
-            formatDateTime = localDateTime.atZone(ZonedDateTime.parse(exprationDateTime).getZone()).toString();
+            formatDateTime = localDateTime.atZone(ZonedDateTime.parse(exprationDateTime).getZone()).withNano(0).toString();
         } else {
-            ZonedDateTime zonedDateTime = localDateTime.atZone(ZoneId.of(TIMEZONE));
+            ZonedDateTime zonedDateTime = localDateTime.atZone(ZoneId.systemDefault()).withNano(0);
             formatDateTime = zonedDateTime.format(DateTimeFormatter.ISO_OFFSET_DATE_TIME);
         }
 
