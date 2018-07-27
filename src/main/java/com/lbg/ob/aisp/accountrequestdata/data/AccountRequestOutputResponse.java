@@ -33,7 +33,7 @@ public final class AccountRequestOutputResponse {
     	AccountRequestOutputData outputData = accountRequestOutputResponse.getAccountRequestOutputData();
     	outputData.setCreationDateTime(Util.formatDate(createdDateTime.toLocalDateTime(), (String)outputData.any().get(EXPIRATION_DATE_TIME)));
     	if(statusUpdateDateTime!=null){
-    		outputData.setStatusUpdateDateTime(Util.formatDateAsISO8601(statusUpdateDateTime.toLocalDateTime()));
+    		outputData.setStatusUpdateDateTime(Util.formatDate(statusUpdateDateTime.toLocalDateTime(),(String)outputData.any().get(EXPIRATION_DATE_TIME)));
     	}
     	outputData.setAccountRequestExternalIdentifier(accountRequestExternalIdentifier);
     	outputData.setStatus(accountRequestStatus);

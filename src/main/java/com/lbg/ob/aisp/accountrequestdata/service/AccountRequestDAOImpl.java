@@ -45,7 +45,7 @@ public class AccountRequestDAOImpl implements AccountRequestDAO {
         AccountRequestOutputResponse accountRequestOutputResponse = null;
         AccountRequest savedAccountRequestInfo = accountRequestInfoRepository.save(accountRequestInfo);
         saveAccountRequestStatusHistory(savedAccountRequestInfo, InternalUserRoleEnum.CUSTOMER);
-        accountRequestOutputResponse = new AccountRequestOutputResponse(savedAccountRequestInfo.getAccountRequestExternalIdentifier(), savedAccountRequestInfo.getAccountRequestStatus(), savedAccountRequestInfo.getEntitlementAccessCode(), savedAccountRequestInfo.getCreatedDateTime(), null, savedAccountRequestInfo.getAccountRequestJsonString());
+        accountRequestOutputResponse = new AccountRequestOutputResponse(savedAccountRequestInfo.getAccountRequestExternalIdentifier(), savedAccountRequestInfo.getAccountRequestStatus(), savedAccountRequestInfo.getEntitlementAccessCode(), savedAccountRequestInfo.getCreatedDateTime(), savedAccountRequestInfo.getCreatedDateTime(), savedAccountRequestInfo.getAccountRequestJsonString());
         List<ProviderPermission> refPermissions = getRefPermissionsWithMetadata(accountRequestOutputResponse.getAccountRequestOutputData().getPermissions());
         accountRequestOutputResponse.getAccountRequestOutputData().setPermissions(refPermissions);
         return accountRequestOutputResponse;
