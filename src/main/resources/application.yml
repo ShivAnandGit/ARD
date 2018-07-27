@@ -3,7 +3,7 @@ spring:
     default: development
     active: development
   datasource:
-    url: jdbc:oracle:thin:@10.112.159.93:40000/xe
+    url: jdbc:oracle:thin:@10.112.159.89:40000/xe
     username: ACCOUNTREQUEST
     password: ACCOUNT123
     driver-class-name: oracle.jdbc.OracleDriver
