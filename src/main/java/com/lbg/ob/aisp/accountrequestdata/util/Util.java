@@ -47,7 +47,7 @@ public final class Util {
         }
         String formatDateTime;
         if (payloadDateTime != null && !payloadDateTime.isEmpty()) {
-            if(ZonedDateTime.parse(payloadDateTime).getOffset().equals(ZoneOffset.UTC) && ZonedDateTime.parse(payloadDateTime).getNano() >= 0) {
+            if(ZoneOffset.UTC.equals(ZonedDateTime.parse(payloadDateTime).getOffset()) && ZonedDateTime.parse(payloadDateTime).getNano() >= 0) {
                 formatDateTime = localDateTime.atZone(ZonedDateTime.parse(payloadDateTime).getZone()).toString();
 
             }else {
