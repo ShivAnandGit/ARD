@@ -21,6 +21,8 @@ public final class AccountRequestOutputResponse {
     private Map<String, Object> metadata =  new HashMap<>();
     
     public static final String EXPIRATION_DATE_TIME = "ExpirationDateTime";
+    public static final String TRANSACTION_FROM_DATE_TIME = "TransactionFromDateTime";
+    public static final String TRANSACTION_TO_DATE_TIME = "TransactionToDateTime";
 
 
     public AccountRequestOutputResponse(){
@@ -31,9 +33,11 @@ public final class AccountRequestOutputResponse {
     	ObjectMapper mapper = new ObjectMapper();
     	AccountRequestOutputResponse accountRequestOutputResponse = mapper.readValue(accountRequestJsonString, AccountRequestOutputResponse.class);
     	AccountRequestOutputData outputData = accountRequestOutputResponse.getAccountRequestOutputData();
-    	outputData.setCreationDateTime(Util.formatDate(createdDateTime.toLocalDateTime(), (String)outputData.any().get(EXPIRATION_DATE_TIME)));
+    	String payloadDateTime = outputData.any().get(EXPIRATION_DATE_TIME) != null ? (String)outputData.any().get(EXPIRATION_DATE_TIME) :
+    	    (outputData.any().get(TRANSACTION_FROM_DATE_TIME) != null ? (String)outputData.any().get(TRANSACTION_FROM_DATE_TIME) : (String)outputData.any().get(TRANSACTION_TO_DATE_TIME));
+    	outputData.setCreationDateTime(Util.formatDate(createdDateTime.toLocalDateTime(), payloadDateTime));
     	if(statusUpdateDateTime!=null){
-    		outputData.setStatusUpdateDateTime(Util.formatDate(statusUpdateDateTime.toLocalDateTime(),(String)outputData.any().get(EXPIRATION_DATE_TIME)));
+    		outputData.setStatusUpdateDateTime(Util.formatDate(statusUpdateDateTime.toLocalDateTime(), payloadDateTime));
     	}
     	outputData.setAccountRequestExternalIdentifier(accountRequestExternalIdentifier);
     	outputData.setStatus(accountRequestStatus);

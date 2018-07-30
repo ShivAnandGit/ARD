@@ -5,6 +5,7 @@ import java.net.URLEncoder;
 import java.sql.Timestamp;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
+import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Calendar;
@@ -40,13 +41,18 @@ public final class Util {
         return formatDateTime;
     }
 
-    public static String formatDate(LocalDateTime localDateTime, String exprationDateTime) {
+    public static String formatDate(LocalDateTime localDateTime, String payloadDateTime) {
         if (localDateTime == null) {
             throw new IllegalArgumentException();
         }
         String formatDateTime;
-        if (exprationDateTime != null) {
-            formatDateTime = localDateTime.atZone(ZonedDateTime.parse(exprationDateTime).getZone()).withNano(0).toString();
+        if (payloadDateTime != null && !payloadDateTime.isEmpty()) {
+            if(ZoneOffset.UTC.equals(ZonedDateTime.parse(payloadDateTime).getOffset()) && ZonedDateTime.parse(payloadDateTime).getNano() >= 0) {
+                formatDateTime = localDateTime.atZone(ZonedDateTime.parse(payloadDateTime).getZone()).toString();
+
+            }else {
+                formatDateTime = localDateTime.atZone(ZonedDateTime.parse(payloadDateTime).getZone()).withNano(0).toString();
+            }
         } else {
             ZonedDateTime zonedDateTime = localDateTime.atZone(ZoneId.systemDefault()).withNano(0);
             formatDateTime = zonedDateTime.format(DateTimeFormatter.ISO_OFFSET_DATE_TIME);
