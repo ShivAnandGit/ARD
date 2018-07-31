@@ -56,6 +56,7 @@ public final class Util {
         if (payloadDateTime != null && !payloadDateTime.isEmpty()) {
             if(ZoneOffset.UTC.equals(ZonedDateTime.parse(payloadDateTime).getOffset()) && ZonedDateTime.parse(payloadDateTime).getNano() >= 0) {
                 if(payloadDateTime.contains(UTC_FORMAT)) {
+                    //Convert the UTC time format to ISO time format
                     formatDateTime = localDateTime.atZone(ZonedDateTime.parse(payloadDateTime).getZone()).withNano(0).toString().replace(UTC_CONSTANT, "").trim().concat(UTC_FORMAT);
                 }else {
                     formatDateTime = localDateTime.atZone(ZonedDateTime.parse(payloadDateTime).getZone()).toString();
