@@ -3,17 +3,24 @@ package com.lbg.ob.aisp.accountrequestdata.util;
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.sql.Timestamp;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Calendar;
+import java.util.Date;
 import java.util.UUID;
 
 import static com.lbg.ob.aisp.accountrequestdata.util.AccountRequestDataConstant.TIMEZONE;
 
 public final class Util {
+    
+    public static final String UTC_FORMAT = "+00:00";
+    public static final String UTC_CONSTANT = "Z";
+
 
     private Util() {
         //Default private constructor
@@ -48,8 +55,11 @@ public final class Util {
         String formatDateTime;
         if (payloadDateTime != null && !payloadDateTime.isEmpty()) {
             if(ZoneOffset.UTC.equals(ZonedDateTime.parse(payloadDateTime).getOffset()) && ZonedDateTime.parse(payloadDateTime).getNano() >= 0) {
-                formatDateTime = localDateTime.atZone(ZonedDateTime.parse(payloadDateTime).getZone()).toString();
-
+                if(payloadDateTime.contains(UTC_FORMAT)) {
+                    formatDateTime = localDateTime.atZone(ZonedDateTime.parse(payloadDateTime).getZone()).withNano(0).toString().replace(UTC_CONSTANT, "").trim().concat(UTC_FORMAT);
+                }else {
+                    formatDateTime = localDateTime.atZone(ZonedDateTime.parse(payloadDateTime).getZone()).toString();
+                }
             }else {
                 formatDateTime = localDateTime.atZone(ZonedDateTime.parse(payloadDateTime).getZone()).withNano(0).toString();
             }
